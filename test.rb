@@ -4,6 +4,8 @@ require 'angelo'
 
 class Foo < Angelo::Base
 
+  TEST = {foo: "bar", baz: 123, bat: false}.to_json
+
   def pong; 'pong'; end
   def foo; params[:foo]; end
 
@@ -19,11 +21,15 @@ class Foo < Angelo::Base
     params.to_json
   end
 
+  post '/emit' do
+    websockets.each {|ws| ws.write TEST}
+    params.to_json
+  end
+
   socket '/ws' do |s|
+    websockets << s
     while msg = s.read
-      5.times {
-        s.write({foo: "bar", baz: 123, bat: false}.to_json)
-      }
+      5.times { s.write TEST }
       s.write foo.to_json
     end
   end

@@ -64,7 +64,16 @@ module Angelo
         routes[:socket][path] = WebsocketResponder.new &block
       end
 
+      def websockets
+        @websockets ||= []
+        @websockets.reject! &:closed?
+        @websockets
+      end
+
     end
+
+    def websockets; self.class.websockets; end
+    def each_websocket &block; self.class.each_websocket &block; end
 
   end
 

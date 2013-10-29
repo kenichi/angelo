@@ -2,21 +2,9 @@ require 'cgi'
 
 module Angelo
 
-  module QueryStringParser
-    def parse_query_string
-      (@request.query_string || '').split('&').reduce(Responder.symhash) do |p, kv|
-        key, value = kv.split('=').map {|s| CGI.escape s}
-        p[key] = value
-        p
-      end
-    end
-  end
-
   class Responder
     include Celluloid::Logger
-    include QueryStringParser
-
-    EMPTY_JSON = '{}'.freeze
+    include ParamsParser
 
     class << self
 
@@ -55,7 +43,7 @@ module Angelo
       begin
         if @response_handler
           @bound_response_handler ||= @response_handler.bind self
-          @body = @bound_response_handler.call
+          @body = @bound_response_handler.call || ''
         else
           raise NotImplementedError
         end
@@ -68,12 +56,8 @@ module Angelo
 
     def params
       @params ||= case @request.method
-                  when GET
-                    parse_query_string
-                  when POST
-                    body = @request.body.to_s
-                    body = EMPTY_JSON if body.empty?
-                    parse_query_string.merge! JSON.parse body
+                  when GET;  parse_query_string
+                  when POST; parse_post_body
                   end
       @params
     end
@@ -114,6 +98,7 @@ module Angelo
         if ioe.message == 'closed stream'
           debug "socket closed!"
           @websocket.close
+          @base.websockets.delete @websocket
         else
           raise ioe
         end
