@@ -1,3 +1,5 @@
+require 'cgi'
+
 module Angelo
 
   module ParamsParser
