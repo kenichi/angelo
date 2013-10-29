@@ -20,12 +20,12 @@ class Foo < Angelo::Base
   end
 
   socket '/ws' do |s|
-
-    5.times {
-      s.write({foo: "bar", baz: 123, bat: false}.to_json)
-      sleep 1
-    }
-
+    while msg = s.read
+      5.times {
+        s.write({foo: "bar", baz: 123, bat: false}.to_json)
+      }
+      s.write foo.to_json
+    end
   end
 
 end

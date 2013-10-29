@@ -15,7 +15,8 @@ module Angelo
     def on_connection connection
       connection.each_request do |request|
         if request.websocket?
-          route_websocket request
+          debug "got websocket request..."
+          route_websocket connection, request
         else
           route_request connection, request
         end
@@ -23,11 +24,17 @@ module Angelo
     end
 
     def route_request connection, request
-      method = request.method.downcase.to_sym
-      rs = self.class.routes
+      route! request.method.downcase.to_sym, connection, request
+    end
 
-      if rs[method][request.path]
-        responder = rs[method][request.path].dup
+    def route_websocket connection, request
+      route! :socket, connection, request
+    end
+
+    def route! meth, connection, request
+      rs = self.class.routes[meth][request.path]
+      if rs
+        responder = rs.dup
         responder.base = self
         responder.connection = connection
         responder.request = request
@@ -35,11 +42,7 @@ module Angelo
         connection.respond :not_found, DEFAULT_RESPONSE_HEADERS, NOT_FOUND
       end
     end
-
-    def route_websocket request
-      rs = self.class.routes[:socket][request.path]
-      rs[request.websocket] if rs
-    end
+    private :route!
 
     class << self
 
@@ -58,7 +61,7 @@ module Angelo
       end
 
       def socket path, &block
-        routes[:socket][path] = block
+        routes[:socket][path] = WebsocketResponder.new &block
       end
 
     end
