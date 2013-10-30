@@ -54,9 +54,17 @@ module Angelo
         @routes
       end
 
+      def before &block
+        @before = Responder.compile! :before, &block
+      end
+
+      def after &block
+        @after = Responder.compile! :after, &block
+      end
+
       [:get, :post, :put, :delete, :options].each do |m|
         define_method m do |path, &block|
-          routes[m][path] = Responder.new &block
+          routes[m][path] = Responder.new @before, @after, &block
         end
       end
 
@@ -73,7 +81,6 @@ module Angelo
     end
 
     def websockets; self.class.websockets; end
-    def each_websocket &block; self.class.each_websocket &block; end
 
   end
 

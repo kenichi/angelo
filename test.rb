@@ -8,6 +8,16 @@ class Foo < Angelo::Base
 
   def pong; 'pong'; end
   def foo; params[:foo]; end
+  def time_ms; Time.now.to_f * 1000.0; end
+
+  before do
+    info "request: #{@request.method} #{@request.path}"
+    @timing = time_ms
+  end
+
+  after do
+    info "timing: #{time_ms - @timing}ms"
+  end
 
   get '/ping' do
     pong
@@ -18,7 +28,8 @@ class Foo < Angelo::Base
   end
 
   post '/bar' do
-    params.to_json
+    content_type = :json
+    params
   end
 
   post '/emit' do

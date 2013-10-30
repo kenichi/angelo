@@ -21,7 +21,8 @@ module Angelo
 
     attr_writer :connection
 
-    def initialize &block
+    def initialize before = nil, after = nil, &block
+      @before, @after = before, after
       @response_handler = Responder.compile! :request_handler, &block
     end
 
@@ -40,15 +41,23 @@ module Angelo
     def handle_request
       begin
         if @response_handler
-          @bound_response_handler ||= @response_handler.bind self
-          @body = @bound_response_handler.call || ''
+          @before.bind(self).call if @before
+          @body = @response_handler.bind(self).call || ''
+          @after.bind(self).call if @after
         else
           raise NotImplementedError
         end
       rescue => e
+        error_message = case
+                        when respond_with?(:json)
+                          { error: e.message }.to_json
+                        else
+                          e.message
+                        end
+        @connection.respond :internal_server_error, headers, error_message
+        @connection.close
         error e.message
         ::STDERR.puts e.backtrace
-        @connection.respond :internal_server_error
       end
     end
 
@@ -60,8 +69,34 @@ module Angelo
       @params
     end
 
-    def respond headers = {}
-      @connection.respond :ok, headers.merge(DEFAULT_RESPONSE_HEADERS), @body
+    def headers hs = nil
+      @headers ||= {}
+      @headers.merge! hs if hs
+      @headers
+    end
+
+    def content_type= type
+      case type
+      when :json
+        headers CONTENT_TYPE_HEADER_KEY => JSON_TYPE
+      else
+        raise ArgumentError.new "invalid content_type: #{type}"
+      end
+    end
+
+    def respond_with? type = nil
+      eo = ->(t){ type && type == t or t}
+      case headers[CONTENT_TYPE_HEADER_KEY]
+      when JSON_TYPE
+        eo[:json]
+      else
+        eo[:html]
+      end
+    end
+
+    def respond
+      @body = @body.to_json if respond_with? :json
+      @connection.respond :ok, DEFAULT_RESPONSE_HEADERS.merge(headers), @body
     end
 
     def method_missing meth, *args
