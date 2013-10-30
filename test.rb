@@ -11,7 +11,8 @@ class Foo < Angelo::Base
   def time_ms; Time.now.to_f * 1000.0; end
 
   before do
-    info "request: #{@request.method} #{@request.path}"
+    info "request: #{request.method} #{request.path}"
+    @foo = request.path
     @timing = time_ms
   end
 
@@ -20,6 +21,7 @@ class Foo < Angelo::Base
   end
 
   get '/ping' do
+    debug "@foo: #{@foo}"
     pong
   end
 

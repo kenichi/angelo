@@ -15,11 +15,11 @@ module Angelo
     end
 
     def parse_query_string
-      parse_formencoded(@request.query_string || '')
+      parse_formencoded(request.query_string || '')
     end
 
     def parse_post_body
-      body = @request.body.to_s
+      body = request.body.to_s
       case
       when form_encoded?
         body = parse_formencoded body
@@ -39,7 +39,7 @@ module Angelo
     end
 
     def content_type
-      @request.headers[CONTENT_TYPE_HEADER_KEY]
+      request.headers[CONTENT_TYPE_HEADER_KEY]
     end
 
   end

@@ -1,50 +1,22 @@
 module Angelo
 
-  class Base < Reel::Server
+  class Base
+    include ParamsParser
     include Celluloid::Logger
 
     extend Forwardable
-    attr_writer :responder
-    def_delegators :@responder, :params
+    def_delegator :@responder, :request
 
-    def initialize host = '127.0.0.1', port = 4567
-      info "Angelo listening on #{host}:#{port}"
-      super host, port, &method(:on_connection)
-    end
-
-    def on_connection connection
-      connection.each_request do |request|
-        if request.websocket?
-          debug "got websocket request..."
-          route_websocket connection, request
-        else
-          route_request connection, request
-        end
-      end
-    end
-
-    def route_request connection, request
-      route! request.method.downcase.to_sym, connection, request
-    end
-
-    def route_websocket connection, request
-      route! :socket, connection, request
-    end
-
-    def route! meth, connection, request
-      rs = self.class.routes[meth][request.path]
-      if rs
-        responder = rs.dup
-        responder.base = self
-        responder.connection = connection
-        responder.request = request
-      else
-        connection.respond :not_found, DEFAULT_RESPONSE_HEADERS, NOT_FOUND
-      end
-    end
-    private :route!
+    attr_accessor :responder
 
     class << self
+
+      def compile! name, &block
+        define_method name, &block
+        method = instance_method name
+        remove_method name
+        method
+      end
 
       def routes
         @routes ||= {}
@@ -55,16 +27,18 @@ module Angelo
       end
 
       def before &block
-        @before = Responder.compile! :before, &block
+        # @before = compile! :before, &block
+        define_method :before, &block
       end
 
       def after &block
-        @after = Responder.compile! :after, &block
+        # @after = compile! :after, &block
+        define_method :after, &block
       end
 
       [:get, :post, :put, :delete, :options].each do |m|
         define_method m do |path, &block|
-          routes[m][path] = Responder.new @before, @after, &block
+          routes[m][path] = Responder.new &block
         end
       end
 
@@ -73,11 +47,39 @@ module Angelo
       end
 
       def websockets
-        @websockets ||= []
+        if @websockets.nil?
+          @websockets = []
+          def @websockets.each &block
+            super do |ws|
+              begin
+                yield ws
+              rescue Reel::SocketError => rse
+                warn "#{rse.class} - #{rse.message}"
+                delete ws
+              end
+            end
+          end
+        end
         @websockets.reject! &:closed?
         @websockets
       end
 
+      def run host = '127.0.0.1', port = 4567
+        @server = Angelo::Server.new self, host, port
+        sleep
+      end
+
+    end
+
+    def before; end;
+    def after; end;
+
+    def params
+      @params ||= case request.method
+                  when GET;  parse_query_string
+                  when POST; parse_post_body
+                  end
+      @params
     end
 
     def websockets; self.class.websockets; end

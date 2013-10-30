@@ -21,13 +21,13 @@ module Angelo
     CONTENT_TYPE_HEADER_KEY => HTML_TYPE
   }
 
-
   NOT_FOUND = 'Not Found'.freeze
 
 end
 
 require 'angelo/version'
-require 'angelo/base'
 require 'angelo/params_parser'
+require 'angelo/server'
+require 'angelo/base'
 require 'angelo/responder'
 require 'angelo/responder/websocket'

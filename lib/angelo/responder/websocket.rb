@@ -17,19 +17,15 @@ module Angelo
     def handle_request
       begin
         if @response_handler
-          @bound_response_handler ||= @response_handler.bind self
+          @bound_response_handler ||= @response_handler.bind @base
           @bound_response_handler[@websocket]
         else
           raise NotImplementedError
         end
       rescue IOError => ioe
-        if ioe.message == 'closed stream'
-          debug "socket closed!"
-          @websocket.close
-          @base.websockets.delete @websocket
-        else
-          raise ioe
-        end
+        error "#{ioe.class} - #{ioe.message}"
+        @websocket.close
+        @base.websockets.delete @websocket
       rescue => e
         error e.message
         ::STDERR.puts e.backtrace
