@@ -5,6 +5,25 @@ module Angelo
 
     class << self
 
+      attr_writer :default_headers
+
+      def content_type type
+        dhs = self.default_headers
+        case type
+        when :json
+          self.default_headers = dhs.merge CONTENT_TYPE_HEADER_KEY => JSON_TYPE
+        when :html
+          self.default_headers = dhs.merge CONTENT_TYPE_HEADER_KEY => HTML_TYPE
+        else
+          raise ArgumentError.new "invalid content_type: #{type}"
+        end
+      end
+
+      def default_headers
+        @default_headers ||= DEFAULT_RESPONSE_HEADERS
+        @default_headers
+      end
+
       def symhash
         Hash.new {|hash,key| hash[key.to_s] if Symbol === key }
       end
@@ -54,15 +73,17 @@ module Angelo
     end
 
     def headers hs = nil
-      @headers ||= {}
+      @headers ||= self.class.default_headers.dup
       @headers.merge! hs if hs
       @headers
     end
 
-    def content_type= type
+    def content_type type
       case type
       when :json
         headers CONTENT_TYPE_HEADER_KEY => JSON_TYPE
+      when :html
+        headers CONTENT_TYPE_HEADER_KEY => HTML_TYPE
       else
         raise ArgumentError.new "invalid content_type: #{type}"
       end
@@ -79,7 +100,7 @@ module Angelo
 
     def respond
       @body = @body.to_json if respond_with? :json
-      @connection.respond :ok, DEFAULT_RESPONSE_HEADERS.merge(headers), @body
+      @connection.respond :ok, headers, @body
     end
 
   end

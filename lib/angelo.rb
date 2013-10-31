@@ -1,7 +1,5 @@
 require 'reel'
 require 'json'
-require 'pry'
-require 'pry-nav'
 
 module Angelo
 

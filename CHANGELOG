@@ -1,6 +1,16 @@
 changelog
 =========
 
+### 0.0.5 31 oct 2013 SPOOOOKEEEE
+
+* add Base.content_type
+* Responder#content_type= -> Responder#content_type
+* properly delegated to Responder
+
+### 0.0.4 30 oct 2013
+
+* inadvertent yank of 0.0.3
+
 ### 0.0.3 30 oct 2013
 
 

@@ -5,7 +5,7 @@ module Angelo
     include Celluloid::Logger
 
     extend Forwardable
-    def_delegator :@responder, :request
+    def_delegators :@responder, :content_type, :headers, :request
 
     attr_accessor :responder
 
@@ -79,6 +79,10 @@ module Angelo
         end
         @websockets.reject! &:closed?
         @websockets
+      end
+
+      def content_type type
+        Responder.content_type type
       end
 
       def run host = '127.0.0.1', port = 4567

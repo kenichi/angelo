@@ -38,7 +38,7 @@ class Foo < Angelo::Base
   end
 
   post '/bar' do
-    content_type = :json
+    content_type :json
     params
   end
 
