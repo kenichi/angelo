@@ -5,6 +5,7 @@ module Angelo
   module ParamsParser
 
     EMPTY_JSON = '{}'.freeze
+    SEMICOLON = ';'.freeze
 
     def parse_formencoded str
       str.split('&').reduce(Responder.symhash) do |p, kv|
@@ -31,15 +32,15 @@ module Angelo
     end
 
     def form_encoded?
-      content_type == FORM_TYPE
+      content_type? FORM_TYPE
     end
 
     def json?
-      content_type == JSON_TYPE
+      content_type? JSON_TYPE
     end
 
-    def content_type
-      request.headers[CONTENT_TYPE_HEADER_KEY]
+    def content_type? type
+      request.headers[CONTENT_TYPE_HEADER_KEY].split(SEMICOLON).include? type
     end
 
   end

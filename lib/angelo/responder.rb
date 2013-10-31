@@ -68,13 +68,12 @@ module Angelo
       end
     end
 
-    def respond_with? type = nil
-      eo = ->(t){ type && type == t or t}
+    def respond_with? type
       case headers[CONTENT_TYPE_HEADER_KEY]
       when JSON_TYPE
-        eo[:json]
+        type == :json
       else
-        eo[:html]
+        type == :html
       end
     end
 

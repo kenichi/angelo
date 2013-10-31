@@ -1,8 +1,10 @@
-$:.push File.expand_path '../lib', __FILE__
+$:.unshift File.expand_path '../../../lib', __FILE__
 
 require 'angelo'
+require 'angelo/tilt/erb'
 
 class Foo < Angelo::Base
+  include Angelo::Tilt::ERB
 
   TEST = {foo: "bar", baz: 123, bat: false}.to_json
 
@@ -18,6 +20,12 @@ class Foo < Angelo::Base
 
   after do
     info "timing: #{time_ms - @timing}ms"
+  end
+
+  get '/' do
+    @name = params[:name]
+    @host = request.headers['Host']
+    erb :index, locals: {zzz: 'word'}
   end
 
   get '/ping' do
@@ -49,4 +57,4 @@ class Foo < Angelo::Base
 
 end
 
-Foo.run
+Foo.run unless $0 == 'irb'

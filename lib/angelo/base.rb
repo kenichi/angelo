@@ -11,6 +11,23 @@ module Angelo
 
     class << self
 
+      attr_accessor :app_file
+
+      def inherited subclass
+        subclass.app_file = caller(1).map {|l| l.split(/:(?=|in )/, 3)[0,1]}.flatten[0]
+
+        def subclass.root
+          @root ||= File.expand_path '..', app_file
+          @root
+        end
+
+        def subclass.view_dir
+          v = self.class_variable_get(:@@views) rescue 'views'
+          File.join root, v
+        end
+
+      end
+
       def compile! name, &block
         define_method name, &block
         method = instance_method name
