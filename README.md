@@ -47,6 +47,32 @@ end
 Foo.run
 ```
 
+### Tilt / ERB
+
+To make `erb` available in route blocks
+
+1. add `tilt` to your `Gemfile`:
+
+```ruby
+gem 'tilt'
+```
+
+2. require `angelo/tilt/erb`
+3. include `Angelo::Tilt::ERB` in your app
+
+```ruby
+class Foo < Angelo::Base
+  include Angelo::Tilt::ERB
+
+  @@views = 'some/other/path' # defaults to './views'
+
+  get '/' do
+    erb :index
+  end
+
+end
+```
+
 ### License
 
 see LICENSE
