@@ -5,7 +5,8 @@ module Angelo
 
     def initialize base, host = '127.0.0.1', port = 4567
       @base = base
-      info "Angelo listening on #{host}:#{port}"
+      info "Angelo #{VERSION} \"#{CODENAME}\""
+      info "listening on #{host}:#{port}"
       super host, port, &method(:on_connection)
     end
 

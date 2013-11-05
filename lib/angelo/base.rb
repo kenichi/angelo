@@ -73,6 +73,10 @@ module Angelo
 
       def run host = DEFAULT_ADDR, port = DEFAULT_PORT
         @server = Angelo::Server.new self, host, port
+        trap "INT" do
+          @server.terminate if @server and @server.alive?
+          exit
+        end
         sleep
       end
 

@@ -1,3 +1,4 @@
 module Angelo
-  VERSION = '0.0.6'
+  CODENAME = 'Gunpowder Treason'
+  VERSION = '0.0.7'
 end

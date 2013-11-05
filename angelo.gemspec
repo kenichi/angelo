@@ -6,8 +6,8 @@ Gem::Specification.new do |gem|
   gem.email         = ["kenichi.nakamura@gmail.com"]
   gem.description   = gem.summary = "A Sinatra-esque DSL for Reel"
   gem.homepage      = "https://github.com/kenichi/angelo"
-  gem.files         = `git ls-files | grep -Ev '^(myapp|examples)'`.split("\n")
-  gem.test_files    = `git ls-files -- test/*`.split("\n")
+  gem.files         = `git ls-files | grep -Ev '^example'`.split("\n")
+  gem.test_files    = `git ls-files -- spec/*`.split("\n")
   gem.name          = "angelo"
   gem.require_paths = ["lib"]
   gem.version       = Angelo::VERSION

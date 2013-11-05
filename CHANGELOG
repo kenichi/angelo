@@ -1,7 +1,13 @@
 changelog
 =========
 
-### 0.0.6 5 nov 2013 gunpowder treason
+### 0.0.7 5 nov 2013 gunpowder treason
+
+* fix gemspec
+* add codename
+* travis
+
+### 0.0.6 5 nov 2013
 
 * rspec and tests!
 * lots of fixing broken that testing found
