@@ -52,9 +52,9 @@ module Angelo
     def handle_request
       begin
         if @response_handler
-          @base.before
+          @base.before if @base.respond_to? :before
           @body = @response_handler.bind(@base).call || ''
-          @base.after
+          @base.after if @base.respond_to? :after
         else
           raise NotImplementedError
         end

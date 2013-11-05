@@ -3,11 +3,13 @@ require_relative '../spec_helper'
 CK = 'ANGELO_CONCURRENCY' # concurrency key
 DC = 5                    # default concurrency
 
-include Celluloid::Logger
-
 describe Angelo::WebsocketResponder do
 
   let(:concurrency){ ENV.key?(CK) ? ENV[CK].to_i : DC }
+
+  def socket_wait_for path, &block
+    Array.new(concurrency).map {|n| Thread.new {socket path, &block}}
+  end
 
   describe 'basics' do
 
@@ -65,21 +67,15 @@ describe Angelo::WebsocketResponder do
 
     it 'works with http requests' do
 
-      ts = []
-      concurrency.times {|n|
-        ts << Thread.new {
-          socket '/concur' do |client|
-            Angelo::HTTPABLE.each do |m|
-              client.recv.should eq "from http #{m}"
-            end
-          end
-        }
-      }
+      ts = socket_wait_for '/concur' do |client|
+        Angelo::HTTPABLE.each do |m|
+          client.recv.should eq "from http #{m}"
+        end
+      end
 
-      info 'hi'
       sleep 0.1
       Angelo::HTTPABLE.each {|m| __send__ m, '/concur', foo: 'http'}
-      ts.map &:join
+      ts.each &:join
 
     end
 
@@ -87,6 +83,7 @@ describe Angelo::WebsocketResponder do
 
   describe 'helper contexts' do
     let(:obj){ {'foo' => 'bar'} }
+    let(:wait_for_block) { ->(client){ JSON.parse(client.recv).should eq obj}}
 
     define_app do
 
@@ -129,49 +126,37 @@ describe Angelo::WebsocketResponder do
     end
 
     it 'handles single context' do
-      ts = []
-      concurrency.times {|n|
-        ts << Thread.new {
-          socket '/' do |client|
-            JSON.parse(client.recv).should eq obj
-          end
-        }
-      }
-
+      ts = socket_wait_for '/', &wait_for_block
       sleep 0.1
       post '/', obj
-      ts.map &:join
+      ts.each &:join
     end
 
     it 'handles multiple contexts' do
-      one_ts = []
-      (concurrency / 2).times {|n|
-        one_ts << Thread.new {
-          socket '/one' do |client|
-            JSON.parse(client.recv).should eq obj
-          end
-        }
-      }
+      ts = socket_wait_for '/', &wait_for_block
+      one_ts = socket_wait_for '/one', &wait_for_block
+      other_ts = socket_wait_for '/other', &wait_for_block
 
-      other_ts = []
-      (concurrency / 2).times {|n|
-        other_ts << Thread.new {
-          socket '/other' do |client|
-            JSON.parse(client.recv).should eq obj
-          end
-        }
-      }
-
-      info 'hi'
       sleep 0.1
       post '/one', obj
-      other_ts.map {|t| t.should be_alive}
-      one_ts.map &:join
 
-      info 'bye'
+      ts.each {|t| t.should be_alive}
+      one_ts.each &:join
+      other_ts.each {|t| t.should be_alive}
+
       sleep 0.1
       post '/other', obj
-      other_ts.map &:join
+
+      ts.each {|t| t.should be_alive}
+      one_ts.each {|t| t.should_not be_alive}
+      other_ts.each &:join
+
+      sleep 0.1
+      post '/', obj
+
+      ts.each &:join
+      one_ts.each {|t| t.should_not be_alive}
+      other_ts.each {|t| t.should_not be_alive}
     end
 
   end

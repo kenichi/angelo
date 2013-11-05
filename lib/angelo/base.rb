@@ -43,13 +43,11 @@ module Angelo
         @routes
       end
 
-      def before &block
-        # @before = compile! :before, &block
+      def before opts = {}, &block
         define_method :before, &block
       end
 
-      def after &block
-        # @after = compile! :after, &block
+      def after opts = {}, &block
         define_method :after, &block
       end
 
@@ -79,9 +77,6 @@ module Angelo
       end
 
     end
-
-    def before; end;
-    def after; end;
 
     def params
       @params ||= case request.method

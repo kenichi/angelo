@@ -16,6 +16,7 @@ module Angelo
         end
 
         after do
+          sleep 0.1
           @server.terminate if @server and @server.alive?
         end
 
