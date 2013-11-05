@@ -1,2 +1,3 @@
 angelo-*.gem
 Gemfile.lock
+.rspec

@@ -14,8 +14,8 @@ module Angelo
   DELETE =  'DELETE'.freeze
   OPTIONS = 'OPTIONS'.freeze
 
-  ROUTABLE = [:get, :post, :put, :delete, :options, :socket]
-  HTTPABLE = [:get, :post, :put, :delete, :options]
+  ROUTABLE = [:get, :post, :put, :delete, :socket]
+  HTTPABLE = [:get, :post, :put, :delete]
 
   CONTENT_TYPE_HEADER_KEY = 'Content-Type'.freeze
 

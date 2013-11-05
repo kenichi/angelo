@@ -61,10 +61,6 @@ module Angelo
           }
 
           client << handshake.to_data
-
-          # ditch response handshake
-          client.readpartial 4096
-
           yield WebsocketHelper.new client
         ensure
           client.close
@@ -89,6 +85,11 @@ module Angelo
 
       def initialize client
         @client = client
+        @client.readpartial 4096 # ditch response handshake
+      end
+
+      def parser
+        @parser ||= WebSocket::Parser.new
       end
 
       def send msg
@@ -96,8 +97,7 @@ module Angelo
       end
 
       def recv
-        @parser ||= WebSocket::Parser.new
-        @parser.append @client.readpartial(4096) until msg = @parser.next_message
+        parser.append @client.readpartial(4096) until msg = parser.next_message
         msg
       end
 

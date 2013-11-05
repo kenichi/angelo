@@ -64,19 +64,7 @@ module Angelo
       end
 
       def websockets
-        if @websockets.nil?
-          @websockets = []
-          def @websockets.each &block
-            super do |ws|
-              begin
-                yield ws
-              rescue Reel::SocketError => rse
-                warn "#{rse.class} - #{rse.message}"
-                delete ws
-              end
-            end
-          end
-        end
+        @websockets ||= WebsocketsArray.new
         @websockets.reject! &:closed?
         @websockets
       end
@@ -99,11 +87,32 @@ module Angelo
       @params ||= case request.method
                   when GET;  parse_query_string
                   when POST; parse_post_body
+                  when PUT;  parse_post_body
                   end
       @params
     end
 
     def websockets; self.class.websockets; end
+
+    class WebsocketsArray < Array
+
+      def each &block
+        super do |ws|
+          begin
+            yield ws
+          rescue Reel::SocketError => rse
+            warn "#{rse.class} - #{rse.message}"
+            delete ws
+          end
+        end
+      end
+
+      def [] context
+        @@websockets ||= {}
+        @@websockets[context] ||= self.class.new
+      end
+
+    end
 
   end
 

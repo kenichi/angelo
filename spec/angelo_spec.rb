@@ -22,12 +22,6 @@ describe Angelo::Base do
         end
       end
 
-      socket '/' do |ws|
-        while msg = ws.read do
-          ws.write msg
-        end
-      end
-
     end
 
     it 'responds to http requests properly' do
@@ -46,15 +40,6 @@ describe Angelo::Base do
     it 'responds to post requests with json properly' do
       post '/json', obj.to_json, {'Content-Type' => Angelo::JSON_TYPE}
       last_response_should_be_json obj
-    end
-
-    it 'responds on websockets properly' do
-      socket '/' do |client|
-        5.times {|n|
-          client.send "hi there #{n}"
-          client.recv.should eq "hi there #{n}"
-        }
-      end
     end
 
   end

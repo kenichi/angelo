@@ -12,15 +12,18 @@ describe Angelo::Base do
 
       @root = ROOT
 
-      get '/' do
+      def set_vars
         @title = 'test'
         @foo = params[:foo]
+      end
+
+      get '/' do
+        set_vars
         erb :index, locals: {bar: 'bat'}
       end
 
       get '/no_layout' do
-        @title = 'test'
-        @foo = params[:foo]
+        set_vars
         erb :index, layout: false, locals: {bar: 'bat'}
       end
 
