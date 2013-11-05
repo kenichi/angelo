@@ -37,7 +37,7 @@ module Angelo
 
       def routes
         @routes ||= {}
-        [:get, :post, :put, :delete, :options, :socket].each do |m|
+        ROUTABLE.each do |m|
           @routes[m] ||= {}
         end
         @routes
@@ -53,7 +53,7 @@ module Angelo
         define_method :after, &block
       end
 
-      [:get, :post, :put, :delete, :options].each do |m|
+      HTTPABLE.each do |m|
         define_method m do |path, &block|
           routes[m][path] = Responder.new &block
         end
@@ -85,7 +85,7 @@ module Angelo
         Responder.content_type type
       end
 
-      def run host = '127.0.0.1', port = 4567
+      def run host = DEFAULT_ADDR, port = DEFAULT_PORT
         @server = Angelo::Server.new self, host, port
         sleep
       end

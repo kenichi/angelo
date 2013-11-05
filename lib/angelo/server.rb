@@ -10,6 +10,7 @@ module Angelo
     end
 
     def on_connection connection
+      # RubyProf.resume
       connection.each_request do |request|
         if request.websocket?
           debug "got websocket request..."
@@ -18,6 +19,7 @@ module Angelo
           route_request connection, request
         end
       end
+      # RubyProf.pause
     end
 
     private

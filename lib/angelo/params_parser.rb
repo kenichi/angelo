@@ -9,7 +9,7 @@ module Angelo
 
     def parse_formencoded str
       str.split('&').reduce(Responder.symhash) do |p, kv|
-        key, value = kv.split('=').map {|s| CGI.escape s}
+        key, value = kv.split('=').map {|s| CGI.unescape s}
         p[key] = value
         p
       end

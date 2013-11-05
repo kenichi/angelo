@@ -1,5 +1,8 @@
 $:.unshift File.expand_path '../../../lib', __FILE__
 
+require 'bundler'
+Bundler.setup :default, :development, :profile
+
 require 'angelo'
 require 'angelo/tilt/erb'
 
@@ -7,20 +10,21 @@ class Foo < Angelo::Base
   include Angelo::Tilt::ERB
 
   TEST = {foo: "bar", baz: 123, bat: false}.to_json
+  PONG = 'pong'.freeze
 
-  def pong; 'pong'; end
+  def pong; PONG; end
   def foo; params[:foo]; end
   def time_ms; Time.now.to_f * 1000.0; end
 
-  before do
-    info "request: #{request.method} #{request.path}"
-    @foo = request.path
-    @timing = time_ms
-  end
+  # before do
+  #   info "request: #{request.method} #{request.path}"
+  #   @foo = request.path
+  #   @timing = time_ms
+  # end
 
-  after do
-    info "timing: #{time_ms - @timing}ms"
-  end
+  # after do
+  #   info "timing: #{time_ms - @timing}ms"
+  # end
 
   get '/' do
     @name = params[:name]
@@ -29,7 +33,7 @@ class Foo < Angelo::Base
   end
 
   get '/ping' do
-    debug "@foo: #{@foo}"
+    # debug "@foo: #{@foo}"
     pong
   end
 

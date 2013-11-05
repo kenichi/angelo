@@ -23,7 +23,7 @@ module Angelo
           raise NotImplementedError
         end
       rescue IOError => ioe
-        error "#{ioe.class} - #{ioe.message}"
+        warn "#{ioe.class} - #{ioe.message}"
         @websocket.close
         @base.websockets.delete @websocket
       rescue => e
