@@ -11,7 +11,9 @@ module Angelo
       def define_app &block
 
         before do
-          app = Class.new Angelo::Base, &block
+          app = Class.new Angelo::Base
+          app.class_eval { content_type :html } # reset
+          app.class_eval &block
           @server = Angelo::Server.new app
         end
 

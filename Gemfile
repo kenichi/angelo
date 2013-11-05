@@ -10,6 +10,10 @@ platform :rbx do
   gem 'rubysl-prettyprint'
 end
 
+platform :ruby_20 do
+  gem 'mustermann'
+end
+
 group :development do
   gem 'pry'
   gem 'pry-nav'

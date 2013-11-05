@@ -1,7 +1,11 @@
 changelog
 =========
 
-### 0.0.7 5 nov 2013 gunpowder treason
+### 0.0.8 5 nov 2013 gunpowder treason
+
+* add mustermann support
+
+### 0.0.7 5 nov 2013
 
 * fix gemspec
 * add codename
@@ -24,7 +28,6 @@ changelog
 * inadvertent yank of 0.0.3
 
 ### 0.0.3 30 oct 2013
-
 
 * added tilt/erb
 * added before/after
