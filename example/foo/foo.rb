@@ -12,19 +12,30 @@ class Foo < Angelo::Base
   TEST = {foo: "bar", baz: 123, bat: false}.to_json
   PONG = 'pong'.freeze
 
+  @@avg = 0.0
+
   def pong; PONG; end
   def foo; params[:foo]; end
   def time_ms; Time.now.to_f * 1000.0; end
 
-  # before do
-  #   info "request: #{request.method} #{request.path}"
-  #   @foo = request.path
-  #   @timing = time_ms
-  # end
+  before do
+    # info "request: #{request.method} #{request.path}"
+    @foo = request.path
+    @timing = time_ms
+  end
 
-  # after do
-  #   info "timing: #{time_ms - @timing}ms"
-  # end
+  after do
+    # info "timing: #{time_ms - @timing}ms"
+    @@reqs ||= 1
+    if @@avg == 0.0
+      @@avg = time_ms - @timing
+    else
+      @@avg = (@@avg * @@reqs) + (time_ms - @timing)
+      @@reqs += 1
+      @@avg = @@avg / @@reqs
+      info "avg (#{@@reqs}): #{@@avg}" if @@reqs % 100 == 0
+    end
+  end
 
   get '/' do
     @name = params[:name]

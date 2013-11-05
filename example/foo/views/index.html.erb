@@ -1,20 +1,24 @@
 hi <%= @name %><br/>
 this is a local - <%= zzz %><br/>
 <br/>
-<a href="#" onclick="openws();">websocket!</a>
+<a href="#" id="openws">websocket!</a>
 <br/>
-<a href="#" onclick="emit();">emit!</a>
+<a href="#" id="emit">emit!</a>
 
 <script>
   var ws;
-  function openws() {
+  var openws = function() {
     ws = new WebSocket('ws://<%= @host %>/ws');
     ws.onmessage = function(e) { console.log(e.data); };
     ws.onopen = function(e) {
       ws.send('hi');
     };
   }
-  function emit() {
+  var emit = function() {
     $.post('/emit', {data: {"foo": "bar"}});
   }
+  $(function() {
+    $('#openws').on('click', openws);
+    $('#emit').on('click', emit);
+  });
 </script>

@@ -30,16 +30,24 @@ class Foo < Angelo::Base
   end
 
   post '/emit' do
-    websockets.each {|ws| ws.write TEST}
+    websockets[:emit_test].each {|ws| ws.write TEST}
     params.to_json
   end
 
-  socket '/ws' do |s|
-    websockets << s
-    while msg = s.read
-      5.times { s.write TEST }
-      s.write foo.to_json
+  socket '/ws' do |ws|
+    websockets[:emit_test] << ws
+    while msg = ws.read
+      5.times { ws.write TEST }
+      ws.write foo.to_json
     end
+  end
+
+  post '/other' do
+    websockets[:other].each {|ws| ws.write TEST}
+  end
+
+  socket '/other/ws' do |ws|
+    websockets[:other] << ws
   end
 
 end
