@@ -1,6 +1,8 @@
 Angelo
 ======
 
+[![Build Status](https://travis-ci.org/kenichi/angelo.png?branch=master)](https://travis-ci.org/kenichi/angelo)
+
 A Sinatra-esque DSL for Reel.
 
 __SUPER ALPHA!__
