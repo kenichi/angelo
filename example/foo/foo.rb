@@ -5,9 +5,11 @@ Bundler.setup :default, :development, :profile
 
 require 'angelo'
 require 'angelo/tilt/erb'
+require 'angelo/mustermann'
 
 class Foo < Angelo::Base
   include Angelo::Tilt::ERB
+  include Angelo::Mustermann
 
   TEST = {foo: "bar", baz: 123, bat: false}.to_json
   PONG = 'pong'.freeze
