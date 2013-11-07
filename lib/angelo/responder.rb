@@ -50,25 +50,32 @@ module Angelo
     end
 
     def handle_request
-      begin
-        if @response_handler
-          @base.before if @base.respond_to? :before
-          @body = @response_handler.bind(@base).call || ''
-          @base.after if @base.respond_to? :after
-        else
-          raise NotImplementedError
-        end
-      rescue => e
-        error_message = case
-                        when respond_with?(:json)
-                          { error: e.message }.to_json
-                        else
-                          e.message
-                        end
-        @connection.respond :internal_server_error, headers, error_message
-        @connection.close
-        error "#{e.class} - #{e.message}"
-        ::STDERR.puts e.backtrace
+      if @response_handler
+        @base.before if @base.respond_to? :before
+        @body = @response_handler.bind(@base).call || ''
+        @base.after if @base.respond_to? :after
+      else
+        raise NotImplementedError
+      end
+    rescue => e
+      handle_error e
+    end
+
+    def handle_error _error, report = true
+      @connection.respond :internal_server_error, headers, error_message(_error)
+      @connection.close
+      if report
+        error "#{_error.class} - #{_error.message}"
+        ::STDERR.puts _error.backtrace
+      end
+    end
+
+    def error_message _error
+      case
+      when respond_with?(:json)
+        { error: _error.message }.to_json
+      else
+        _error.message
       end
     end
 
@@ -99,8 +106,17 @@ module Angelo
     end
 
     def respond
-      @body = @body.to_json if respond_with? :json
+      @body = case @body
+              when String
+                JSON.parse @body if respond_with? :json # for the raises
+                @body
+              when Hash
+                raise 'html response requires String' if respond_with? :html
+                @body.to_json if respond_with? :json
+              end
       @connection.respond :ok, headers, @body
+    rescue => e
+      handle_error e, false
     end
 
   end

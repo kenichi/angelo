@@ -113,4 +113,173 @@ describe Angelo::Base do
 
   end
 
+  describe 'content_type helper' do
+
+    describe 'when in route block' do
+
+      define_app do
+        Angelo::HTTPABLE.each do |m|
+
+          __send__ m, '/html' do
+            content_type :html
+            '<html><body>hi</body></html>'
+          end
+
+          __send__ m, '/bad_html_h' do
+            content_type :html
+            {hi: 'there'}
+          end
+
+          __send__ m, '/json' do
+            content_type :json
+            {hi: 'there'}
+          end
+
+          __send__ m, '/json_s' do
+            content_type :json
+            {woo: 'woo'}.to_json
+          end
+
+          __send__ m, '/bad_json_s' do
+            content_type :json
+            {hi: 'there'}.to_json.gsub /{/, 'so doge'
+          end
+
+        end
+      end
+
+      it 'sets html content type for current route' do
+        Angelo::HTTPABLE.each do |m|
+          __send__ m, '/html'
+          last_response_should_be_html '<html><body>hi</body></html>'
+        end
+      end
+
+      it 'sets json content type for current route and to_jsons hashes' do
+        Angelo::HTTPABLE.each do |m|
+          __send__ m, '/json'
+          last_response_should_be_json 'hi' => 'there'
+        end
+      end
+
+      it 'does not to_json strings' do
+        Angelo::HTTPABLE.each do |m|
+          __send__ m, '/json_s'
+          last_response_should_be_json 'woo' => 'woo'
+        end
+      end
+
+      it '500s on html hashes' do
+        Angelo::HTTPABLE.each do |m|
+          __send__ m, '/bad_html_h'
+          last_response.status.should eq 500
+        end
+      end
+
+      it '500s on bad json strings' do
+        Angelo::HTTPABLE.each do |m|
+          __send__ m, '/bad_json_s'
+          last_response.status.should eq 500
+        end
+      end
+
+    end
+
+    describe 'when in class def' do
+
+      describe 'html type' do
+
+        define_app do
+          content_type :html
+          Angelo::HTTPABLE.each do |m|
+            __send__ m, '/html' do
+              '<html><body>hi</body></html>'
+            end
+          end
+        end
+
+        it 'sets default content type' do
+          Angelo::HTTPABLE.each do |m|
+            __send__ m, '/html'
+            last_response_should_be_html '<html><body>hi</body></html>'
+          end
+        end
+
+      end
+
+      describe 'json type' do
+
+        define_app do
+          content_type :json
+          Angelo::HTTPABLE.each do |m|
+            __send__ m, '/json' do
+              {hi: 'there'}
+            end
+          end
+        end
+
+        it 'sets default content type' do
+          Angelo::HTTPABLE.each do |m|
+            __send__ m, '/json'
+            last_response_should_be_json 'hi' => 'there'
+          end
+        end
+      end
+
+    end
+
+    describe 'when in both' do
+
+      describe 'json in html' do
+
+        define_app do
+          content_type :html
+          Angelo::HTTPABLE.each do |m|
+            __send__ m, '/json' do
+              content_type :json
+              {hi: 'there'}
+            end
+          end
+        end
+
+        it 'sets html content type for current route when default is set json' do
+          Angelo::HTTPABLE.each do |m|
+            __send__ m, '/json'
+            last_response_should_be_json 'hi' => 'there'
+          end
+        end
+
+      end
+
+      describe 'html in json' do
+
+        define_app do
+          content_type :json
+          Angelo::HTTPABLE.each do |m|
+            __send__ m, '/html' do
+              content_type :html
+              '<html><body>hi</body></html>'
+            end
+          end
+        end
+
+        it 'sets json content type for current route when default is set html' do
+          Angelo::HTTPABLE.each do |m|
+            __send__ m, '/html'
+            last_response_should_be_html '<html><body>hi</body></html>'
+          end
+        end
+
+      end
+
+    end
+
+  end
+
+  describe 'params helper' do
+  end
+
+  describe 'websockets helper' do
+  end
+
 end
