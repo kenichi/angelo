@@ -23,7 +23,7 @@ module Angelo
 
       HTTPABLE.each do |m|
         define_method m do |path, &block|
-          path = ::Mustermann.new path, type: :sinatra
+          path = ::Mustermann.new path
           routes[m][path] = Responder.new &block
         end
       end
@@ -39,7 +39,8 @@ module Angelo
     end
 
     def params
-      super.merge mustermann.params(request.path)
+      @params ||= super.merge mustermann.params(request.path)
+      @params
     end
 
     class RouteMap < Hash

@@ -10,7 +10,7 @@ if RUBY_VERSION =~ /^2\./
     describe 'pattern matching' do
 
       pattern = '/:foo/things/:bar'
-      let(:mm_pattern){ ::Mustermann.new(pattern, type: :sinatra) }
+      let(:mm_pattern){ ::Mustermann.new(pattern) }
 
       define_app do
         include Angelo::Mustermann
@@ -88,5 +88,5 @@ HTML
     end
 
   end
-  
+
 end
