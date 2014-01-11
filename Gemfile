@@ -6,7 +6,6 @@ gem 'tilt'
 platform :rbx do
   gem 'rubysl-cgi'
   gem 'rubysl-erb'
-  gem 'rubysl-json'
   gem 'rubysl-prettyprint'
 end
 
