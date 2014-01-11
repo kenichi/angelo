@@ -83,7 +83,7 @@ describe Angelo::WebsocketResponder do
 
   describe 'helper contexts' do
     let(:obj){ {'foo' => 'bar'} }
-    let(:wait_for_block) { ->(client){ JSON.parse(client.recv).should eq obj}}
+    let(:wait_for_block){ ->(client){ JSON.parse(client.recv).should eq obj}}
 
     define_app do
 

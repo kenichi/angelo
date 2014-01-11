@@ -88,7 +88,6 @@ module Angelo
                   when POST; parse_post_body
                   when PUT;  parse_post_body
                   end
-      @params
     end
 
     def websockets; self.class.websockets; end

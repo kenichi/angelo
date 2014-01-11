@@ -40,7 +40,6 @@ module Angelo
 
     def params
       @params ||= super.merge mustermann.params(request.path)
-      @params
     end
 
     class RouteMap < Hash
