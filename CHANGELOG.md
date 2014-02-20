@@ -1,6 +1,13 @@
 changelog
 =========
 
+### 0.0.9 20 feb 2014
+
+* memoize params
+* slight changes for mustermann
+* add '-o addr' bind to address cmd line option
+* add '-p port' bind to port cmd line option
+
 ### 0.0.8 5 nov 2013 gunpowder treason
 
 * add mustermann support
