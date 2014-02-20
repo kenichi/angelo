@@ -4,8 +4,8 @@ module Angelo
 
   module ParamsParser
 
-    EMPTY_JSON = '{}'.freeze
-    SEMICOLON = ';'.freeze
+    EMPTY_JSON = '{}'
+    SEMICOLON = ';'
 
     def parse_formencoded str
       str.split('&').reduce(Responder.symhash) do |p, kv|

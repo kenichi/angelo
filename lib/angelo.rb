@@ -8,29 +8,29 @@ require 'json'
 
 module Angelo
 
-  GET =     'GET'.freeze
-  POST =    'POST'.freeze
-  PUT =     'PUT'.freeze
-  DELETE =  'DELETE'.freeze
-  OPTIONS = 'OPTIONS'.freeze
+  GET =     'GET'
+  POST =    'POST'
+  PUT =     'PUT'
+  DELETE =  'DELETE'
+  OPTIONS = 'OPTIONS'
 
   ROUTABLE = [:get, :post, :put, :delete, :socket]
   HTTPABLE = [:get, :post, :put, :delete]
 
-  CONTENT_TYPE_HEADER_KEY = 'Content-Type'.freeze
+  CONTENT_TYPE_HEADER_KEY = 'Content-Type'
 
-  HTML_TYPE = 'text/html'.freeze
-  JSON_TYPE = 'application/json'.freeze
-  FORM_TYPE = 'application/x-www-form-urlencoded'.freeze
+  HTML_TYPE = 'text/html'
+  JSON_TYPE = 'application/json'
+  FORM_TYPE = 'application/x-www-form-urlencoded'
 
-  DEFAULT_ADDR = '127.0.0.1'.freeze
+  DEFAULT_ADDR = '127.0.0.1'
   DEFAULT_PORT = 4567
 
   DEFAULT_RESPONSE_HEADERS = {
     CONTENT_TYPE_HEADER_KEY => HTML_TYPE
   }
 
-  NOT_FOUND = 'Not Found'.freeze
+  NOT_FOUND = 'Not Found'
 
 end
 

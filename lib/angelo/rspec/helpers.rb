@@ -3,8 +3,8 @@ module Angelo
 
     module Helpers
 
-      HTTP_URL = 'http://%s:%d'.freeze
-      WS_URL = 'ws://%s:%d'.freeze
+      HTTP_URL = 'http://%s:%d'
+      WS_URL = 'ws://%s:%d'
 
       attr_reader :last_response
 

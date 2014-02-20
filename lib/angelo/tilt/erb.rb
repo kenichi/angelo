@@ -13,7 +13,7 @@ module Angelo
 
       module ClassMethods
 
-        DEFAULT_LAYOUT = 'layout.html.erb'.freeze
+        DEFAULT_LAYOUT = 'layout.html.erb'
 
         def view_glob *glob
           File.join view_dir, *glob

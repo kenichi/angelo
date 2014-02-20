@@ -3,7 +3,7 @@ $:.unshift File.expand_path '../../../lib', __FILE__
 require 'bundler'
 Bundler.setup :default, :development, :profile
 
-require 'angelo'
+require 'angelo/base'
 require 'angelo/tilt/erb'
 require 'angelo/mustermann'
 
@@ -12,7 +12,7 @@ class Foo < Angelo::Base
   include Angelo::Mustermann
 
   TEST = {foo: "bar", baz: 123, bat: false}.to_json
-  PONG = 'pong'.freeze
+  PONG = 'pong'
 
   @@avg = 0.0
 

@@ -7,6 +7,17 @@ module Angelo
     extend Forwardable
     def_delegators :@responder, :content_type, :headers, :request
 
+    @@addr = DEFAULT_ADDR
+    @@port = DEFAULT_PORT
+
+    if ARGV.any?
+      require 'optparse'
+      OptionParser.new { |op|
+        op.on('-p port',   'set the port (default is 4567)')      { |val| @@port = Integer(val) }
+        op.on('-o addr',   "set the host (default is #{@@addr})") { |val| @@addr = val }
+      }.parse!(ARGV.dup)
+    end
+
     attr_accessor :responder
 
     class << self
@@ -18,7 +29,6 @@ module Angelo
 
         def subclass.root
           @root ||= File.expand_path '..', app_file
-          @root
         end
 
         def subclass.view_dir
@@ -71,8 +81,8 @@ module Angelo
         Responder.content_type type
       end
 
-      def run host = DEFAULT_ADDR, port = DEFAULT_PORT
-        @server = Angelo::Server.new self, host, port
+      def run addr = @@addr, port = @@port
+        @server = Angelo::Server.new self, addr, port
         trap "INT" do
           @server.terminate if @server and @server.alive?
           exit
