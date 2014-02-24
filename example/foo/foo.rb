@@ -3,7 +3,7 @@ $:.unshift File.expand_path '../../../lib', __FILE__
 require 'bundler'
 Bundler.setup :default, :development, :profile
 
-require 'angelo/base'
+require 'angelo'
 require 'angelo/tilt/erb'
 require 'angelo/mustermann'
 

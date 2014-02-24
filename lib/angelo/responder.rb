@@ -1,7 +1,12 @@
+require 'date'
+
 module Angelo
 
   class Responder
     include Celluloid::Logger
+    extend Celluloid::Logger
+
+    COMMON_LOG = '%s - - [%s] "%s %s%s %s" %d %s'
 
     class << self
 
@@ -26,6 +31,19 @@ module Angelo
 
       def symhash
         Hash.new {|hash,key| hash[key.to_s] if Symbol === key }
+      end
+
+      def common_log connection, request, status, body_size = '-'
+        debug COMMON_LOG % [
+          connection.remote_ip,
+          DateTime.now.iso8601,
+          request.method,
+          request.path,
+          request.query_string,
+          request.version,
+          status,
+          body_size
+        ]
       end
 
     end
@@ -53,6 +71,7 @@ module Angelo
       if @response_handler
         @base.before if @base.respond_to? :before
         @body = @response_handler.bind(@base).call || ''
+
         @base.after if @base.respond_to? :after
       else
         raise NotImplementedError
@@ -62,7 +81,9 @@ module Angelo
     end
 
     def handle_error _error, report = true
-      @connection.respond :internal_server_error, headers, error_message(_error)
+      err_msg = error_message _error
+      Responder.common_log @connection, @request, HTTP::Response::SYMBOL_TO_STATUS_CODE[:internal_server_error], err_msg.size
+      @connection.respond :internal_server_error, headers, err_msg
       @connection.close
       if report
         error "#{_error.class} - #{_error.message}"
@@ -114,6 +135,7 @@ module Angelo
                 raise 'html response requires String' if respond_with? :html
                 @body.to_json if respond_with? :json
               end
+      Responder.common_log @connection, @request, HTTP::Response::SYMBOL_TO_STATUS_CODE[:ok], @body.size
       @connection.respond :ok, headers, @body
     rescue => e
       handle_error e, false

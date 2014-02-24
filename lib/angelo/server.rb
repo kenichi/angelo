@@ -14,7 +14,6 @@ module Angelo
       # RubyProf.resume
       connection.each_request do |request|
         if request.websocket?
-          debug "got websocket request..."
           route_websocket connection, request
         else
           route_request connection, request
@@ -41,6 +40,7 @@ module Angelo
         responder.connection = connection
         responder.request = request
       else
+        Responder.common_log connection, request, HTTP::Response::SYMBOL_TO_STATUS_CODE[:not_found]
         connection.respond :not_found, DEFAULT_RESPONSE_HEADERS, NOT_FOUND
       end
     end
