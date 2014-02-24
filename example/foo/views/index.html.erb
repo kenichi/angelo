@@ -4,11 +4,19 @@ this is a local - <%= zzz %><br/>
 <a href="#" id="openws">websocket!</a>
 <br/>
 <a href="#" id="emit">emit!</a>
+<br/>
+<br/>
+<input type="text" id="foo">
+<br/>
+<a href="#" id="echoer">echoer!</a>
+<br/>
+<a href="#" id="echo">echo!</a>
 
 <script>
   var ws;
+  var ews;
   var openws = function() {
-    ws = new WebSocket('ws://<%= @host %>/ws');
+    ws = new WebSocket('ws://<%= @host %>/ws?foo=bar');
     ws.onmessage = function(e) { console.log(e.data); };
     ws.onopen = function(e) {
       ws.send('hi');
@@ -17,8 +25,21 @@ this is a local - <%= zzz %><br/>
   var emit = function() {
     $.post('/emit', {data: {"foo": "bar"}});
   }
+  var echoer = function() {
+    var foo = document.getElementById('foo').value;
+    ews = new WebSocket('ws://<%= @host %>/' + foo + '/echo');
+    ews.onmessage = function(e) { console.log(e.data); };
+    ews.onopen = function(e) {
+      ews.send('hi');
+    };
+  };
+  var echo = function() {
+    ews.send(document.getElementById('foo').value);
+  };
   $(function() {
     $('#openws').on('click', openws);
     $('#emit').on('click', emit);
+    $('#echoer').on('click', echoer);
+    $('#echo').on('click', echo);
   });
 </script>

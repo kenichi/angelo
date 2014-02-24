@@ -49,6 +49,12 @@ if RUBY_VERSION =~ /^2\./
         end
       end
 
+      it '404s correctly for not found routes' do
+        path = '/bad/monkey'
+        get path
+        last_response.status.should eq 404
+      end
+
     end
 
     describe 'tilt/erb integration' do

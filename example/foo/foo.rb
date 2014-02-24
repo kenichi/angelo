@@ -1,7 +1,7 @@
 $:.unshift File.expand_path '../../../lib', __FILE__
 
 require 'bundler'
-Bundler.setup :default, :development, :profile
+Bundler.require :default, :development, :profile
 
 require 'angelo'
 require 'angelo/tilt/erb'
@@ -69,6 +69,16 @@ class Foo < Angelo::Base
     while msg = s.read
       5.times { s.write TEST }
       s.write foo.to_json
+    end
+  end
+
+  socket '/:foo/echo' do |s|
+    begin
+      while msg = s.read
+        s.write "#{params[:foo]} - #{msg}"
+      end
+    rescue Reel::SocketError => rse
+      debug "socket: #{rse.message}"
     end
   end
 

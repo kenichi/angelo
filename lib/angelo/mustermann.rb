@@ -28,6 +28,11 @@ module Angelo
         end
       end
 
+      def socket path, &block
+        path = ::Mustermann.new path
+        routes[:socket][path] = WebsocketResponder.new &block
+      end
+
       def routes
         @routes ||= {}
         ROUTABLE.each do |m|
@@ -44,9 +49,12 @@ module Angelo
 
     class RouteMap < Hash
       def [] route
+        responder = nil
         mustermann = keys.select {|k| k.match(route)}.first
-        responder = fetch mustermann
-        responder.mustermann = mustermann
+        if mustermann
+          responder = fetch mustermann
+          responder.mustermann = mustermann
+        end
         responder
       end
     end
