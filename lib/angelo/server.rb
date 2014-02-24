@@ -13,24 +13,13 @@ module Angelo
     def on_connection connection
       # RubyProf.resume
       connection.each_request do |request|
-        if request.websocket?
-          route_websocket connection, request
-        else
-          route_request connection, request
-        end
+        meth = request.websocket? ? :socket : request.method.downcase.to_sym
+        route! meth, connection, request
       end
       # RubyProf.pause
     end
 
     private
-
-    def route_request connection, request
-      route! request.method.downcase.to_sym, connection, request
-    end
-
-    def route_websocket connection, request
-      route! :socket, connection, request
-    end
 
     def route! meth, connection, request
       rs = @base.routes[meth][request.path]
@@ -40,7 +29,7 @@ module Angelo
         responder.connection = connection
         responder.request = request
       else
-        Responder.common_log connection, request, HTTP::Response::SYMBOL_TO_STATUS_CODE[:not_found]
+        Angelo.log connection, request, nil, :not_found
         connection.respond :not_found, DEFAULT_RESPONSE_HEADERS, NOT_FOUND
       end
     end

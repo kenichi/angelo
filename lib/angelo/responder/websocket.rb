@@ -17,6 +17,7 @@ module Angelo
     def handle_request
       begin
         if @response_handler
+          Angelo.log @connection, @request, @websocket, :switching_protocols
           @bound_response_handler ||= @response_handler.bind @base
           @bound_response_handler[@websocket]
         else

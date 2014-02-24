@@ -32,6 +32,20 @@ module Angelo
 
   NOT_FOUND = 'Not Found'
 
+  LOG_FORMAT = '%s - - "%s %s%s HTTP/%s" %d %s'
+
+  def self.log connection, request, socket, status, body_size = '-'
+    Celluloid::Logger.debug LOG_FORMAT % [
+      socket.nil? ? connection.remote_ip : socket.peeraddr(false)[3],
+      request.method,
+      request.path,
+      request.query_string.nil? ? nil : '?'+request.query_string,
+      request.version,
+      Symbol === status ? HTTP::Response::SYMBOL_TO_STATUS_CODE[status] : status,
+      body_size
+    ]
+  end
+
 end
 
 require 'angelo/version'
