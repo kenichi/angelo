@@ -21,14 +21,18 @@ module Angelo
 
     def parse_post_body
       body = request.body.to_s
+      qs = parse_query_string
       case
       when form_encoded?
         body = parse_formencoded body
+        qs.merge! body
       when json?
         body = EMPTY_JSON if body.empty?
         body = JSON.parse body
+        qs.merge! body
+      else
+        qs
       end
-      parse_query_string.merge! body
     end
 
     def form_encoded?
@@ -40,7 +44,11 @@ module Angelo
     end
 
     def content_type? type
-      request.headers[CONTENT_TYPE_HEADER_KEY].split(SEMICOLON).include? type
+      if request.headers[CONTENT_TYPE_HEADER_KEY]
+        request.headers[CONTENT_TYPE_HEADER_KEY].split(SEMICOLON).include? type
+      else
+        nil
+      end
     end
 
   end

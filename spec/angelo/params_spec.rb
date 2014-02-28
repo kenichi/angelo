@@ -68,4 +68,7 @@ describe Angelo::ParamsParser do
     parser.parse_post_body.should eq post_params
   end
 
+  it 'does not parse POST bodies if no Content-Type' do
+  end
+
 end
