@@ -37,8 +37,7 @@ describe Angelo::Base do
 
     it 'responds to get requests with json properly' do
       get '/json', obj
-      string_vals = obj.keys.reduce({}){|h,k| h[k] = obj[k].to_s; h}
-      last_response_should_be_json string_vals
+      last_response_should_be_json obj_s
     end
 
     it 'responds to post requests with json properly' do
@@ -277,6 +276,33 @@ describe Angelo::Base do
   end
 
   describe 'params helper' do
+
+    define_app do
+
+      [:get, :post].each do |m|
+        __send__ m, '/json' do
+          content_type :json
+          params
+        end
+      end
+
+    end
+
+    it 'parses formencoded body when content-type is formencoded' do
+      post '/json', obj, {'Content-Type' => Angelo::FORM_TYPE}
+      last_response_should_be_json obj_s
+    end
+
+    it 'does not parse JSON body when content-type is formencoded' do
+      post '/json', obj.to_json, {'Content-Type' => Angelo::FORM_TYPE}
+      last_response.status.should eq 400
+    end
+
+    it 'does not parse body when request content-type not set' do
+      post '/json', obj, {'Content-Type' => ''}
+      last_response_should_be_json({})
+    end
+
   end
 
   describe 'websockets helper' do

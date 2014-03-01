@@ -35,8 +35,17 @@ module Angelo
   LOG_FORMAT = '%s - - "%s %s%s HTTP/%s" %d %s'
 
   def self.log connection, request, socket, status, body_size = '-'
+
+    remote_ip = ->{
+      if socket.nil?
+        connection.remote_ip rescue 'unknown'
+      else
+        socket.peeraddr(false)[3]
+      end
+    }
+
     Celluloid::Logger.debug LOG_FORMAT % [
-      socket.nil? ? connection.remote_ip : socket.peeraddr(false)[3],
+      remote_ip[],
       request.method,
       request.path,
       request.query_string.nil? ? nil : '?'+request.query_string,
@@ -44,6 +53,7 @@ module Angelo
       Symbol === status ? HTTP::Response::SYMBOL_TO_STATUS_CODE[status] : status,
       body_size
     ]
+
   end
 
 end

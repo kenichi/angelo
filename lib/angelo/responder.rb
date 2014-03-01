@@ -59,14 +59,18 @@ module Angelo
       else
         raise NotImplementedError
       end
+    rescue JSON::ParserError => jpe
+      handle_error jpe, :bad_request, false
+    rescue FormEncodingError => fee
+      handle_error fee, :bad_request, false
     rescue => e
       handle_error e
     end
 
-    def handle_error _error, report = true
+    def handle_error _error, type = :internal_server_error, report = true
       err_msg = error_message _error
-      Angelo.log @connection, @request, nil, :internal_server_error, err_msg.size
-      @connection.respond :internal_server_error, headers, err_msg
+      Angelo.log @connection, @request, nil, type, err_msg.size
+      @connection.respond type, headers, err_msg
       @connection.close
       if report
         error "#{_error.class} - #{_error.message}"
@@ -121,7 +125,7 @@ module Angelo
       Angelo.log @connection, @request, nil, :ok, @body.size
       @connection.respond :ok, headers, @body
     rescue => e
-      handle_error e, false
+      handle_error e, :internal_server_error, false
     end
 
   end

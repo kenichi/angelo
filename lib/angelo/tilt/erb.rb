@@ -52,7 +52,12 @@ module Angelo
 
       def erb view, opts = {locals: {}}
         locals = Hash === opts[:locals] ? opts[:locals] : {}
-        render = ->{self.class.templates[view].render self, locals}
+        render = case view
+                 when String
+                   ->{ view }
+                 when Symbol
+                   ->{self.class.templates[view].render self, locals}
+                 end
         case opts[:layout]
         when false
           render[]

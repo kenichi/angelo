@@ -2,14 +2,19 @@ require 'cgi'
 
 module Angelo
 
+  class FormEncodingError < StandardError; end
+
   module ParamsParser
 
     EMPTY_JSON = '{}'
     SEMICOLON = ';'
+    EQUALS = '='
+    AMPERSAND = '&'
 
     def parse_formencoded str
-      str.split('&').reduce(Responder.symhash) do |p, kv|
-        key, value = kv.split('=').map {|s| CGI.unescape s}
+      raise FormEncodingError unless str.empty? or str.index EQUALS
+      str.split(AMPERSAND).reduce(Responder.symhash) do |p, kv|
+        key, value = kv.split(EQUALS).map {|s| CGI.unescape s}
         p[key] = value
         p
       end
