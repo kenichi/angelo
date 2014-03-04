@@ -50,7 +50,7 @@ module Angelo
     end
 
     def staticable? meth
-      [:get, :head].include? meth
+      STATICABLE.include? meth
     end
 
     def static! meth, connection, request, local_path

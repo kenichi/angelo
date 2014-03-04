@@ -16,6 +16,7 @@ module Angelo
 
   ROUTABLE = [:get, :post, :put, :delete, :socket]
   HTTPABLE = [:get, :post, :put, :delete]
+  STATICABLE = [:get, :head]
 
   CONTENT_TYPE_HEADER_KEY = 'Content-Type'
   CONTENT_DISPOSITION_HEADER_KEY = 'Content-Disposition'

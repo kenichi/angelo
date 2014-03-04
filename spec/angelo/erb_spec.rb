@@ -1,8 +1,6 @@
 require_relative '../spec_helper'
 require 'angelo/tilt/erb'
 
-ROOT = File.expand_path '..', __FILE__
-
 describe Angelo::Base do
   describe Angelo::Tilt::ERB do
 
@@ -10,7 +8,7 @@ describe Angelo::Base do
 
       include Angelo::Tilt::ERB
 
-      @root = ROOT
+      @root = APP_ROOT
 
       def set_vars
         @title = 'test'
