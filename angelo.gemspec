@@ -13,4 +13,5 @@ Gem::Specification.new do |gem|
   gem.version       = Angelo::VERSION
   gem.license       = 'apache'
   gem.add_dependency 'reel'
+  gem.add_dependency 'mime-types'
 end

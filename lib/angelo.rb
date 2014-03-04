@@ -18,13 +18,20 @@ module Angelo
   HTTPABLE = [:get, :post, :put, :delete]
 
   CONTENT_TYPE_HEADER_KEY = 'Content-Type'
+  CONTENT_DISPOSITION_HEADER_KEY = 'Content-Disposition'
+  CONTENT_LENGTH_HEADER_KEY = 'Content-Length'
+  DEFAULT_CONTENT_DISPOSITION = 'attachment'
 
   HTML_TYPE = 'text/html'
   JSON_TYPE = 'application/json'
   FORM_TYPE = 'application/x-www-form-urlencoded'
+  FILE_TYPE = 'application/octet-stream'
 
   DEFAULT_ADDR = '127.0.0.1'
   DEFAULT_PORT = 4567
+
+  DEFAULT_VIEW_DIR = 'views'
+  DEFAULT_PUBLIC_DIR = 'public'
 
   DEFAULT_RESPONSE_HEADERS = {
     CONTENT_TYPE_HEADER_KEY => HTML_TYPE

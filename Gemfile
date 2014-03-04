@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'reel'
 gem 'tilt'
+gem 'mime-types'
 
 platform :rbx do
   gem 'rubysl-cgi'

@@ -32,8 +32,13 @@ module Angelo
         end
 
         def subclass.view_dir
-          v = self.class_variable_get(:@@views) rescue 'views'
+          v = self.class_variable_get(:@@views) rescue DEFAULT_VIEW_DIR
           File.join root, v
+        end
+
+        def subclass.public_dir
+          p = self.class_variable_get(:@@public_dir) rescue DEFAULT_PUBLIC_DIR
+          File.join root, p
         end
 
       end

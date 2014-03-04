@@ -11,7 +11,7 @@ class Foo < Angelo::Base
   include Angelo::Tilt::ERB
 
   get '/' do
-    'hi'
+    erb :index
   end
 
   socket '/' do |ws|
