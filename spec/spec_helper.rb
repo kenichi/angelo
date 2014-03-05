@@ -7,4 +7,4 @@ require 'angelo/rspec/helpers'
 Celluloid.logger.level = ::Logger::ERROR
 include Angelo::RSpec::Helpers
 
-APP_ROOT = File.expand_path '../angelo', __FILE__
+TEST_APP_ROOT = File.expand_path '../test_app_root', __FILE__

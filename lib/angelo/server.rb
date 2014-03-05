@@ -1,3 +1,5 @@
+require 'openssl'
+
 module Angelo
 
   class Server < Reel::Server
@@ -54,17 +56,40 @@ module Angelo
     end
 
     def static! meth, connection, request, local_path
-      headers = {
-        CONTENT_TYPE_HEADER_KEY =>
-          (MIME::Types.type_for(File.extname(local_path))[0].content_type rescue HTML_TYPE),
+      etag = etag_for local_path
+      if request.headers[IF_NONE_MATCH_HEADER_KEY] == etag
+        Angelo.log connection, request, nil, :not_modified, 0
+        connection.respond :not_modified
+      else
+        headers = {
 
-        CONTENT_DISPOSITION_HEADER_KEY =>
-          DEFAULT_CONTENT_DISPOSITION + "; filename=#{File.basename local_path}",
+          # Content-Type
+          #
+          CONTENT_TYPE_HEADER_KEY =>
+            (MIME::Types.type_for(File.extname(local_path))[0].content_type rescue HTML_TYPE),
 
-        CONTENT_LENGTH_HEADER_KEY => File.size(local_path)
-      }
-      Angelo.log connection, request, nil, :ok, headers[CONTENT_LENGTH_HEADER_KEY]
-      connection.respond :ok, headers, (meth == :head ? nil : File.read(local_path))
+          # Content-Disposition
+          #
+          CONTENT_DISPOSITION_HEADER_KEY =>
+            DEFAULT_CONTENT_DISPOSITION + "; filename=#{File.basename local_path}",
+
+          # Content-Length
+          #
+          CONTENT_LENGTH_HEADER_KEY => File.size(local_path),
+
+          # ETag
+          #
+          ETAG_HEADER_KEY => etag
+
+        }
+        Angelo.log connection, request, nil, :ok, headers[CONTENT_LENGTH_HEADER_KEY]
+        connection.respond :ok, headers, (meth == :head ? nil : File.read(local_path))
+      end
+    end
+
+    def etag_for local_path
+      fs = File::Stat.new local_path
+      OpenSSL::Digest::SHA.hexdigest fs.ino.to_s + fs.size.to_s + fs.mtime.to_s
     end
 
   end

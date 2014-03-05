@@ -22,6 +22,8 @@ module Angelo
   CONTENT_DISPOSITION_HEADER_KEY = 'Content-Disposition'
   CONTENT_LENGTH_HEADER_KEY = 'Content-Length'
   DEFAULT_CONTENT_DISPOSITION = 'attachment'
+  ETAG_HEADER_KEY = 'ETag'
+  IF_NONE_MATCH_HEADER_KEY = 'If-None-Match'
 
   HTML_TYPE = 'text/html'
   JSON_TYPE = 'application/json'

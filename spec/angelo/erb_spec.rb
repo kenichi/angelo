@@ -8,7 +8,7 @@ describe Angelo::Base do
 
       include Angelo::Tilt::ERB
 
-      @root = APP_ROOT
+      @root = TEST_APP_ROOT
 
       def set_vars
         @title = 'test'

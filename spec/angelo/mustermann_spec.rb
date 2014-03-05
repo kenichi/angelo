@@ -3,8 +3,6 @@ if RUBY_VERSION =~ /^2\./
   require_relative '../spec_helper'
   require 'angelo/mustermann'
 
-  TILT_MM_TEST_ROOT = File.expand_path '..', __FILE__
-
   describe Angelo::Mustermann do
 
     describe 'pattern matching' do
@@ -63,7 +61,7 @@ if RUBY_VERSION =~ /^2\./
         include Angelo::Tilt::ERB
         include Angelo::Mustermann
 
-        @root = TILT_MM_TEST_ROOT
+        @root = TEST_APP_ROOT
 
         get '/:foo/things/:bar' do
           @title = params[:foo]
