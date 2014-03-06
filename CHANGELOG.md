@@ -1,6 +1,20 @@
 changelog
 =========
 
+### 0.1.2 5 mar 2014 burnout, denial
+
+* basic static file support (i.e. /public files)
+* basic ETag/If-None-Match support
+
+### 0.1.1 3 mar 2014
+
+* fix for params with no Content-Type header
+
+### 0.1.0 24 feb 2014
+
+* fix for socket paths with mustermann
+* sorta common log-ish-ness
+
 ### 0.0.9 20 feb 2014
 
 * memoize params
