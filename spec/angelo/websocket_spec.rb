@@ -3,12 +3,46 @@ require_relative '../spec_helper'
 CK = 'ANGELO_CONCURRENCY' # concurrency key
 DC = 5                    # default concurrency
 
+# https://gist.github.com/tkareine/739662
+#
+class CountDownLatch
+  attr_reader :count
+
+  def initialize(to)
+    @count = to.to_i
+    raise ArgumentError, "cannot count down from negative integer" unless @count >= 0
+    @lock = Mutex.new
+    @condition = ConditionVariable.new
+  end
+
+  def count_down
+    @lock.synchronize do
+      @count -= 1 if @count > 0
+      @condition.broadcast if @count == 0
+    end
+  end
+
+  def wait
+    @lock.synchronize do
+      @condition.wait(@lock) while @count > 0
+    end
+  end
+
+end
+
 describe Angelo::WebsocketResponder do
 
   let(:concurrency){ ENV.key?(CK) ? ENV[CK].to_i : DC }
 
-  def socket_wait_for path, &block
-    Array.new(concurrency).map {|n| Thread.new {socket path, &block}}
+  def socket_wait_for path, latch, &block
+    Array.new(concurrency).map do |n|
+      Thread.new do
+        socket path do |client|
+          latch.count_down
+          block[client]
+        end
+      end
+    end
   end
 
   describe 'basics' do
@@ -67,13 +101,14 @@ describe Angelo::WebsocketResponder do
 
     it 'works with http requests' do
 
-      ts = socket_wait_for '/concur' do |client|
+      latch = CountDownLatch.new concurrency
+      ts = socket_wait_for '/concur', latch do |client|
         Angelo::HTTPABLE.each do |m|
           client.recv.should eq "from http #{m}"
         end
       end
 
-      sleep 0.1
+      latch.wait
       Angelo::HTTPABLE.each {|m| __send__ m, '/concur', foo: 'http'}
       ts.each &:join
 
@@ -126,32 +161,37 @@ describe Angelo::WebsocketResponder do
     end
 
     it 'handles single context' do
-      ts = socket_wait_for '/', &wait_for_block
-      sleep 0.1
+      latch = CountDownLatch.new concurrency
+      ts = socket_wait_for '/', latch, &wait_for_block
+      latch.wait
       post '/', obj
       ts.each &:join
     end
 
     it 'handles multiple contexts' do
-      ts = socket_wait_for '/', &wait_for_block
-      one_ts = socket_wait_for '/one', &wait_for_block
-      other_ts = socket_wait_for '/other', &wait_for_block
+      latch = CountDownLatch.new concurrency
+      one_latch = CountDownLatch.new concurrency
+      other_latch = CountDownLatch.new concurrency
 
-      sleep 0.1
+      ts = socket_wait_for '/', latch, &wait_for_block
+      latch.wait
+      one_ts = socket_wait_for '/one', one_latch, &wait_for_block
+      one_latch.wait
+      other_ts = socket_wait_for '/other', other_latch, &wait_for_block
+      other_latch.wait
+
       post '/one', obj
 
       ts.each {|t| t.should be_alive}
       one_ts.each &:join
       other_ts.each {|t| t.should be_alive}
 
-      sleep 0.1
       post '/other', obj
 
       ts.each {|t| t.should be_alive}
       one_ts.each {|t| t.should_not be_alive}
       other_ts.each &:join
 
-      sleep 0.1
       post '/', obj
 
       ts.each &:join
