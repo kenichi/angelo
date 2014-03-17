@@ -59,18 +59,18 @@ describe Angelo::WebsocketResponder do
       socket '/' do |client|
         5.times {|n|
           client.send "hi there #{n}"
-          client.recv.should eq "hi there #{n}"
+          expect(client.recv).to eq("hi there #{n}")
         }
       end
     end
 
     it 'responds on multiple websockets properly' do
-      5.times do
+      concurrency.times do
         Thread.new do
           socket '/' do |client|
             5.times {|n|
               client.send "hi there #{n}"
-              client.recv.should eq "hi there #{n}"
+              expect(client.recv).to eq("hi there #{n}")
             }
           end
         end
@@ -104,7 +104,7 @@ describe Angelo::WebsocketResponder do
       latch = CountDownLatch.new concurrency
       ts = socket_wait_for '/concur', latch do |client|
         Angelo::HTTPABLE.each do |m|
-          client.recv.should eq "from http #{m}"
+          expect(client.recv).to eq("from http #{m}")
         end
       end
 
@@ -118,7 +118,7 @@ describe Angelo::WebsocketResponder do
 
   describe 'helper contexts' do
     let(:obj){ {'foo' => 'bar'} }
-    let(:wait_for_block){ ->(client){ JSON.parse(client.recv).should eq obj}}
+    let(:wait_for_block){ ->(client){ expect(JSON.parse(client.recv)).to eq(obj) }}
 
     define_app do
 
@@ -200,4 +200,5 @@ describe Angelo::WebsocketResponder do
     end
 
   end
+
 end
