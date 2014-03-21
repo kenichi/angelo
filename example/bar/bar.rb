@@ -15,6 +15,11 @@ class Foo < Angelo::Base
   end
 
   socket '/' do |ws|
+    debug "websocket connected! reading..."
+    while msg = ws.read
+      debug "msg: '#{msg}'"
+      ws.write msg
+    end
   end
 
 end

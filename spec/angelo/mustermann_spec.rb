@@ -2,6 +2,7 @@ if RUBY_VERSION =~ /^2\./
 
   require_relative '../spec_helper'
   require 'angelo/mustermann'
+  require 'angelo/tilt/erb'
 
   describe Angelo::Mustermann do
 

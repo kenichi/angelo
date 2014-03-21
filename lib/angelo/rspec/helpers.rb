@@ -1,3 +1,5 @@
+require 'websocket/driver'
+
 module Angelo
   module RSpec
 
@@ -15,6 +17,7 @@ module Angelo
           app.class_eval { content_type :html } # reset
           app.class_eval &block
           @server = Angelo::Server.new app
+          $reactor = Reactor.new unless $reactor.alive?
         end
 
         after do
@@ -42,31 +45,19 @@ module Angelo
         end
       end
 
-      def socket path, params = {}, &block
-        begin
-          client = TCPSocket.new DEFAULT_ADDR, DEFAULT_PORT
+      def socket path, params = {}
+        params = params.keys.reduce([]) {|a,k|
+          a << CGI.escape(k) + '=' + CGI.escape(params[k])
+          a
+        }.join('&')
 
-          params = params.keys.reduce([]) {|a,k|
-            a << CGI.escape(k) + '=' + CGI.escape(params[k])
-            a
-          }.join('&')
-
-          url = WS_URL % [DEFAULT_ADDR, DEFAULT_PORT] + path + "?#{params}"
-
-          handshake = WebSocket::ClientHandshake.new :get, url, {
-            "Host"                   => "www.example.com",
-            "Upgrade"                => "websocket",
-            "Connection"             => "Upgrade",
-            "Sec-WebSocket-Key"      => "dGhlIHNhbXBsZSBub25jZQ==",
-            "Origin"                 => "http://example.com",
-            "Sec-WebSocket-Protocol" => "chat, superchat",
-            "Sec-WebSocket-Version"  => "13"
-          }
-
-          client << handshake.to_data
-          yield WebsocketHelper.new client
-        ensure
-          client.close
+        path += "?#{params}" unless params.empty?
+        wsh = WebsocketHelper.new DEFAULT_ADDR, DEFAULT_PORT, path
+        if block_given?
+          yield wsh
+          wsh.close
+        else
+          return wsh
         end
       end
 
@@ -85,23 +76,55 @@ module Angelo
     end
 
     class WebsocketHelper
+      include Celluloid::Logger
 
-      def initialize client
-        @client = client
-        @client.readpartial 4096 # ditch response handshake
+      extend Forwardable
+      def_delegator :@socket, :write
+      def_delegators :@driver, :binary, :close, :text
+
+      attr_reader :driver, :socket
+      attr_writer :addr, :port, :path, :on_close, :on_message, :on_open
+
+      def initialize addr, port, path
+        @addr, @port, @path = addr, port, path
       end
 
-      def parser
-        @parser ||= WebSocket::Parser.new
+      def init
+        init_socket
+        init_driver
       end
 
-      def send msg
-        @client << WebSocket::Message.new(msg).to_data
+      def init_socket
+        ip = @addr
+        ip = Socket.getaddrinfo(@addr, 'http')[0][3] unless @addr =~ /\d+\.\d+\.\d+\.\d+/
+        @socket = Celluloid::IO::TCPSocket.new ip, @port
       end
 
-      def recv
-        parser.append @client.readpartial(4096) until msg = parser.next_message
-        msg
+      def init_driver
+        @driver = WebSocket::Driver.client self
+
+        @driver.on :open do |e|
+          @on_open.call(e) if Proc === @on_open
+        end
+
+        @driver.on :message do |e|
+          @on_message.call(e) if Proc === @on_message
+        end
+
+        @driver.on :close do |e|
+          @on_close.call(e) if Proc === @on_close
+        end
+      end
+
+      def url
+        WS_URL % [@addr, @port] + @path
+      end
+
+      def go
+        @driver.start
+        while msg = @socket.readpartial(4096)
+          @driver.parse msg
+        end
       end
 
     end

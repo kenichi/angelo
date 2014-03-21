@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 gem 'reel'
 gem 'tilt'
 gem 'mime-types'
+gem 'websocket-driver'
 
 platform :rbx do
   gem 'rubysl-cgi'

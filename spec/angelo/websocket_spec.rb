@@ -1,48 +1,32 @@
 require_relative '../spec_helper'
 
-CK = 'ANGELO_CONCURRENCY' # concurrency key
-DC = 5                    # default concurrency
-
-# https://gist.github.com/tkareine/739662
-#
-class CountDownLatch
-  attr_reader :count
-
-  def initialize(to)
-    @count = to.to_i
-    raise ArgumentError, "cannot count down from negative integer" unless @count >= 0
-    @lock = Mutex.new
-    @condition = ConditionVariable.new
-  end
-
-  def count_down
-    @lock.synchronize do
-      @count -= 1 if @count > 0
-      @condition.broadcast if @count == 0
-    end
-  end
-
-  def wait
-    @lock.synchronize do
-      @condition.wait(@lock) while @count > 0
-    end
-  end
-
-end
-
 describe Angelo::WebsocketResponder do
 
-  let(:concurrency){ ENV.key?(CK) ? ENV[CK].to_i : DC }
-
-  def socket_wait_for path, latch, &block
-    Array.new(concurrency).map do |n|
-      Thread.new do
-        socket path do |client|
-          latch.count_down
-          block[client]
-        end
-      end
+  def socket_wait_for path, latch, expectation, key = :swf, &block
+    Reactor.testers[key] = Array.new(CONCURRENCY).map do
+      wsh = socket path
+      wsh.on_message = ->(e) {
+        expectation[e] if Proc === expectation
+        latch.count_down
+      }
+      wsh.init
+      wsh
     end
+    action = (key.to_s + '_go').to_sym
+    Reactor.define_action action do |n|
+      every(0.01){ terminate if Reactor.stop? }
+      Reactor.testers[key][n].go
+    end
+    Reactor.unstop!
+    CONCURRENCY.times {|n| $reactor.async.__send__(action, n)}
+
+    sleep 0.01 * CONCURRENCY
+    yield
+
+    Reactor.testers[key].map &:close
+    Reactor.stop!
+    Reactor.testers.delete key
+    Reactor.remove_action action
   end
 
   describe 'basics' do
@@ -56,25 +40,66 @@ describe Angelo::WebsocketResponder do
     end
 
     it 'responds on websockets properly' do
-      socket '/' do |client|
-        5.times {|n|
-          client.send "hi there #{n}"
-          expect(client.recv).to eq("hi there #{n}")
+      socket '/' do |wsh|
+        latch = CountDownLatch.new 500
+
+        wsh.on_message = ->(e) {
+          expect(e.data).to match(/hi there \d/)
+          latch.count_down
         }
+
+        wsh.init
+        Reactor.testers[:tester] = wsh
+        Reactor.define_action :go do
+          every(0.01){ terminate if Reactor.stop? }
+          Reactor.testers[:tester].go
+        end
+        Reactor.unstop!
+        $reactor.async.go
+
+        500.times {|n| wsh.text "hi there #{n}"}
+        latch.wait
+
+        Reactor.stop!
+        Reactor.testers.delete :tester
+        Reactor.remove_action :go
       end
     end
 
     it 'responds on multiple websockets properly' do
-      concurrency.times do
-        Thread.new do
-          socket '/' do |client|
-            5.times {|n|
-              client.send "hi there #{n}"
-              expect(client.recv).to eq("hi there #{n}")
-            }
-          end
-        end
+      latch = CountDownLatch.new CONCURRENCY * 500
+
+      Reactor.testers[:wshs] = Array.new(CONCURRENCY).map do
+        wsh = socket '/'
+        wsh.on_message = ->(e) {
+          expect(e.data).to match(/hi there \d/)
+          latch.count_down
+        }
+        wsh.init
+        wsh
       end
+
+      Reactor.define_action :go do |n|
+        every(0.01){ terminate if Reactor.stop? }
+        Reactor.testers[:wshs][n].go
+      end
+      Reactor.unstop!
+      CONCURRENCY.times {|n| $reactor.async.go n}
+
+      sleep 0.01 * CONCURRENCY
+
+      ActorPool.define_action :go do |n|
+        500.times {|x| Reactor.testers[:wshs][n].text "hi there #{x}"}
+      end
+      CONCURRENCY.times {|n| $pool.async.go n}
+      latch.wait
+
+      Reactor.testers[:wshs].map &:close
+      Reactor.stop!
+      Reactor.testers.delete :wshs
+      Reactor.remove_action :go
+
+      ActorPool.remove_action :go
     end
 
   end
@@ -101,16 +126,16 @@ describe Angelo::WebsocketResponder do
 
     it 'works with http requests' do
 
-      latch = CountDownLatch.new concurrency
-      ts = socket_wait_for '/concur', latch do |client|
-        Angelo::HTTPABLE.each do |m|
-          expect(client.recv).to eq("from http #{m}")
-        end
-      end
+      latch = CountDownLatch.new CONCURRENCY * Angelo::HTTPABLE.length
 
-      latch.wait
-      Angelo::HTTPABLE.each {|m| __send__ m, '/concur', foo: 'http'}
-      ts.each &:join
+      expectation = ->(e){
+        expect(e.data).to match(/from http (#{Angelo::HTTPABLE.map(&:to_s).join('|')})/)
+      }
+
+      socket_wait_for '/concur', latch, expectation do
+        Angelo::HTTPABLE.each {|m| __send__ m, '/concur', foo: 'http'}
+        latch.wait
+      end
 
     end
 
@@ -118,7 +143,7 @@ describe Angelo::WebsocketResponder do
 
   describe 'helper contexts' do
     let(:obj){ {'foo' => 'bar'} }
-    let(:wait_for_block){ ->(client){ expect(JSON.parse(client.recv)).to eq(obj) }}
+    let(:wait_for_block){ ->(e){ expect(JSON.parse(e.data)).to eq(obj) }}
 
     define_app do
 
@@ -161,42 +186,78 @@ describe Angelo::WebsocketResponder do
     end
 
     it 'handles single context' do
-      latch = CountDownLatch.new concurrency
-      ts = socket_wait_for '/', latch, &wait_for_block
-      latch.wait
-      post '/', obj
-      ts.each &:join
+      latch = CountDownLatch.new CONCURRENCY
+      socket_wait_for '/', latch, wait_for_block do
+        post '/', obj
+        latch.wait
+      end
     end
 
     it 'handles multiple contexts' do
-      latch = CountDownLatch.new concurrency
-      one_latch = CountDownLatch.new concurrency
-      other_latch = CountDownLatch.new concurrency
 
-      ts = socket_wait_for '/', latch, &wait_for_block
-      latch.wait
-      one_ts = socket_wait_for '/one', one_latch, &wait_for_block
-      one_latch.wait
-      other_ts = socket_wait_for '/other', other_latch, &wait_for_block
-      other_latch.wait
+      latch = CountDownLatch.new CONCURRENCY
+
+      Reactor.testers[:hmc] = Array.new(CONCURRENCY).map do
+        wsh = socket '/'
+        wsh.on_message = ->(e) {
+          wait_for_block[e]
+          latch.count_down
+        }
+        wsh.init
+        wsh
+      end
+
+      one_latch = CountDownLatch.new CONCURRENCY
+
+      Reactor.testers[:hmc_one] = Array.new(CONCURRENCY).map do
+        wsh = socket '/one'
+        wsh.on_message = ->(e) {
+          wait_for_block[e]
+          one_latch.count_down
+        }
+        wsh.init
+        wsh
+      end
+
+      other_latch = CountDownLatch.new CONCURRENCY
+
+      Reactor.testers[:hmc_other] = Array.new(CONCURRENCY).map do
+        wsh = socket '/other'
+        wsh.on_message = ->(e) {
+          wait_for_block[e]
+          other_latch.count_down
+        }
+        wsh.init
+        wsh
+      end
+
+      Reactor.define_action :go do |k, n|
+        Reactor.testers[k][n].go
+      end
+      Reactor.unstop!
+      CONCURRENCY.times do |n|
+        [:hmc, :hmc_one, :hmc_other].each do |k|
+          $reactor.async.go k, n
+        end
+      end
+
+      sleep 0.01 * CONCURRENCY
 
       post '/one', obj
-
-      ts.each {|t| t.should be_alive}
-      one_ts.each &:join
-      other_ts.each {|t| t.should be_alive}
-
-      post '/other', obj
-
-      ts.each {|t| t.should be_alive}
-      one_ts.each {|t| t.should_not be_alive}
-      other_ts.each &:join
-
+      one_latch.wait
       post '/', obj
+      latch.wait
+      post '/other', obj
+      other_latch.wait
 
-      ts.each &:join
-      one_ts.each {|t| t.should_not be_alive}
-      other_ts.each {|t| t.should_not be_alive}
+      [:hmc, :hmc_one, :hmc_other].each do |k|
+        Reactor.testers[k].map &:close
+      end
+      Reactor.stop!
+      [:hmc, :hmc_one, :hmc_other].each do |k|
+        Reactor.testers.delete k
+      end
+      Reactor.remove_action :go
     end
 
   end
