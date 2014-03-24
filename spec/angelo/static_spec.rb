@@ -54,6 +54,19 @@ describe Angelo::Server do
       expect(last_response.status).to be(304)
     end
 
+    it 'serves proper content-types' do
+      { 'test.js' => 'application/javascript',
+        'test.html' => 'text/html',
+        'test.css' => 'text/css',
+        'what.png' => 'image/png' }.each do |k,v|
+
+        get "/#{k}"
+        expect(last_response.status).to be(200)
+        expect(last_response.headers['Content-Type']).to eq(v)
+
+      end
+    end
+
   end
 
 end

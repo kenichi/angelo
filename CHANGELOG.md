@@ -1,6 +1,12 @@
 changelog
 =========
 
+### 0.1.3 24 mar 2014
+
+* better testing of websockets
+* slightly better handling of socket errors
+* static file content type fix
+
 ### 0.1.2 5 mar 2014 burnout, denial
 
 * basic static file support (i.e. /public files)

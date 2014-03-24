@@ -1,4 +1,5 @@
 require 'openssl'
+require 'mime-types'
 
 module Angelo
 
