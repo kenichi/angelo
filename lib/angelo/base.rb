@@ -144,13 +144,15 @@ module Angelo
       include Celluloid::Logger
 
       @@peeraddrs = {}
+      @@socket_context = {}
 
-      def initialize server
-        @server = server
+      def initialize server, context = nil
+        @context, @server = context, server
         super()
       end
 
       def << ws
+        @@socket_context[ws] = @context if @context
         @@peeraddrs[ws] = ws.peeraddr
         @server.async.handle_websocket ws
         super ws
@@ -167,14 +169,20 @@ module Angelo
       end
 
       def remove_socket ws
-        warn "removing socket (#{@@peeraddrs[ws][2]})"
-        delete ws
+        if c = @@socket_context[ws]
+          warn "removing socket from context ':#{c}' (#{@@peeraddrs[ws][2]})"
+          self[c].delete ws
+        else
+          warn "removing socket (#{@@peeraddrs[ws][2]})"
+          delete ws
+        end
         @@peeraddrs.delete ws
       end
 
       def [] context
+        raise ArgumentError.new "symbol required" unless Symbol === context
         @@websockets ||= {}
-        @@websockets[context] ||= self.class.new @server
+        @@websockets[context] ||= self.class.new @server, context
       end
 
     end

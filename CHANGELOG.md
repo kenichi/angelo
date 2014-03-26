@@ -1,6 +1,12 @@
 changelog
 =========
 
+### 0.1.4 26 mar 2014
+
+* add Base.async, Base.on_pong, and Base#async
+* fix websockets context handling, removal
+* add ping task to reactor
+
 ### 0.1.3 24 mar 2014
 
 * better testing of websockets

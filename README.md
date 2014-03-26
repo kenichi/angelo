@@ -9,7 +9,8 @@ A [Sinatra](https://github.com/sinatra/sinatra)-esque DSL for [Reel](https://git
 
 * "easy" websocket support via `socket '/path' do |s|` route handler
 * "easy" websocket stashing via `websockets` helper
-* no rack/rack-style params
+* "easy" event handling via `async` helpers
+* no rack
 * optional tilt/erb support
 * optional mustermann support
 
@@ -23,6 +24,9 @@ require 'angelo'
 class Foo < Angelo::Base
 
   TEST = {foo: "bar", baz: 123, bat: false}.to_json
+
+  HEART = '<3'
+  @@hearting = false
 
   def pong; 'pong'; end
   def foo; params[:foo]; end
@@ -46,7 +50,7 @@ class Foo < Angelo::Base
 
   socket '/ws' do |ws|
     websockets[:emit_test] << ws
-    while msg = ws.read
+    ws.on_message do |msg|
       5.times { ws.write TEST }
       ws.write foo.to_json
     end
@@ -58,6 +62,24 @@ class Foo < Angelo::Base
 
   socket '/other/ws' do |ws|
     websockets[:other] << ws
+  end
+
+  socket '/hearts' do |ws|
+
+    # this is a call to Base#async, actually calling 
+    # the reactor to start the task
+    # 
+    async :hearts unless @@hearting
+
+    websockets[:hearts] << ws
+  end
+
+  # this is a call to Base.async, defining the task
+  # to perform on the reactor
+  #
+  async :hearts do
+    @@hearting = true
+    every(10){ websockets[:hearts].each {|ws| ws.write HEART } }
   end
 
 end

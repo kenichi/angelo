@@ -66,7 +66,14 @@ class Foo < Angelo::Base
 
   socket '/ws' do |s|
     websockets << s
-    while msg = s.read
+
+    # don't do this!
+    #
+    # while msg = s.read
+    #
+    # instead, do this!
+    #
+    s.on_message do |msg|
       5.times { s.write TEST }
       s.write foo.to_json
     end
@@ -74,7 +81,14 @@ class Foo < Angelo::Base
 
   socket '/:foo/echo' do |s|
     begin
-      while msg = s.read
+
+      # again, don't do this!
+      #
+      # while msg = s.read
+      #
+      # instead, do this!
+      #
+      s.on_message do |msg|
         s.write "#{params[:foo]} - #{msg}"
       end
     rescue Reel::SocketError => rse

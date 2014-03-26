@@ -10,7 +10,9 @@ require 'angelo/tilt/erb'
 class Foo < Angelo::Base
   include Angelo::Tilt::ERB
 
+  HEART = '<3'
   @@ping_time = 3
+  @@hearting = false
 
   get '/' do
     erb :index
@@ -18,10 +20,23 @@ class Foo < Angelo::Base
 
   socket '/' do |ws|
     websockets << ws
+    ws.on_message do |msg|
+      ws.write msg
+    end
   end
 
   on_pong do
     puts "got pong!"
+  end
+
+  socket '/hearts' do |ws|
+    async :hearts unless @@hearting
+    websockets[:hearts] << ws
+  end
+
+  async :hearts do
+    @@hearting = true
+    every(10){ websockets[:hearts].each {|ws| ws.write HEART } }
   end
 
 end
