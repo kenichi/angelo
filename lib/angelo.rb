@@ -44,6 +44,8 @@ module Angelo
 
   LOG_FORMAT = '%s - - "%s %s%s HTTP/%s" %d %s'
 
+  DEFAULT_PING_TIME = 30
+
   def self.log connection, request, socket, status, body_size = '-'
 
     remote_ip = ->{

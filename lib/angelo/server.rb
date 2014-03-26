@@ -4,7 +4,10 @@ require 'mime-types'
 module Angelo
 
   class Server < Reel::Server
+    extend Forwardable
     include Celluloid::Logger
+
+    def_delegator :@base, :websockets
 
     def initialize base, host = '127.0.0.1', port = 4567
       @base = base
@@ -20,6 +23,14 @@ module Angelo
         dispatch! meth, connection, request
       end
       # RubyProf.pause
+    end
+
+    def self.define_action name, &action
+      define_method name, &action
+    end
+
+    def self.remove_action name
+      remove_method name
     end
 
     private

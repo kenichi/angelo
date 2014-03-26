@@ -10,7 +10,9 @@ module Angelo
     @@addr = DEFAULT_ADDR
     @@port = DEFAULT_PORT
 
-    if ARGV.any?
+    @@ping_time = DEFAULT_PING_TIME
+
+    if ARGV.any? and not Kernel.const_defined?('RSpec')
       require 'optparse'
       OptionParser.new { |op|
         op.on('-p port',   'set the port (default is 4567)')      { |val| @@port = Integer(val) }
@@ -22,7 +24,7 @@ module Angelo
 
     class << self
 
-      attr_accessor :app_file
+      attr_accessor :app_file, :server
 
       def inherited subclass
         subclass.app_file = caller(1).map {|l| l.split(/:(?=|in )/, 3)[0,1]}.flatten[0]
@@ -76,8 +78,16 @@ module Angelo
         routes[:socket][path] = WebsocketResponder.new &block
       end
 
+      def on_pong &block
+        WebsocketResponder.on_pong = block
+      end
+
+      def async name, &block
+        Angelo::Server.define_action name, &block
+      end
+
       def websockets
-        @websockets ||= WebsocketsArray.new
+        @websockets ||= WebsocketsArray.new server
         @websockets.reject! &:closed?
         @websockets
       end
@@ -88,6 +98,7 @@ module Angelo
 
       def run addr = @@addr, port = @@port
         @server = Angelo::Server.new self, addr, port
+        @server.async.ping_websockets
         trap "INT" do
           @server.terminate if @server and @server.alive?
           exit
@@ -95,6 +106,10 @@ module Angelo
         sleep
       end
 
+    end
+
+    def async meth, *args
+      self.class.server.async.__send__ meth, *args
     end
 
     def params
@@ -107,22 +122,59 @@ module Angelo
 
     def websockets; self.class.websockets; end
 
+    async :handle_websocket do |ws|
+      begin
+        while !ws.closed? do
+          ws.read
+        end
+      rescue IOError
+        websockets.remove_socket ws
+      end
+    end
+
+    async :ping_websockets do
+      every(@@ping_time) do
+        websockets.each do |ws|
+          ws.socket << ::WebSocket::Message.ping.to_data
+        end
+      end
+    end
+
     class WebsocketsArray < Array
+      include Celluloid::Logger
+
+      @@peeraddrs = {}
+
+      def initialize server
+        @server = server
+        super()
+      end
+
+      def << ws
+        @@peeraddrs[ws] = ws.peeraddr
+        @server.async.handle_websocket ws
+        super ws
+      end
 
       def each &block
         super do |ws|
           begin
             yield ws
-          rescue Reel::SocketError => rse
-            warn "#{rse.class} - #{rse.message}"
-            delete ws
+          rescue Reel::SocketError
+            remove_socket ws
           end
         end
       end
 
+      def remove_socket ws
+        warn "removing socket (#{@@peeraddrs[ws][2]})"
+        delete ws
+        @@peeraddrs.delete ws
+      end
+
       def [] context
         @@websockets ||= {}
-        @@websockets[context] ||= self.class.new
+        @@websockets[context] ||= self.class.new @server
       end
 
     end

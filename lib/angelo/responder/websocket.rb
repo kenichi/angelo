@@ -2,6 +2,16 @@ module Angelo
 
   class WebsocketResponder < Responder
 
+    class << self
+
+      attr_writer :on_pong
+
+      def on_pong
+        @on_pong ||= ->(e){}
+      end
+
+    end
+
     def params
       @params ||= parse_query_string
       @params
@@ -19,6 +29,7 @@ module Angelo
         if @response_handler
           Angelo.log @connection, @request, @websocket, :switching_protocols
           @bound_response_handler ||= @response_handler.bind @base
+          @websocket.on_pong &WebsocketResponder.on_pong
           @bound_response_handler[@websocket]
         else
           raise NotImplementedError

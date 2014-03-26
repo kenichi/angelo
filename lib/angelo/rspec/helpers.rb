@@ -6,7 +6,6 @@ module Angelo
     module Helpers
 
       HTTP_URL = 'http://%s:%d'
-      WS_URL = 'ws://%s:%d'
 
       attr_reader :last_response
 
@@ -17,6 +16,7 @@ module Angelo
           app.class_eval { content_type :html } # reset
           app.class_eval &block
           @server = Angelo::Server.new app
+          app.server = @server
           $reactor = Reactor.new unless $reactor.alive?
         end
 
@@ -81,6 +81,8 @@ module Angelo
       extend Forwardable
       def_delegator :@socket, :write
       def_delegators :@driver, :binary, :close, :text
+
+      WS_URL = 'ws://%s:%d'
 
       attr_reader :driver, :socket
       attr_writer :addr, :port, :path, :on_close, :on_message, :on_open
