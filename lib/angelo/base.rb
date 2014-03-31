@@ -5,7 +5,7 @@ module Angelo
     include Celluloid::Logger
 
     extend Forwardable
-    def_delegators :@responder, :content_type, :headers, :request
+    def_delegators :@responder, :content_type, :headers, :redirect, :request
 
     @@addr = DEFAULT_ADDR
     @@port = DEFAULT_PORT
@@ -134,7 +134,7 @@ module Angelo
 
     async :ping_websockets do
       every(@@ping_time) do
-        websockets.each do |ws|
+        websockets.all.each do |ws|
           ws.socket << ::WebSocket::Message.ping.to_data
         end
       end
@@ -145,6 +145,7 @@ module Angelo
 
       @@peeraddrs = {}
       @@socket_context = {}
+      @@websockets = {}
 
       def initialize server, context = nil
         @context, @server = context, server
@@ -181,8 +182,11 @@ module Angelo
 
       def [] context
         raise ArgumentError.new "symbol required" unless Symbol === context
-        @@websockets ||= {}
         @@websockets[context] ||= self.class.new @server, context
+      end
+
+      def all
+        a = self + @@websockets.values.flatten
       end
 
     end

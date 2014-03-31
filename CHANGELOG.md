@@ -1,6 +1,12 @@
 changelog
 =========
 
+### 0.1.5 31 mar 2014
+
+* add WebsocketsArray#all
+* fix websockets pinging to ping all connected sockets
+* add Responder#redirect
+
 ### 0.1.4 26 mar 2014
 
 * add Base.async, Base.on_pong, and Base#async

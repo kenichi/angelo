@@ -26,6 +26,10 @@ describe Angelo::Base do
         end
       end
 
+      get '/redirect' do
+        redirect '/'
+      end
+
     end
 
     it 'responds to http requests properly' do
@@ -43,6 +47,12 @@ describe Angelo::Base do
     it 'responds to post requests with json properly' do
       post '/json', obj.to_json, {'Content-Type' => Angelo::JSON_TYPE}
       last_response_should_be_json obj
+    end
+
+    it 'redirects' do
+      get '/redirect'
+      expect(last_response.status).to eq(301)
+      expect(last_response.headers['Location']).to eq('/')
     end
 
   end
@@ -303,9 +313,6 @@ describe Angelo::Base do
       last_response_should_be_json({})
     end
 
-  end
-
-  describe 'websockets helper' do
   end
 
 end

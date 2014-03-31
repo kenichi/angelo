@@ -128,6 +128,13 @@ module Angelo
       handle_error e, :internal_server_error, false
     end
 
+    def redirect url
+      Angelo.log @connection, @request, nil, :moved_permanently, 0
+      @connection.respond :moved_permanently, headers(LOCATION_HEADER_KEY => url), ''
+    rescue => e
+      handle_error e, :internal_server_error, false
+    end
+
   end
 
 end
