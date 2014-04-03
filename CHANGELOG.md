@@ -1,6 +1,9 @@
 changelog
 =========
 
+* add Base#request_headers helper
+* rename Base.async -> Base.task, add Base#future
+
 ### 0.1.5 31 mar 2014
 
 * add WebsocketsArray#all

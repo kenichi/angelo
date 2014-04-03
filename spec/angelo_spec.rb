@@ -315,4 +315,39 @@ describe Angelo::Base do
 
   end
 
+  describe 'request_headers helper' do
+
+    define_app do
+
+      get '/rh' do
+        content_type :json
+        { values: [
+            request_headers[params[:hk_1].to_sym],
+            request_headers[params[:hk_2].to_sym],
+            request_headers[params[:hk_3].to_sym]
+          ]
+        }
+      end
+
+    end
+
+    it 'matches snakecased symbols against case insensitive header keys' do
+      ps = {
+        hk_1: 'foo_bar',
+        hk_2: 'x_http_mozilla_ie_safari_puke',
+        hk_3: 'authorization'
+      }
+
+      hs = {
+        'Foo-BAR' => 'abcdef',
+        'X-HTTP-Mozilla-IE-Safari-PuKe' => 'ghijkl',
+        'Authorization' => 'Bearer oauth_token_hi'
+      }
+
+      get '/rh', ps, hs
+      last_response_should_be_json 'values' => hs.values
+    end
+
+  end
+
 end

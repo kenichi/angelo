@@ -126,6 +126,17 @@ module Angelo
 
     def websockets; self.class.websockets; end
 
+    def request_headers
+      @request_headers ||= Hash.new do |hash, key|
+        if Symbol === key
+          k = key.to_s.upcase
+          k.gsub! UNDERSCORE, DASH
+          rhv = request.headers.select {|header_key,v| header_key.upcase == k}
+          hash[key] = rhv.values.first
+        end
+      end
+    end
+
     task :handle_websocket do |ws|
       begin
         while !ws.closed? do

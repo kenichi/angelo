@@ -47,6 +47,9 @@ module Angelo
 
   DEFAULT_PING_TIME = 30
 
+  UNDERSCORE = '_'
+  DASH = '-'
+
   def self.log connection, request, socket, status, body_size = '-'
 
     remote_ip = ->{
