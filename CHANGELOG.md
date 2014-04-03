@@ -1,6 +1,10 @@
 changelog
 =========
 
+### 0.1.6 2 apr 2014
+
+* better testing of Responder#headers
+* better handling of Responder#redirect
 * add Base#request_headers helper
 * rename Base.async -> Base.task, add Base#future
 
