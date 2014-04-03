@@ -82,8 +82,8 @@ module Angelo
         WebsocketResponder.on_pong = block
       end
 
-      def async name, &block
-        Angelo::Server.define_action name, &block
+      def task name, &block
+        Angelo::Server.define_task name, &block
       end
 
       def websockets
@@ -112,6 +112,10 @@ module Angelo
       self.class.server.async.__send__ meth, *args
     end
 
+    def future meth, *args
+      self.class.server.future.__send__ meth, *args
+    end
+
     def params
       @params ||= case request.method
                   when GET;  parse_query_string
@@ -122,7 +126,7 @@ module Angelo
 
     def websockets; self.class.websockets; end
 
-    async :handle_websocket do |ws|
+    task :handle_websocket do |ws|
       begin
         while !ws.closed? do
           ws.read
@@ -132,7 +136,7 @@ module Angelo
       end
     end
 
-    async :ping_websockets do
+    task :ping_websockets do
       every(@@ping_time) do
         websockets.all.each do |ws|
           ws.socket << ::WebSocket::Message.ping.to_data

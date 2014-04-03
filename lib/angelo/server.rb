@@ -25,11 +25,11 @@ module Angelo
       # RubyProf.pause
     end
 
-    def self.define_action name, &action
+    def self.define_task name, &action
       define_method name, &action
     end
 
-    def self.remove_action name
+    def self.remove_task name
       remove_method name
     end
 

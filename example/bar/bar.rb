@@ -6,9 +6,11 @@ Bundler.require :default, :development
 
 require 'angelo'
 require 'angelo/tilt/erb'
+require 'angelo/mustermann'
 
 class Foo < Angelo::Base
   include Angelo::Tilt::ERB
+  include Angelo::Mustermann
 
   HEART = '<3'
   @@ping_time = 3
@@ -16,6 +18,16 @@ class Foo < Angelo::Base
 
   get '/' do
     erb :index
+  end
+
+  post '/in/:sec/sec/:thing' do
+    f = future :in_sec, params[:sec], params[:thing]
+    f.value
+  end
+
+  task :in_sec do |sec, msg|
+    sleep sec.to_i
+    msg
   end
 
   socket '/' do |ws|
@@ -34,7 +46,7 @@ class Foo < Angelo::Base
     websockets[:hearts] << ws
   end
 
-  async :hearts do
+  task :hearts do
     @@hearting = true
     every(10){ websockets[:hearts].each {|ws| ws.write HEART } }
   end

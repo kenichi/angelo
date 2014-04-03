@@ -20,8 +20,10 @@ Lots of work left to do!
 
 ```ruby
 require 'angelo'
+require 'angelo/mustermann'
 
 class Foo < Angelo::Base
+  include Angelo::Mustermann
 
   TEST = {foo: "bar", baz: 123, bat: false}.to_json
 
@@ -74,12 +76,26 @@ class Foo < Angelo::Base
     websockets[:hearts] << ws
   end
 
-  # this is a call to Base.async, defining the task
+  # this is a call to Base.task, defining the task
   # to perform on the reactor
   #
-  async :hearts do
+  task :hearts do
     @@hearting = true
     every(10){ websockets[:hearts].each {|ws| ws.write HEART } }
+  end
+
+  post '/in/:sec/sec/:msg' do
+
+    # this is a call to Base#future, telling the reactor
+    # do this thing and we'' want the value eventually
+    #
+    f = future :in_sec params[:sec], params[:msg]
+    f.value
+  end
+
+  task :in_sec do |sec, msg|
+    sleep sec.to_i
+    msg
   end
 
 end
