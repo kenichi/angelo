@@ -49,6 +49,7 @@ module Angelo
 
   UNDERSCORE = '_'
   DASH = '-'
+  EMPTY_STRING = ''
 
   def self.log connection, request, socket, status, body_size = '-'
 

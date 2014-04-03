@@ -17,6 +17,10 @@ class Foo < Angelo::Base
   @@hearting = false
 
   get '/' do
+    redirect '/index'
+  end
+
+  get '/index' do
     erb :index
   end
 

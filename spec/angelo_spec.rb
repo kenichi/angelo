@@ -122,6 +122,36 @@ describe Angelo::Base do
 
   end
 
+  describe 'headers helper' do
+
+    headers_count = 0
+
+    define_app do
+
+      put '/incr' do
+        headers 'X-Http-Angelo-Server' => 'catbutt' if headers_count % 2 == 0
+        headers_count += 1
+        ''
+      end
+
+    end
+
+    it 'sets headers for a response' do
+      put '/incr'
+      expect(last_response.headers['X-Http-Angelo-Server']).to eq('catbutt')
+    end
+
+    it 'does not carry headers over responses' do
+      headers_count = 0
+      put '/incr'
+      expect(last_response.headers['X-Http-Angelo-Server']).to eq('catbutt')
+
+      put '/incr'
+      expect(last_response.headers['X-Http-Angelo-Server']).to be_nil
+    end
+
+  end
+
   describe 'content_type helper' do
 
     describe 'when in route block' do

@@ -46,6 +46,7 @@ module Angelo
 
     def request= request
       @params = nil
+      @redirect = nil
       @request = request
       handle_request
       respond
@@ -121,18 +122,21 @@ module Angelo
               when Hash
                 raise 'html response requires String' if respond_with? :html
                 @body.to_json if respond_with? :json
+              when NilClass
+                EMPTY_STRING
               end
-      Angelo.log @connection, @request, nil, :ok, @body.size
-      @connection.respond :ok, headers, @body
+
+      status = @redirect.nil? ? :ok : :moved_permanently
+      headers LOCATION_HEADER_KEY => @redirect if @redirect
+
+      Angelo.log @connection, @request, nil, status, @body.size
+      @connection.respond status, headers, @body
     rescue => e
       handle_error e, :internal_server_error, false
     end
 
     def redirect url
-      Angelo.log @connection, @request, nil, :moved_permanently, 0
-      @connection.respond :moved_permanently, headers(LOCATION_HEADER_KEY => url), ''
-    rescue => e
-      handle_error e, :internal_server_error, false
+      @redirect = url
     end
 
   end
