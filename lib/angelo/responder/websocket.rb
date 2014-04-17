@@ -42,7 +42,7 @@ module Angelo
         ::STDERR.puts e.backtrace
         begin
           @connection.close
-        rescue Reel::Connection::StateError => rcse
+        rescue Reel::StateError => rcse
           close_websocket
         end
       end
