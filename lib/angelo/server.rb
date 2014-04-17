@@ -3,7 +3,7 @@ require 'mime-types'
 
 module Angelo
 
-  class Server < Reel::Server
+  class Server < Reel::Server::HTTP
     extend Forwardable
     include Celluloid::Logger
 
