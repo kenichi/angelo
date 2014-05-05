@@ -54,7 +54,7 @@ from inside a websocket handler block. These can "later" be iterated over so one
 emit a message on every connected websocket when the service receives a POST request.
 
 The `websockets` helper also includes a context ability, so you can stash connected websocket clients
-into different "buckets".
+into different "sections".
 
 ##### Example!
 
@@ -92,8 +92,8 @@ default websockets array; clients that connected to '/bar' would be stashed into
 Each "section" can accessed with a familiar, `Hash`-like syntax, and can be iterated over with
 a `.each` block.
 
-When a `POST /` with a 'foo=' param is received, any value is messaged out to any '/' connected
-websockets. When a `POST /bar` with a 'bar=' param is received, any value is messaged out to all
+When a `POST /` with a 'foo' param is received, any value is messaged out to any '/' connected
+websockets. When a `POST /bar` with a 'bar' param is received, any value is messaged out to all
 websockets that connected to '/bar'.
 
 ### Tasks + Async / Future
@@ -140,7 +140,7 @@ end
 ##### `future` helper
 
 Just like `async`, this comes from Celluloid as well. It behaves exactly like `async`, with the
-notable exception of returing a 'future' object that you can call `#value` on later to retreive
+notable exception of returing a "future" object that you can call `#value` on later to retreive
 the return value of the task. Once `#value` is called, things will "block" until the task is
 finished.
 
@@ -170,18 +170,28 @@ require 'angelo/mustermann'
 class Foo < Angelo::Base
   include Angelo::Mustermann
 
+  # just some constants to use in routes later...
+  #
   TEST = {foo: "bar", baz: 123, bat: false}.to_json
-
   HEART = '<3'
+
+  # a flag to know if the :heart task is running
+  #
   @@hearting = false
 
+  # you can define instance methods, just like Sinatra!
+  #
   def pong; 'pong'; end
   def foo; params[:foo]; end
 
+  # standard HTTP GET handler
+  #
   get '/ping' do
     pong
   end
 
+  # standard HTTP POST handler
+  #
   post '/foo' do
     foo
   end
@@ -190,11 +200,18 @@ class Foo < Angelo::Base
     params.to_json
   end
 
+  # emit the TEST JSON value on all :emit_test websockets
+  # return the params posted as JSON
+  #
   post '/emit' do
     websockets[:emit_test].each {|ws| ws.write TEST}
     params.to_json
   end
 
+  # handle websocket requests at '/ws'
+  # stash them in the :emit_test context
+  # write 6 messages to the websocket whenever a message is received
+  #
   websocket '/ws' do |ws|
     websockets[:emit_test] << ws
     ws.on_message do |msg|
@@ -203,10 +220,15 @@ class Foo < Angelo::Base
     end
   end
 
+  # emit the TEST JSON value on all :other websockets
+  #
   post '/other' do
     websockets[:other].each {|ws| ws.write TEST}
+    ''
   end
 
+  # stash '/other/ws' connected websockets in the :other context
+  #
   websocket '/other/ws' do |ws|
     websockets[:other] << ws
   end
@@ -238,6 +260,9 @@ class Foo < Angelo::Base
     f.value
   end
 
+  # define a task on the reactor that sleeps for the given number of
+  # seconds and returns the given message
+  #
   task :in_sec do |sec, msg|
     sleep sec.to_i
     msg
