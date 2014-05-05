@@ -32,7 +32,7 @@ describe Angelo::WebsocketResponder do
   describe 'basics' do
 
     define_app do
-      socket '/' do |ws|
+      websocket '/' do |ws|
         while msg = ws.read do
           ws.write msg
         end
@@ -118,7 +118,7 @@ describe Angelo::WebsocketResponder do
         end
       end
 
-      socket '/concur' do |ws|
+      websocket '/concur' do |ws|
         websockets << ws
       end
 
@@ -152,7 +152,7 @@ describe Angelo::WebsocketResponder do
         ''
       end
 
-      socket '/' do |ws|
+      websocket '/' do |ws|
         websockets << ws
         while msg = ws.read do
           ws.write msg.to_json
@@ -164,7 +164,7 @@ describe Angelo::WebsocketResponder do
         ''
       end
 
-      socket '/one' do |ws|
+      websocket '/one' do |ws|
         websockets[:one] << ws
         while msg = ws.read do
           ws.write msg.to_json
@@ -176,7 +176,7 @@ describe Angelo::WebsocketResponder do
         ''
       end
 
-      socket '/other' do |ws|
+      websocket '/other' do |ws|
         websockets[:other] << ws
         while msg = ws.read do
           ws.write msg.to_json
