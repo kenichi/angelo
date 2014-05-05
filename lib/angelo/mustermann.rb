@@ -28,9 +28,9 @@ module Angelo
         end
       end
 
-      def socket path, &block
+      def websocket path, &block
         path = ::Mustermann.new path
-        routes[:socket][path] = WebsocketResponder.new &block
+        super path, &block
       end
 
       def routes

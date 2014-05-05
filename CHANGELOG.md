@@ -1,6 +1,9 @@
 changelog
 =========
 
+* fix for Reel::Connection::StateError -> Reel::StateError
+* rename "socket" route definition to "websocket"
+
 ### 0.1.7 17 apr 2014
 
 * reel 0.5.0 support (Reel::Server -> Reel::Server::HTTP)

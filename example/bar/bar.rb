@@ -34,7 +34,7 @@ class Foo < Angelo::Base
     msg
   end
 
-  socket '/' do |ws|
+  websocket '/' do |ws|
     websockets << ws
     ws.on_message do |msg|
       ws.write msg
@@ -45,7 +45,7 @@ class Foo < Angelo::Base
     puts "got pong!"
   end
 
-  socket '/hearts' do |ws|
+  websocket '/hearts' do |ws|
     async :hearts unless @@hearting
     websockets[:hearts] << ws
   end

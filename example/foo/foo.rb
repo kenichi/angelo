@@ -64,7 +64,7 @@ class Foo < Angelo::Base
     params.to_json
   end
 
-  socket '/ws' do |s|
+  websocket '/ws' do |s|
     websockets << s
 
     # don't do this!
@@ -79,7 +79,7 @@ class Foo < Angelo::Base
     end
   end
 
-  socket '/:foo/echo' do |s|
+  websocket '/:foo/echo' do |s|
     begin
 
       # again, don't do this!
