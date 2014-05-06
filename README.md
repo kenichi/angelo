@@ -5,10 +5,10 @@ Angelo
 
 A [Sinatra](https://github.com/sinatra/sinatra)-esque DSL for [Reel](https://github.com/celluloid/reel).
 
-### Some basic notes...
+### tl;dr
 
-* websocket support via `websocket '/path' do |s|` route builder
-* websocket stashing via `websockets` helper
+* websocket support via `websocket('/path'){|s| ... }` route builder
+* contextual websocket stashing via `websockets` helper
 * `task` handling via `async` and `future` helpers
 * no rack
 * optional tilt/erb support
@@ -24,13 +24,13 @@ Celluloid::IO and gives you a reactor with evented IO in Ruby!**
 
 Note: There currently is no "standalone" capability where one can define route handlers at the top level.
 
-Otherwise, things will feel very familiar to anyone experienced with Sinatra. Inside the subclass,
-you can define route handlers denoted by HTTP verb and path. Unlike Sinatra, the only acceptable return
-value from a route block is the body of the response in full. Chunked response support was recently
-added to Reel, and look for that support in Angelo soon.
+Things will feel very familiar to anyone experienced with Sinatra. Inside the subclass, you can define
+route handlers denoted by HTTP verb and path. Unlike Sinatra, the only acceptable return value from a
+route block is the body of the response in full. Chunked response support was recently added to Reel,
+and look for that support in Angelo soon.
 
-There is also [Mustermann](http://rkh.github.io/mustermann/) support which you can get by requiring
-`angelo/mustermann` for full-on, Sinatra-like path matching and params.
+There is also [Mustermann](#mustermann) support for full-on, Sinatra-like path
+matching and params.
 
 ### Websockets!
 
