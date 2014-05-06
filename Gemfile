@@ -5,7 +5,7 @@ gem 'tilt'
 gem 'mime-types'
 gem 'websocket-driver'
 
-platform :ruby_20 do
+platform :ruby_20, :ruby_21 do
   gem 'mustermann'
 end
 
