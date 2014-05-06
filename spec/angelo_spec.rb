@@ -2,12 +2,13 @@ require_relative './spec_helper'
 
 describe Angelo::Base do
 
-  let :obj do
+  def obj
     {'foo' => 'bar', 'bar' => 123.4567890123456, 'bat' => true}
   end
-  let(:obj_s) {
+
+  def obj_s
     obj.keys.reduce({}){|h,k| h[k] = obj[k].to_s; h}
-  }
+  end
 
   describe 'the basics' do
 
@@ -35,24 +36,24 @@ describe Angelo::Base do
     it 'responds to http requests properly' do
       Angelo::HTTPABLE.each do |m|
         __send__ m, '/'
-        last_response_should_be_html m.to_s
+        last_response_must_be_html m.to_s
       end
     end
 
     it 'responds to get requests with json properly' do
       get '/json', obj
-      last_response_should_be_json obj_s
+      last_response_must_be_json obj_s
     end
 
     it 'responds to post requests with json properly' do
       post '/json', obj.to_json, {'Content-Type' => Angelo::JSON_TYPE}
-      last_response_should_be_json obj
+      last_response_must_be_json obj
     end
 
     it 'redirects' do
       get '/redirect'
-      expect(last_response.status).to eq(301)
-      expect(last_response.headers['Location']).to eq('/')
+      last_response.status.must_equal 301
+      last_response.headers['Location'].must_equal '/'
     end
 
   end
@@ -77,11 +78,11 @@ describe Angelo::Base do
     it 'runs before filters before routes' do
 
       get '/before', obj
-      last_response_should_be_json obj_s
+      last_response_must_be_json obj_s
 
       [:post, :put].each do |m|
         __send__ m, '/before', obj.to_json, {Angelo::CONTENT_TYPE_HEADER_KEY => Angelo::JSON_TYPE}
-        last_response_should_be_json obj
+        last_response_must_be_json obj
       end
 
     end
@@ -115,8 +116,8 @@ describe Angelo::Base do
       b = [4, 12, 28, 60]
       Angelo::HTTPABLE.each_with_index do |m,i|
         __send__ m, '/after', obj
-        last_response_should_be_html a[i]
-        invoked.should eq b[i]
+        last_response_must_be_html a[i]
+        invoked.must_equal b[i]
       end
     end
 
@@ -138,16 +139,16 @@ describe Angelo::Base do
 
     it 'sets headers for a response' do
       put '/incr'
-      expect(last_response.headers['X-Http-Angelo-Server']).to eq('catbutt')
+      last_response.headers['X-Http-Angelo-Server'].must_equal 'catbutt'
     end
 
     it 'does not carry headers over responses' do
       headers_count = 0
       put '/incr'
-      expect(last_response.headers['X-Http-Angelo-Server']).to eq('catbutt')
+      last_response.headers['X-Http-Angelo-Server'].must_equal 'catbutt'
 
       put '/incr'
-      expect(last_response.headers['X-Http-Angelo-Server']).to be_nil
+      last_response.headers['X-Http-Angelo-Server'].must_be_nil
     end
 
   end
@@ -190,35 +191,35 @@ describe Angelo::Base do
       it 'sets html content type for current route' do
         Angelo::HTTPABLE.each do |m|
           __send__ m, '/html'
-          last_response_should_be_html '<html><body>hi</body></html>'
+          last_response_must_be_html '<html><body>hi</body></html>'
         end
       end
 
       it 'sets json content type for current route and to_jsons hashes' do
         Angelo::HTTPABLE.each do |m|
           __send__ m, '/json'
-          last_response_should_be_json 'hi' => 'there'
+          last_response_must_be_json 'hi' => 'there'
         end
       end
 
       it 'does not to_json strings' do
         Angelo::HTTPABLE.each do |m|
           __send__ m, '/json_s'
-          last_response_should_be_json 'woo' => 'woo'
+          last_response_must_be_json 'woo' => 'woo'
         end
       end
 
       it '500s on html hashes' do
         Angelo::HTTPABLE.each do |m|
           __send__ m, '/bad_html_h'
-          last_response.status.should eq 500
+          last_response.status.must_equal 500
         end
       end
 
       it '500s on bad json strings' do
         Angelo::HTTPABLE.each do |m|
           __send__ m, '/bad_json_s'
-          last_response.status.should eq 500
+          last_response.status.must_equal 500
         end
       end
 
@@ -240,7 +241,7 @@ describe Angelo::Base do
         it 'sets default content type' do
           Angelo::HTTPABLE.each do |m|
             __send__ m, '/html'
-            last_response_should_be_html '<html><body>hi</body></html>'
+            last_response_must_be_html '<html><body>hi</body></html>'
           end
         end
 
@@ -260,7 +261,7 @@ describe Angelo::Base do
         it 'sets default content type' do
           Angelo::HTTPABLE.each do |m|
             __send__ m, '/json'
-            last_response_should_be_json 'hi' => 'there'
+            last_response_must_be_json 'hi' => 'there'
           end
         end
       end
@@ -284,7 +285,7 @@ describe Angelo::Base do
         it 'sets html content type for current route when default is set json' do
           Angelo::HTTPABLE.each do |m|
             __send__ m, '/json'
-            last_response_should_be_json 'hi' => 'there'
+            last_response_must_be_json 'hi' => 'there'
           end
         end
 
@@ -305,7 +306,7 @@ describe Angelo::Base do
         it 'sets json content type for current route when default is set html' do
           Angelo::HTTPABLE.each do |m|
             __send__ m, '/html'
-            last_response_should_be_html '<html><body>hi</body></html>'
+            last_response_must_be_html '<html><body>hi</body></html>'
           end
         end
 
@@ -330,17 +331,17 @@ describe Angelo::Base do
 
     it 'parses formencoded body when content-type is formencoded' do
       post '/json', obj, {'Content-Type' => Angelo::FORM_TYPE}
-      last_response_should_be_json obj_s
+      last_response_must_be_json obj_s
     end
 
     it 'does not parse JSON body when content-type is formencoded' do
       post '/json', obj.to_json, {'Content-Type' => Angelo::FORM_TYPE}
-      last_response.status.should eq 400
+      last_response.status.must_equal 400
     end
 
     it 'does not parse body when request content-type not set' do
       post '/json', obj, {'Content-Type' => ''}
-      last_response_should_be_json({})
+      last_response_must_be_json({})
     end
 
   end
@@ -375,7 +376,7 @@ describe Angelo::Base do
       }
 
       get '/rh', ps, hs
-      last_response_should_be_json 'values' => hs.values
+      last_response_must_be_json 'values' => hs.values
     end
 
   end

@@ -5,12 +5,6 @@ gem 'tilt'
 gem 'mime-types'
 gem 'websocket-driver'
 
-platform :rbx do
-  gem 'rubysl-cgi'
-  gem 'rubysl-erb'
-  gem 'rubysl-prettyprint'
-end
-
 platform :ruby_20 do
   gem 'mustermann'
 end
@@ -28,6 +22,5 @@ end
 
 group :test do
   gem 'httpclient'
-  gem 'rspec'
-  gem 'rspec-pride'
+  gem 'minitest'
 end

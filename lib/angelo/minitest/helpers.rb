@@ -1,7 +1,7 @@
 require 'websocket/driver'
 
 module Angelo
-  module RSpec
+  module Minitest
 
     module Helpers
 
@@ -61,16 +61,16 @@ module Angelo
         end
       end
 
-      def last_response_should_be_html body = ''
-        last_response.status.should eq 200
-        last_response.body.should eq body
-        last_response.headers['Content-Type'].split(';').should include HTML_TYPE
+      def last_response_must_be_html body = ''
+        last_response.status.must_equal 200
+        last_response.body.must_equal body
+        last_response.headers['Content-Type'].split(';').must_include HTML_TYPE
       end
 
-      def last_response_should_be_json obj = {}
-        last_response.status.should eq 200
-        JSON.parse(last_response.body).should eq obj
-        last_response.headers['Content-Type'].split(';').should include JSON_TYPE
+      def last_response_must_be_json obj = {}
+        last_response.status.must_equal 200
+        JSON.parse(last_response.body).must_equal obj
+        last_response.headers['Content-Type'].split(';').must_include JSON_TYPE
       end
 
     end
