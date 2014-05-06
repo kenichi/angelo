@@ -44,7 +44,7 @@ describe Angelo::WebsocketResponder do
         latch = CountDownLatch.new 500
 
         wsh.on_message = ->(e) {
-          expect(e.data).to match(/hi there \d/)
+          assert_match /hi there \d/, e.data
           latch.count_down
         }
 
@@ -72,7 +72,7 @@ describe Angelo::WebsocketResponder do
       Reactor.testers[:wshs] = Array.new(CONCURRENCY).map do
         wsh = socket '/'
         wsh.on_message = ->(e) {
-          expect(e.data).to match(/hi there \d/)
+          assert_match /hi there \d/, e.data
           latch.count_down
         }
         wsh.init
@@ -129,7 +129,7 @@ describe Angelo::WebsocketResponder do
       latch = CountDownLatch.new CONCURRENCY * Angelo::HTTPABLE.length
 
       expectation = ->(e){
-        expect(e.data).to match(/from http (#{Angelo::HTTPABLE.map(&:to_s).join('|')})/)
+        assert_match /from http (#{Angelo::HTTPABLE.map(&:to_s).join('|')})/, e.data
       }
 
       socket_wait_for '/concur', latch, expectation do
@@ -143,7 +143,7 @@ describe Angelo::WebsocketResponder do
 
   describe 'helper contexts' do
     let(:obj){ {'foo' => 'bar'} }
-    let(:wait_for_block){ ->(e){ expect(JSON.parse(e.data)).to eq(obj) }}
+    let(:wait_for_block){ ->(e){ assert_equal obj, JSON.parse(e.data) }}
 
     define_app do
 

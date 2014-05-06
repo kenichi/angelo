@@ -30,13 +30,13 @@ if RUBY_VERSION =~ /^2\./
       it 'matches via mustermann routes objects' do
         path = '/some/things/are_good'
         get path
-        last_response_should_be_json mm_pattern.params(path)
+        last_response_must_be_json mm_pattern.params(path)
       end
 
       it 'overrides query string params' do
         path = '/some/things/are_good'
         get path, foo: 'other', bar: 'are_bad'
-        last_response_should_be_json mm_pattern.params(path)
+        last_response_must_be_json mm_pattern.params(path)
       end
 
       it 'overrides post body params' do
@@ -44,14 +44,14 @@ if RUBY_VERSION =~ /^2\./
         headers = {Angelo::CONTENT_TYPE_HEADER_KEY => Angelo::JSON_TYPE}
         [:post, :put].each do |m|
           __send__ m, path, {foo: 'other', bar: 'are_bad'}.to_json, headers
-          last_response_should_be_json mm_pattern.params(path)
+          last_response_must_be_json mm_pattern.params(path)
         end
       end
 
       it '404s correctly for not found routes' do
         path = '/bad/monkey'
         get path
-        last_response.status.should eq 404
+        last_response.status.must_equal 404
       end
 
     end
@@ -87,7 +87,7 @@ locals :bar - alpaca
   </body>
 </html>
 HTML
-        last_response_should_be_html expected
+        last_response_must_be_html expected
       end
 
     end

@@ -43,21 +43,21 @@ describe Angelo::ParamsParser do
   let(:parser) { ParamsTester.new }
 
   it 'parses query string params in the normal, non-racked-up, way' do
-    parser.parse_formencoded(get_params).should eq params_s
+    parser.parse_formencoded(get_params).must_equal params_s
   end
 
   it 'parses formencoded POST bodies in the normal, non-racked-up, way' do
     parser.form_encoded = true
     parser.json = false
     parser.body = get_params
-    parser.parse_post_body.should eq params_s
+    parser.parse_post_body.must_equal params_s
   end
 
   it 'parses JSON POST bodies params' do
     parser.form_encoded = false
     parser.json = true
     parser.body = json_params
-    parser.parse_post_body.should eq post_params
+    parser.parse_post_body.must_equal post_params
   end
 
   it 'should override query string with JSON POST bodies params' do
@@ -65,7 +65,7 @@ describe Angelo::ParamsParser do
     parser.json = true
     parser.query_string = get_params
     parser.body = json_params
-    parser.parse_post_body.should eq post_params
+    parser.parse_post_body.must_equal post_params
   end
 
   it 'does not parse POST bodies if no Content-Type' do
@@ -73,8 +73,8 @@ describe Angelo::ParamsParser do
     parser.json = false
     parser.query_string = get_params
     parser.body = nil
-    parser.parse_post_body.should eq params_s
-    parser.parse_query_string.should eq params_s
+    parser.parse_post_body.must_equal params_s
+    parser.parse_query_string.must_equal params_s
   end
 
 end

@@ -42,7 +42,7 @@ locals :bar - bat
   </body>
 </html>
 HTML
-      last_response_should_be_html expected
+      last_response_must_be_html expected
     end
 
     it 'renders templates without layout' do
@@ -51,7 +51,7 @@ HTML
 foo - asdf
 locals :bar - bat
 HTML
-      last_response_should_be_html expected
+      last_response_must_be_html expected
     end
 
   end
