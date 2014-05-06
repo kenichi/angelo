@@ -1,6 +1,9 @@
 changelog
 =========
 
+### 0.1.8 6 may 2014
+
+* leave RSpec for Minitest
 * fix for Reel::Connection::StateError -> Reel::StateError
 * rename "socket" route definition to "websocket"
 
