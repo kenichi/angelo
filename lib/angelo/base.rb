@@ -12,7 +12,7 @@ module Angelo
 
     @@ping_time = DEFAULT_PING_TIME
 
-    if ARGV.any? and not Kernel.const_defined?('RSpec')
+    if ARGV.any? and not Kernel.const_defined?('Minitest')
       require 'optparse'
       OptionParser.new { |op|
         op.on('-p port',   'set the port (default is 4567)')      { |val| @@port = Integer(val) }
