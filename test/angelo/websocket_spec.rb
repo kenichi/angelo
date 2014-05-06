@@ -2,9 +2,9 @@ require_relative '../spec_helper'
 
 describe Angelo::WebsocketResponder do
 
-  def socket_wait_for path, latch, expectation, key = :swf, &block
+  def websocket_wait_for path, latch, expectation, key = :swf, &block
     Reactor.testers[key] = Array.new(CONCURRENCY).map do
-      wsh = socket path
+      wsh = websocket_helper path
       wsh.on_message = ->(e) {
         expectation[e] if Proc === expectation
         latch.count_down
@@ -40,7 +40,7 @@ describe Angelo::WebsocketResponder do
     end
 
     it 'responds on websockets properly' do
-      socket '/' do |wsh|
+      websocket_helper '/' do |wsh|
         latch = CountDownLatch.new 500
 
         wsh.on_message = ->(e) {
@@ -70,7 +70,7 @@ describe Angelo::WebsocketResponder do
       latch = CountDownLatch.new CONCURRENCY * 500
 
       Reactor.testers[:wshs] = Array.new(CONCURRENCY).map do
-        wsh = socket '/'
+        wsh = websocket_helper '/'
         wsh.on_message = ->(e) {
           assert_match /hi there \d/, e.data
           latch.count_down
@@ -132,7 +132,7 @@ describe Angelo::WebsocketResponder do
         assert_match /from http (#{Angelo::HTTPABLE.map(&:to_s).join('|')})/, e.data
       }
 
-      socket_wait_for '/concur', latch, expectation do
+      websocket_wait_for '/concur', latch, expectation do
         Angelo::HTTPABLE.each {|m| __send__ m, '/concur', foo: 'http'}
         latch.wait
       end
@@ -187,7 +187,7 @@ describe Angelo::WebsocketResponder do
 
     it 'handles single context' do
       latch = CountDownLatch.new CONCURRENCY
-      socket_wait_for '/', latch, wait_for_block do
+      websocket_wait_for '/', latch, wait_for_block do
         post '/', obj
         latch.wait
       end
@@ -198,7 +198,7 @@ describe Angelo::WebsocketResponder do
       latch = CountDownLatch.new CONCURRENCY
 
       Reactor.testers[:hmc] = Array.new(CONCURRENCY).map do
-        wsh = socket '/'
+        wsh = websocket_helper '/'
         wsh.on_message = ->(e) {
           wait_for_block[e]
           latch.count_down
@@ -210,7 +210,7 @@ describe Angelo::WebsocketResponder do
       one_latch = CountDownLatch.new CONCURRENCY
 
       Reactor.testers[:hmc_one] = Array.new(CONCURRENCY).map do
-        wsh = socket '/one'
+        wsh = websocket_helper '/one'
         wsh.on_message = ->(e) {
           wait_for_block[e]
           one_latch.count_down
@@ -222,7 +222,7 @@ describe Angelo::WebsocketResponder do
       other_latch = CountDownLatch.new CONCURRENCY
 
       Reactor.testers[:hmc_other] = Array.new(CONCURRENCY).map do
-        wsh = socket '/other'
+        wsh = websocket_helper '/other'
         wsh.on_message = ->(e) {
           wait_for_block[e]
           other_latch.count_down

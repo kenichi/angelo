@@ -45,7 +45,7 @@ module Angelo
         end
       end
 
-      def socket path, params = {}
+      def websocket_helper path, params = {}
         params = params.keys.reduce([]) {|a,k|
           a << CGI.escape(k) + '=' + CGI.escape(params[k])
           a

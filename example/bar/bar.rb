@@ -6,11 +6,11 @@ Bundler.require :default, :development
 
 require 'angelo'
 require 'angelo/tilt/erb'
-require 'angelo/mustermann'
+require 'angelo/mustermann' unless RUBY_PLATFORM == 'java'
 
 class Foo < Angelo::Base
   include Angelo::Tilt::ERB
-  include Angelo::Mustermann
+  include Angelo::Mustermann unless RUBY_PLATFORM == 'java'
 
   HEART = '<3'
   @@ping_time = 3
@@ -24,9 +24,11 @@ class Foo < Angelo::Base
     erb :index
   end
 
-  post '/in/:sec/sec/:thing' do
-    f = future :in_sec, params[:sec], params[:thing]
-    f.value
+  unless RUBY_PLATFORM == 'java'
+    post '/in/:sec/sec/:thing' do
+      f = future :in_sec, params[:sec], params[:thing]
+      f.value
+    end
   end
 
   task :in_sec do |sec, msg|
