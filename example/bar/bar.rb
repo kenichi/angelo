@@ -15,6 +15,7 @@ class Foo < Angelo::Base
   HEART = '<3'
   @@ping_time = 3
   @@hearting = false
+  @@beating = false
 
   get '/' do
     redirect '/index'
@@ -24,10 +25,23 @@ class Foo < Angelo::Base
     erb :index
   end
 
-  unless RUBY_PLATFORM == 'java'
+  get '/pry' do
+    binding.pry
+    'pryed!'
+  end
+
+  get '/status' do
+    content_type :json
+    { hearting: @@hearting, beating: @@beating }
+  end
+
+  if RUBY_PLATFORM == 'java'
+    post '/in/sec' do
+      future(:in_sec, params[:sec], params[:thing]).value
+    end
+  else
     post '/in/:sec/sec/:thing' do
-      f = future :in_sec, params[:sec], params[:thing]
-      f.value
+      future(:in_sec, params[:sec], params[:thing]).value
     end
   end
 
@@ -54,7 +68,14 @@ class Foo < Angelo::Base
 
   task :hearts do
     @@hearting = true
-    every(10){ websockets[:hearts].each {|ws| ws.write HEART } }
+    every 1 do
+      if websockets[:hearts].length == 0
+        @@beating = false
+      else
+        @@beating = true
+        websockets[:hearts].each {|ws| ws.write HEART }
+      end
+    end
   end
 
 end

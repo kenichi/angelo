@@ -79,6 +79,7 @@ require 'angelo/version'
 require 'angelo/params_parser'
 require 'angelo/server'
 require 'angelo/base'
+require 'angelo/stash'
 require 'angelo/responder'
 require 'angelo/responder/websocket'
 

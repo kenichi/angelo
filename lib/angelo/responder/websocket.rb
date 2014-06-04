@@ -50,7 +50,7 @@ module Angelo
 
     def close_websocket
       @websocket.close
-      @base.websockets.delete @websocket
+      @base.websockets.remove_socket @websocket
     end
 
   end

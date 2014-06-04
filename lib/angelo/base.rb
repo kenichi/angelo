@@ -87,7 +87,7 @@ module Angelo
       end
 
       def websockets
-        @websockets ||= WebsocketsArray.new server
+        @websockets ||= Stash.new server
         @websockets.reject! &:closed?
         @websockets
       end
@@ -149,61 +149,10 @@ module Angelo
 
     task :ping_websockets do
       every(@@ping_time) do
-        websockets.all.each do |ws|
+        websockets.all_each do |ws|
           ws.socket << ::WebSocket::Message.ping.to_data
         end
       end
-    end
-
-    class WebsocketsArray < Array
-      include Celluloid::Logger
-
-      @@peeraddrs = {}
-      @@socket_context = {}
-      @@websockets = {}
-
-      def initialize server, context = nil
-        @context, @server = context, server
-        super()
-      end
-
-      def << ws
-        @@socket_context[ws] = @context if @context
-        @@peeraddrs[ws] = ws.peeraddr
-        @server.async.handle_websocket ws
-        super ws
-      end
-
-      def each &block
-        super do |ws|
-          begin
-            yield ws
-          rescue Reel::SocketError
-            remove_socket ws
-          end
-        end
-      end
-
-      def remove_socket ws
-        if c = @@socket_context[ws]
-          warn "removing socket from context ':#{c}' (#{@@peeraddrs[ws][2]})"
-          self[c].delete ws
-        else
-          warn "removing socket (#{@@peeraddrs[ws][2]})"
-          delete ws
-        end
-        @@peeraddrs.delete ws
-      end
-
-      def [] context
-        raise ArgumentError.new "symbol required" unless Symbol === context
-        @@websockets[context] ||= self.class.new @server, context
-      end
-
-      def all
-        a = self + @@websockets.values.flatten
-      end
-
     end
 
   end

@@ -1,6 +1,9 @@
 changelog
 =========
 
+* replace WebsocketsArray < Array with Stash
+* fix WebsocketRepsonder.close_socket
+
 ### 0.1.8 6 may 2014
 
 * leave RSpec for Minitest
