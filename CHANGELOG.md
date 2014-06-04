@@ -1,6 +1,7 @@
 changelog
 =========
 
+* make Mustermann::RouteMap not descend from Hash
 * replace WebsocketsArray < Array with Stash
 * fix WebsocketRepsonder.close_socket
 

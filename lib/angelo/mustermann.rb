@@ -47,12 +47,20 @@ module Angelo
       @params ||= super.merge mustermann.params(request.path)
     end
 
-    class RouteMap < Hash
+    class RouteMap
+
+      def initialize
+        @hash = Hash.new
+      end
+
+      def []= route, responder
+        @hash[route] = responder
+      end
+
       def [] route
         responder = nil
-        mustermann = keys.select {|k| k.match(route)}.first
-        if mustermann
-          responder = fetch mustermann
+        if mustermann = @hash.keys.select {|k| k.match(route)}.first
+          responder = @hash.fetch mustermann
           responder.mustermann = mustermann
         end
         responder
