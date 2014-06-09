@@ -27,20 +27,31 @@ module Angelo
       attr_accessor :app_file, :server
 
       def inherited subclass
+
+        # set app_file from caller stack
+        #
         subclass.app_file = caller(1).map {|l| l.split(/:(?=|in )/, 3)[0,1]}.flatten[0]
 
-        def subclass.root
-          @root ||= File.expand_path '..', app_file
-        end
+        # bring RequestError into this namespace
+        #
+        subclass.class_eval 'class RequestError < Angelo::RequestError; end'
 
-        def subclass.view_dir
-          v = self.class_variable_get(:@@views) rescue DEFAULT_VIEW_DIR
-          File.join root, v
-        end
+        class << subclass
 
-        def subclass.public_dir
-          p = self.class_variable_get(:@@public_dir) rescue DEFAULT_PUBLIC_DIR
-          File.join root, p
+          def root
+            @root ||= File.expand_path '..', app_file
+          end
+
+          def view_dir
+            v = self.class_variable_get(:@@views) rescue DEFAULT_VIEW_DIR
+            File.join root, v
+          end
+
+          def public_dir
+            p = self.class_variable_get(:@@public_dir) rescue DEFAULT_PUBLIC_DIR
+            File.join root, p
+          end
+
         end
 
       end

@@ -73,6 +73,27 @@ module Angelo
 
   end
 
+  class RequestError < Reel::RequestError
+
+    def initialize msg = nil
+      case msg
+      when Hash
+        @msg_hash = msg
+      else
+        super
+      end
+    end
+
+    def type
+      :bad_request
+    end
+
+    def message
+      @msg_hash || super
+    end
+
+  end
+
 end
 
 require 'angelo/version'

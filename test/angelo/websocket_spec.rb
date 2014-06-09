@@ -3,7 +3,7 @@ require_relative '../spec_helper'
 describe Angelo::WebsocketResponder do
 
   def websocket_wait_for path, latch, expectation, key = :swf, &block
-    Reactor.testers[key] = Array.new(CONCURRENCY).map do
+    Reactor.testers[key] = Array.new CONCURRENCY do
       wsh = websocket_helper path
       wsh.on_message = ->(e) {
         expectation[e] if Proc === expectation

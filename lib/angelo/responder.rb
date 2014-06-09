@@ -49,7 +49,6 @@ module Angelo
       @redirect = nil
       @request = request
       handle_request
-      respond
     end
 
     def handle_request
@@ -57,6 +56,7 @@ module Angelo
         @base.before if @base.respond_to? :before
         @body = @response_handler.bind(@base).call || ''
         @base.after if @base.respond_to? :after
+        respond
       else
         raise NotImplementedError
       end
@@ -64,6 +64,8 @@ module Angelo
       handle_error jpe, :bad_request, false
     rescue FormEncodingError => fee
       handle_error fee, :bad_request, false
+    rescue RequestError => re
+      handle_error re, re.type, false
     rescue => e
       handle_error e
     end
@@ -84,7 +86,12 @@ module Angelo
       when respond_with?(:json)
         { error: _error.message }.to_json
       else
-        _error.message
+        case _error.message
+        when Hash
+          _error.message.to_s
+        else
+          _error.message
+        end
       end
     end
 

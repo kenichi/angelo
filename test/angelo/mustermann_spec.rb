@@ -1,4 +1,4 @@
-if RUBY_VERSION =~ /^2\./
+if RUBY_VERSION =~ /^2\./ and RUBY_PLATFORM != 'java'
 
   require_relative '../spec_helper'
   require 'angelo/mustermann'

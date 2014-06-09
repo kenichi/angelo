@@ -8,7 +8,7 @@ require 'angelo'
 require 'angelo/tilt/erb'
 require 'angelo/mustermann' unless RUBY_PLATFORM == 'java'
 
-class Foo < Angelo::Base
+class Bar < Angelo::Base
   include Angelo::Tilt::ERB
   include Angelo::Mustermann unless RUBY_PLATFORM == 'java'
 
@@ -78,6 +78,15 @@ class Foo < Angelo::Base
     end
   end
 
+  get '/error' do
+    raise RequestError.new "here's an error!"
+  end
+
+  get '/error.json' do
+    content_type :json
+    raise RequestError.new here: "is", an: "error!"
+  end
+
 end
 
-Foo.run unless $0 == 'irb'
+Bar.run unless $0 == 'irb'
