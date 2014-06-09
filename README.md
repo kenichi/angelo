@@ -157,6 +157,56 @@ get '/' do
 end
 ```
 
+### Errors
+
+In Sinatra, one can `halt` and optionally pass status codes and a body. While that functionality
+is not (yet?) present in Angelo, the ability to `raise` a `RequestError` is. Raising an instance
+of this always causes a 400 status code response, and the message in the instance is the body
+of the the response. If the route or class was set to respond with JSON, the body is converted
+to a JSON object with one key, `error`, that has a value of the message. If the message is a
+`Hash`, the hash is converted to a JSON object, or to a string for other content types.
+
+##### Example
+
+```ruby
+get '/' do
+  raise RequestError.new '"foo" is a required parameter' unless params[:foo]
+  params[:foo]
+end
+
+get '/json' do
+  content_type :json
+  raise RequestError.new foo: "required!"
+  {foo: params[:foo]}
+end
+```
+
+```
+$ curl -i http://127.0.0.1:4567/
+HTTP/1.1 400 Bad Request
+Content-Type: text/html
+Connection: Keep-Alive
+Content-Length: 29
+
+"foo" is a required parameter
+
+$ curl -i http://127.0.0.1:4567/?foo=bar
+HTTP/1.1 200 OK
+Content-Type: text/html
+Connection: Keep-Alive
+Content-Length: 3
+
+bar
+
+$ curl -i http://127.0.0.1:4567/json
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+Connection: Keep-Alive
+Content-Length: 29
+
+{"error":{"foo":"required!"}}
+```
+
 ### WORK LEFT TO DO
 
 Lots of work left to do!

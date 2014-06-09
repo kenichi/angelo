@@ -1,6 +1,12 @@
 changelog
 =========
 
+### 0.1.10 pre
+
+* add RequestError
+
+### 0.1.9 5 jun 2014
+
 * make Mustermann::RouteMap not descend from Hash
 * replace WebsocketsArray < Array with Stash
 * fix WebsocketRepsonder.close_socket

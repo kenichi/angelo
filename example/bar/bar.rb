@@ -79,12 +79,14 @@ class Bar < Angelo::Base
   end
 
   get '/error' do
-    raise RequestError.new "here's an error!"
+    raise RequestError.new '"foo" is a required parameter' unless params[:foo]
+    params[:foo]
   end
 
   get '/error.json' do
     content_type :json
-    raise RequestError.new here: "is", an: "error!"
+    raise RequestError.new foo: "required!"
+    {foo: params[:foo]}
   end
 
 end
