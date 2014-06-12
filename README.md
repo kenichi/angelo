@@ -161,10 +161,13 @@ end
 
 In Sinatra, one can `halt` and optionally pass status codes and a body. While that functionality
 is not (yet?) present in Angelo, the ability to `raise` a `RequestError` is. Raising an instance
-of this always causes a 400 status code response, and the message in the instance is the body
+of this always\* causes a 400 status code response, and the message in the instance is the body
 of the the response. If the route or class was set to respond with JSON, the body is converted
 to a JSON object with one key, `error`, that has a value of the message. If the message is a
 `Hash`, the hash is converted to a JSON object, or to a string for other content types.
+
+\* If you want to return a different status code, you can pass it as a second argument to
+`RequestError.new`. See example below.
 
 ##### Example
 
@@ -178,6 +181,10 @@ get '/json' do
   content_type :json
   raise RequestError.new foo: "required!"
   {foo: params[:foo]}
+end
+
+get '/not_found' do
+  raise RequestError.new 'not found', 404
 end
 ```
 
@@ -205,6 +212,14 @@ Connection: Keep-Alive
 Content-Length: 29
 
 {"error":{"foo":"required!"}}
+
+$ curl -i http://127.0.0.1:4567/not_found
+HTTP/1.1 404 Not Found
+Content-Type: text/html
+Connection: Keep-Alive
+Content-Length: 9
+
+not found
 ```
 
 ### WORK LEFT TO DO

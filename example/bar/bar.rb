@@ -89,6 +89,10 @@ class Bar < Angelo::Base
     {foo: params[:foo]}
   end
 
+  get '/not_found' do
+    raise RequestError.new 'not found', 404
+  end
+
 end
 
 Bar.run unless $0 == 'irb'

@@ -1,7 +1,7 @@
 changelog
 =========
 
-### 0.1.10 pre
+### 0.1.10 12 jun 2014
 
 * add RequestError
 
