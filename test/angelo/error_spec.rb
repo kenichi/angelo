@@ -37,6 +37,18 @@ describe Angelo::Base do
         end
       end
 
+      Angelo::HTTPABLE.each do |m|
+        __send__ m, '/not_found' do
+          raise self.class::RequestError.new 'not found', 404 # see above
+        end
+      end
+
+      Angelo::HTTPABLE.each do |m|
+        __send__ m, '/enhance_your_calm' do
+          raise self.class::RequestError.new 'enhance your calm, bro', 420 # see above
+        end
+      end
+
     end
 
     it 'handles raised errors correctly' do
@@ -44,7 +56,7 @@ describe Angelo::Base do
         __send__ m, '/'
         last_response.status.must_equal 400
         last_response.headers['Content-Type'].split(';').must_include Angelo::HTML_TYPE
-        last_response.body.must_equal 'error message'
+        last_response.body.to_s.must_equal 'error message'
       end
     end
 
@@ -53,7 +65,7 @@ describe Angelo::Base do
         __send__ m, '/json'
         last_response.status.must_equal 400
         last_response.headers['Content-Type'].split(';').must_include Angelo::JSON_TYPE
-        last_response.body.must_equal({error: 'error message'}.to_json)
+        last_response.body.to_s.must_equal({error: 'error message'}.to_json)
       end
     end
 
@@ -62,7 +74,7 @@ describe Angelo::Base do
         __send__ m, '/msg_hash'
         last_response.status.must_equal 400
         last_response.headers['Content-Type'].split(';').must_include Angelo::HTML_TYPE
-        last_response.body.must_equal '{:msg=>"error", :foo=>"bar"}'
+        last_response.body.to_s.must_equal '{:msg=>"error", :foo=>"bar"}'
       end
     end
 
@@ -71,8 +83,26 @@ describe Angelo::Base do
         __send__ m, '/msg_hash_json'
         last_response.status.must_equal 400
         last_response.headers['Content-Type'].split(';').must_include Angelo::JSON_TYPE
-        last_response.body.must_equal({error: {msg: 'error', foo: 'bar'}}.to_json)
+        last_response.body.to_s.must_equal({error: {msg: 'error', foo: 'bar'}}.to_json)
       end
+    end
+
+    it 'handles raising errors with other status codes correctly' do
+
+      Angelo::HTTPABLE.each do |m|
+        __send__ m, '/not_found'
+        last_response.status.must_equal 404
+        last_response.headers['Content-Type'].split(';').must_include Angelo::HTML_TYPE
+        last_response.body.to_s.must_equal 'not found'
+      end
+
+      Angelo::HTTPABLE.each do |m|
+        __send__ m, '/enhance_your_calm'
+        last_response.status.must_equal 420
+        last_response.headers['Content-Type'].split(';').must_include Angelo::HTML_TYPE
+        last_response.body.to_s.must_equal 'enhance your calm, bro'
+      end
+
     end
 
   end

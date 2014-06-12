@@ -29,9 +29,7 @@ module Angelo
 
       def hc
         @hc ||= HTTPClient.new
-        @hc
       end
-      private :hc
 
       def hc_req method, path, params = {}, headers = {}
         url = HTTP_URL % [DEFAULT_ADDR, DEFAULT_PORT]
@@ -39,8 +37,30 @@ module Angelo
       end
       private :hc_req
 
+      def http_req method, path, params = {}, headers = {}
+        url = HTTP_URL % [DEFAULT_ADDR, DEFAULT_PORT] + path
+        params = case params
+                 when String; {body: params}
+                 when Hash
+                   case method
+                   when :get, :delete, :options
+                     {params: params}
+                   else
+                     {form: params}
+                   end
+                 end
+        @last_response = case
+                         when !headers.empty?
+                           ::HTTP.with(headers).__send__ method, url, params
+                         else
+                           ::HTTP.__send__ method, url, params
+                         end
+      end
+      private :http_req
+
       [:get, :post, :put, :delete, :options, :head].each do |m|
         define_method m do |path, params = {}, headers = {}|
+          # http_req m, path, params, headers
           hc_req m, path, params, headers
         end
       end
@@ -63,13 +83,13 @@ module Angelo
 
       def last_response_must_be_html body = ''
         last_response.status.must_equal 200
-        last_response.body.must_equal body
+        last_response.body.to_s.must_equal body
         last_response.headers['Content-Type'].split(';').must_include HTML_TYPE
       end
 
       def last_response_must_be_json obj = {}
         last_response.status.must_equal 200
-        JSON.parse(last_response.body).must_equal obj
+        JSON.parse(last_response.body.to_s).must_equal obj
         last_response.headers['Content-Type'].split(';').must_include JSON_TYPE
       end
 

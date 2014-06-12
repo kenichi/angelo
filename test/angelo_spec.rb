@@ -114,6 +114,7 @@ describe Angelo::Base do
     it 'runs after filters after routes' do
       a = %w[2 6 14 30]
       b = [4, 12, 28, 60]
+
       Angelo::HTTPABLE.each_with_index do |m,i|
         __send__ m, '/after', obj
         last_response_must_be_html a[i]

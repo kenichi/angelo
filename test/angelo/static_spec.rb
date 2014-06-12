@@ -27,8 +27,8 @@ describe Angelo::Server do
       last_response.headers['Content-Disposition'].must_equal 'attachment; filename=test.css'
       last_response.headers['Content-Length'].must_equal '116'
       last_response.headers['Etag'].must_equal css_etag
-      last_response.body.length.must_equal 116
-      last_response.body.must_equal File.read(File.join TEST_APP_ROOT, 'public', 'test.css')
+      last_response.body.to_s.length.must_equal 116
+      last_response.body.to_s.must_equal File.read(File.join TEST_APP_ROOT, 'public', 'test.css')
     end
 
     it 'serves headers for static files on head' do
@@ -38,7 +38,7 @@ describe Angelo::Server do
       last_response.headers['Content-Disposition'].must_equal 'attachment; filename=test.css'
       last_response.headers['Content-Length'].must_equal '116'
       last_response.headers['Etag'].must_equal css_etag
-      last_response.body.length.must_equal 0
+      last_response.body.to_s.length.must_equal 0
     end
 
     it 'serves static file over route' do
@@ -46,7 +46,7 @@ describe Angelo::Server do
       last_response.status.must_equal 200
       last_response.headers['Content-Type'].must_equal 'text/html'
       last_response.headers['Content-Disposition'].must_equal 'attachment; filename=test.html'
-      last_response.body.must_equal File.read(File.join TEST_APP_ROOT, 'public', 'test.html')
+      last_response.body.to_s.must_equal File.read(File.join TEST_APP_ROOT, 'public', 'test.html')
     end
 
     it 'not modifieds when if-none-match matched etag' do

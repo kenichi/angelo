@@ -75,17 +75,21 @@ module Angelo
 
   class RequestError < Reel::RequestError
 
-    def initialize msg = nil
+    attr_accessor :type
+    alias_method :code=, :type=
+
+    def initialize msg = nil, type = nil
       case msg
       when Hash
         @msg_hash = msg
       else
-        super
+        super(msg)
       end
+      self.type = type if type
     end
 
     def type
-      :bad_request
+      @type ||= :bad_request
     end
 
     def message
