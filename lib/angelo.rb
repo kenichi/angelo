@@ -51,6 +51,8 @@ module Angelo
   DASH = '-'
   EMPTY_STRING = ''
 
+  HALT_STRUCT = Struct.new :status, :body
+
   def self.log connection, request, socket, status, body_size = '-'
 
     remote_ip = ->{

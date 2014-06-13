@@ -4,7 +4,16 @@ describe Angelo::Base do
 
   describe :handle_error do
 
+    after_ran = false
+    before do
+      after_ran = false
+    end
+
     define_app do
+
+      after do
+        after_ran = true
+      end
 
       Angelo::HTTPABLE.each do |m|
         __send__ m, '/' do
@@ -103,6 +112,92 @@ describe Angelo::Base do
         last_response.body.to_s.must_equal 'enhance your calm, bro'
       end
 
+    end
+
+    it 'does not run after blocks when handling a raised error' do
+      Angelo::HTTPABLE.each do |m|
+        __send__ m, '/'
+        last_response.status.must_equal 400
+        last_response.headers['Content-Type'].split(';').must_include Angelo::HTML_TYPE
+        last_response.body.to_s.must_equal 'error message'
+        refute after_ran, 'after block should not have ran'
+      end
+    end
+
+  end
+
+  describe :halt do
+
+    after_ran = false
+    before do
+      after_ran = false
+    end
+
+    define_app do
+
+      after do
+        after_ran = true
+      end
+
+      Angelo::HTTPABLE.each do |m|
+        __send__ m, '/halt' do
+          halt
+          raise RequestError.new "shouldn't get here"
+        end
+      end
+
+      Angelo::HTTPABLE.each do |m|
+        __send__ m, '/teapot' do
+          halt 418, "i'm a teapot"
+          raise RequestError.new "shouldn't get here"
+        end
+      end
+
+      Angelo::HTTPABLE.each do |m|
+        __send__ m, '/calm_json' do
+          content_type :json
+          halt 420, {calm: 'enhance'}
+          raise RequestError.new "shouldn't get here"
+        end
+      end
+
+    end
+
+    it 'halts properly' do
+      Angelo::HTTPABLE.each do |m|
+        __send__ m, '/halt'
+        last_response.status.must_equal 400
+        last_response.headers['Content-Type'].split(';').must_include Angelo::HTML_TYPE
+        last_response.body.to_s.must_equal ''
+      end
+    end
+
+    it 'halts with different status code properly' do
+      Angelo::HTTPABLE.each do |m|
+        __send__ m, '/teapot'
+        last_response.status.must_equal 418
+        last_response.headers['Content-Type'].split(';').must_include Angelo::HTML_TYPE
+        last_response.body.to_s.must_equal "i'm a teapot"
+      end
+    end
+
+    it 'halts with json content type correctly' do
+      Angelo::HTTPABLE.each do |m|
+        __send__ m, '/calm_json'
+        last_response.status.must_equal 420
+        last_response.headers['Content-Type'].split(';').must_include Angelo::JSON_TYPE
+        last_response.body.to_s.must_equal({error: {calm: 'enhance'}}.to_json)
+      end
+    end
+
+    it 'runs after blocks when halting' do
+      Angelo::HTTPABLE.each do |m|
+        __send__ m, '/halt'
+        last_response.status.must_equal 400
+        last_response.headers['Content-Type'].split(';').must_include Angelo::HTML_TYPE
+        last_response.body.to_s.must_equal ''
+        assert after_ran, 'after block should have ran'
+      end
     end
 
   end

@@ -17,6 +17,10 @@ class Bar < Angelo::Base
   @@hearting = false
   @@beating = false
 
+  after do
+    puts "I'm after!"
+  end
+
   get '/' do
     redirect '/index'
   end
@@ -91,6 +95,16 @@ class Bar < Angelo::Base
 
   get '/not_found' do
     raise RequestError.new 'not found', 404
+  end
+
+  get '/halt' do
+    halt 200, "everything's fine."
+    raise RequestError.new "won't get here"
+  end
+
+  get '/raise' do
+    raise 'this is another weird error!'
+    'foo'
   end
 
 end

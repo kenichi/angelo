@@ -166,6 +166,10 @@ module Angelo
       end
     end
 
+    def halt status = 400, body = ''
+      throw :halt, HALT_STRUCT.new(status, body)
+    end
+
   end
 
 end

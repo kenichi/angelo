@@ -1,9 +1,13 @@
 changelog
 =========
 
+### 0.1.11 13 jun 2014
+
+* add halt method and handling
+
 ### 0.1.10 12 jun 2014
 
-* add RequestError
+* add RequestError and handling
 
 ### 0.1.9 5 jun 2014
 

@@ -29,6 +29,9 @@ route handlers denoted by HTTP verb and path. Unlike Sinatra, the only acceptabl
 route block is the body of the response in full. Chunked response support was recently added to Reel,
 and look for that support in Angelo soon.
 
+Angelo also features `before` and `after` blocks, just like Sinatra. The one difference lies in how
+after blocks are handled. See the Errors section below for more info.
+
 There is also [Mustermann](#mustermann) support for full-on, Sinatra-like path
 matching and params.
 
@@ -157,17 +160,34 @@ get '/' do
 end
 ```
 
-### Errors
+### Errors and Halting
 
-In Sinatra, one can `halt` and optionally pass status codes and a body. While that functionality
-is not (yet?) present in Angelo, the ability to `raise` a `RequestError` is. Raising an instance
-of this always\* causes a 400 status code response, and the message in the instance is the body
-of the the response. If the route or class was set to respond with JSON, the body is converted
-to a JSON object with one key, `error`, that has a value of the message. If the message is a
-`Hash`, the hash is converted to a JSON object, or to a string for other content types.
+Angelo gives you two ordained methods of stopping route processing:
 
-\* If you want to return a different status code, you can pass it as a second argument to
+* raise an instance of `RequestError`
+* `halt` with a status code and message
+
+The main difference is that `halt` will still run an `after` block, and raising `RequestError`
+will bypass the `after` block.
+
+Any other exceptions or errors raised by your route handler will be handled with a 500 status
+code and the message will be the body of the response.
+
+#### RequestError
+
+Raising an instance of `Angelo::RequestError` causes a 400 status code response, and the message
+in the instance is the body of the the response. If the route or class was set to respond with
+JSON, the body is converted to a JSON object with one key, `error`, that has a value of the message.
+If the message is a `Hash`, the hash is converted to a JSON object, or to a string for other content
+types.
+
+If you want to return a different status code, you can pass it as a second argument to
 `RequestError.new`. See example below.
+
+#### Halting
+
+You can `halt` from within any route handler, optionally passing status code and a body. The
+body is handled the same way as raising `RequestError`.
 
 ##### Example
 
@@ -185,6 +205,11 @@ end
 
 get '/not_found' do
   raise RequestError.new 'not found', 404
+end
+
+get '/halt' do
+  halt 200, "everything's fine"
+  raise RequestError.new "won't get here"
 end
 ```
 
@@ -220,6 +245,14 @@ Connection: Keep-Alive
 Content-Length: 9
 
 not found
+
+$ curl -i http://127.0.0.1:4567/halt
+HTTP/1.1 200 OK
+Content-Type: text/html
+Connection: Keep-Alive
+Content-Length: 18
+
+everything's fine
 ```
 
 ### WORK LEFT TO DO
