@@ -47,6 +47,7 @@ module Angelo
     def request= request
       @params = nil
       @redirect = nil
+      @body = nil
       @request = request
       handle_request
     end
@@ -122,24 +123,26 @@ module Angelo
     end
 
     def respond
-      if HALT_STRUCT === @body
+      status = nil
+      case @body
+      when HALT_STRUCT
         status = @body.status
         @body = @body.body
+        if Hash === @body
+          @body = {error: @body} if status != :ok or status < 200 && status >= 300
+          @body = @body.to_json if respond_with? :json
+        end
+
+      when String
+        JSON.parse @body if respond_with? :json # for the raises
+
+      when Hash
+        raise 'html response requires String' if respond_with? :html
+        @body = @body.to_json if respond_with? :json
+
+      when NilClass
+        @body = EMPTY_STRING
       end
-
-      @body = case @body
-              when String
-                JSON.parse @body if respond_with? :json # for the raises
-                @body
-
-              when Hash
-                raise 'html response requires String' if respond_with? :html
-                @body  = {error: @body} if status != :ok or status < 200 && status >= 300
-                @body.to_json if respond_with? :json
-
-              when NilClass
-                EMPTY_STRING
-              end
 
       status ||= @redirect.nil? ? :ok : :moved_permanently
       headers LOCATION_HEADER_KEY => @redirect if @redirect
