@@ -19,7 +19,7 @@ module Angelo
     def on_connection connection
       # RubyProf.resume
       connection.each_request do |request|
-        meth = request.websocket? ? :socket : request.method.downcase.to_sym
+        meth = request.websocket? ? :websocket : request.method.downcase.to_sym
         dispatch! meth, connection, request
       end
       # RubyProf.pause

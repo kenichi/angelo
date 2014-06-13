@@ -86,7 +86,7 @@ module Angelo
       end
 
       def websocket path, &block
-        routes[:socket][path] = WebsocketResponder.new &block
+        routes[:websocket][path] = WebsocketResponder.new &block
       end
 
       def on_pong &block
