@@ -55,7 +55,7 @@ module Angelo
     def handle_request
       if @response_handler
         @base.before if @base.respond_to? :before
-        @body = catch(:halt) { @response_handler.bind(@base).call || '' }
+        @body = catch(:halt) { @response_handler.bind(@base).call || EMPTY_STRING }
         @base.after if @base.respond_to? :after
         respond
       else
@@ -108,6 +108,8 @@ module Angelo
         headers CONTENT_TYPE_HEADER_KEY => JSON_TYPE
       when :html
         headers CONTENT_TYPE_HEADER_KEY => HTML_TYPE
+      when :js
+        headers CONTENT_TYPE_HEADER_KEY => JS_TYPE
       else
         raise ArgumentError.new "invalid content_type: #{type}"
       end

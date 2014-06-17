@@ -30,6 +30,7 @@ module Angelo
   JSON_TYPE = 'application/json'
   FORM_TYPE = 'application/x-www-form-urlencoded'
   FILE_TYPE = 'application/octet-stream'
+  JS_TYPE =   'text/javascript'
 
   DEFAULT_ADDR = '127.0.0.1'
   DEFAULT_PORT = 4567

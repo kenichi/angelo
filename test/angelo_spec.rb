@@ -186,6 +186,11 @@ describe Angelo::Base do
             {hi: 'there'}.to_json.gsub /{/, 'so doge'
           end
 
+          __send__ m, '/javascript' do
+            content_type :js
+            'var foo = "bar";'
+          end
+
         end
       end
 
@@ -221,6 +226,15 @@ describe Angelo::Base do
         Angelo::HTTPABLE.each do |m|
           __send__ m, '/bad_json_s'
           last_response.status.must_equal 500
+        end
+      end
+
+      it 'sets javascript content type for current route' do
+        Angelo::HTTPABLE.each do |m|
+          __send__ m, '/javascript'
+          last_response.status.must_equal 200
+          last_response.body.to_s.must_equal 'var foo = "bar";'
+          last_response.headers['Content-Type'].split(';').must_include Angelo::JS_TYPE
         end
       end
 
