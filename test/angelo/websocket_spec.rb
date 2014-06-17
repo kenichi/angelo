@@ -104,6 +104,88 @@ describe Angelo::WebsocketResponder do
 
   end
 
+  describe 'before blocks' do
+
+    define_app do
+      before do
+        @set_by_before = params
+      end
+
+      websocket '/before' do |ws|
+        ws.write @set_by_before[:before]
+        ws.close
+      end
+    end
+
+    it 'runs before blocks before websocket handlers' do
+      websocket_helper '/before?before=hi%20there' do |wsh|
+        latch = CountDownLatch.new 1
+        wsh.on_message = ->(e) {
+          assert_match /hi there/, e.data
+          latch.count_down
+        }
+        wsh.init
+        Reactor.testers[:tester] = wsh
+        Reactor.define_action :go do
+          every(0.01){ terminate if Reactor.stop? }
+          Reactor.testers[:tester].go
+        end
+        Reactor.unstop!
+        $reactor.async.go
+
+        latch.wait
+
+        Reactor.stop!
+        Reactor.testers.delete :tester
+        Reactor.remove_action :go
+      end
+    end
+
+  end
+
+  describe 'after blocks' do
+
+    invoked = 4
+
+    define_app do
+      websocket '/after' do |ws|
+        ws.write 'after'
+        ws.close
+      end
+
+      after do
+        invoked *= 2
+      end
+    end
+
+    it 'runs after filters after routes' do
+      websocket_helper '/after' do |wsh|
+        latch = CountDownLatch.new 1
+        wsh.on_message = ->(e) {
+          assert_match /after/, e.data
+          latch.count_down
+        }
+        wsh.init
+        Reactor.testers[:tester] = wsh
+        Reactor.define_action :go do
+          every(0.01){ terminate if Reactor.stop? }
+          Reactor.testers[:tester].go
+        end
+        Reactor.unstop!
+        $reactor.async.go
+
+        latch.wait
+
+        Reactor.stop!
+        Reactor.testers.delete :tester
+        Reactor.remove_action :go
+      end
+
+      invoked.must_equal 8
+    end
+
+  end
+
   describe 'concurrency' do
 
     define_app do
