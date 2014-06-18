@@ -181,6 +181,7 @@ describe Angelo::WebsocketResponder do
         Reactor.remove_action :go
       end
 
+      sleep 1
       invoked.must_equal 8
     end
 
