@@ -1,6 +1,17 @@
 changelog
 =========
 
+### 0.1.13 19 jun 2014
+
+* add log level settings
+* make response logging default to :info level
+* catch SystemCallError, IOError in Stash#each\* methods
+
+### 0.1.12 17 jun 2014
+
+* before and after blocks now wrap websocket routes
+* add :js content_type
+
 ### 0.1.11 13 jun 2014
 
 * add halt method and handling

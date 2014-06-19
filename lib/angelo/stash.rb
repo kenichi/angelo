@@ -44,7 +44,8 @@ module Angelo
       stash.each do |ws|
         begin
           yield ws
-        rescue Reel::SocketError, IOError, SystemCallError
+        rescue Reel::SocketError, IOError, SystemCallError => e
+          debug e.message
           remove_socket ws
         end
       end
@@ -73,7 +74,8 @@ module Angelo
       @@stashes.values.flatten.each do |ws|
         begin
           yield ws
-        rescue Reel::SocketError, IOError, SystemCallError
+        rescue Reel::SocketError, IOError, SystemCallError => e
+          debug e.message
           remove_socket ws
         end
       end

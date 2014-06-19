@@ -38,6 +38,9 @@ module Angelo
   DEFAULT_VIEW_DIR = 'views'
   DEFAULT_PUBLIC_DIR = 'public'
 
+  DEFAULT_LOG_LEVEL = ::Logger::INFO
+  DEFAULT_RESPONSE_LOG_LEVEL = :info
+
   DEFAULT_RESPONSE_HEADERS = {
     CONTENT_TYPE_HEADER_KEY => HTML_TYPE
   }
@@ -54,6 +57,16 @@ module Angelo
 
   HALT_STRUCT = Struct.new :status, :body
 
+  class << self
+
+    attr_writer :response_log_level
+
+    def response_log_level
+      @response_log_level ||= DEFAULT_RESPONSE_LOG_LEVEL
+    end
+
+  end
+
   def self.log connection, request, socket, status, body_size = '-'
 
     remote_ip = ->{
@@ -64,7 +77,7 @@ module Angelo
       end
     }
 
-    Celluloid::Logger.debug LOG_FORMAT % [
+    Celluloid::Logger.__send__ Angelo.response_log_level, LOG_FORMAT % [
       remote_ip[],
       request.method,
       request.path,

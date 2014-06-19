@@ -11,6 +11,7 @@ module Angelo
     @@port = DEFAULT_PORT
 
     @@ping_time = DEFAULT_PING_TIME
+    @@log_level = DEFAULT_LOG_LEVEL
 
     if ARGV.any? and not Kernel.const_defined?('Minitest')
       require 'optparse'
@@ -108,6 +109,7 @@ module Angelo
       end
 
       def run addr = @@addr, port = @@port
+        Celluloid.logger.level = @@log_level
         @server = Angelo::Server.new self, addr, port
         @server.async.ping_websockets
         trap "INT" do
