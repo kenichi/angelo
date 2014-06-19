@@ -1,0 +1,39 @@
+var scheme   = '<%= @scheme %>';
+var channel  = 'default';
+function uri(){ return scheme + window.document.location.host + "/" + channel};
+
+var ws;
+
+function createWebsocket() {
+  if (ws != null) {
+    ws.close();
+  }
+
+  ws = new WebSocket(uri());
+
+  ws.onmessage = function(message) {
+    var data = JSON.parse(message.data);
+    $("#chat-text").append("<div class='panel panel-default'><div class='panel-heading'>" + data.handle + "</div><div class='panel-body'>" + data.text + "</div></div>");
+    $("#chat-text").stop().animate({
+      scrollTop: $('#chat-text')[0].scrollHeight
+    }, 800);
+  };
+}
+
+$("#channel-form").on("submit", function(event) {
+  event.preventDefault();
+  channel = $("#input-channel").val();
+  $("#chat-text").append("<div class='panel panel-default'><div class='panel-body'>changed channel to: " + channel + "</div></div>");
+  createWebsocket();
+  $("#input-channel").blur();
+});
+
+$("#input-form").on("submit", function(event) {
+  event.preventDefault();
+  var handle = $("#input-handle").val();
+  var text   = $("#input-text").val();
+  ws.send(JSON.stringify({ handle: handle, text: text }));
+  $("#input-text").val('');
+});
+
+createWebsocket();

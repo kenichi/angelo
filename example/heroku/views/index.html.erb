@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Angelo WebSockets Chat Demo</title>
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="assets/css/application.css" rel="stylesheet" media="screen">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <div class="container">
+      <div class="jumbotron">
+        <h1>Angelo WebSockets Chat Demo</h1>
+        <p>This is an Angelo WebSockets Chat Demo. The code lives <a href="https://github.com/kenichi/angelo/tree/master/example/heroku">on GitHub</a>.</p>
+      </div>
+      <form id="channel-form" class="form-inline">
+        <div class="form-group">
+          <input id="input-channel" type="text" class="form-control" placeholder="default"/>
+        </div>
+        <button class="btn btn-primary" type="submit">Change Channel</button>
+      </form>
+      <br/>
+      <form id="input-form" class="form-inline">
+        <div class="form-group">
+          <input id="input-handle" type="text" class="form-control" placeholder="Enter handle" autofocus />
+        </div>
+        <div class="form-group">
+          <input id="input-text" type="text" class="form-control" placeholder="Enter chat text here!" autofocus />
+        </div>
+        <button class="btn btn-primary" type="submit">Send</button>
+      </form>
+      <div class="page-header">
+        <h1>Chat</h1>
+      </div>
+      <div id="chat-text">
+      </div>
+    </div>
+
+    <script type="text/javascript" src="assets/js/jquery-2.0.3.min.js"></script>
+    <script type="text/javascript" src="assets/js/application.js"></script>
+  </body>
+</html>

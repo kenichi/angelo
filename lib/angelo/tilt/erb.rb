@@ -32,12 +32,10 @@ module Angelo
 
         def templates
           @templates ||= templatify('**', '*.erb'){|v| v =~ /^layouts\//}
-          @templates
         end
 
         def layout_templates
           @layout_templates ||= templatify 'layouts', '*.erb'
-          @layout_templates
         end
 
         def default_layout
