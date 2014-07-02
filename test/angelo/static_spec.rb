@@ -5,7 +5,7 @@ describe Angelo::Server do
 
   describe 'serving static files' do
 
-    let(:css_etag) do
+    def css_etag
       fs = File::Stat.new File.join(TEST_APP_ROOT, 'public', 'test.css')
       OpenSSL::Digest::SHA.hexdigest fs.ino.to_s + fs.size.to_s + fs.mtime.to_s
     end
@@ -18,13 +18,17 @@ describe Angelo::Server do
         'you should not see this'
       end
 
+      get '/attachment.png' do
+        send_file 'what.png', disposition: :attachment, filename: 'attachment.png'
+      end
+
     end
 
     it 'serves static files for gets' do
       get '/test.css'
       last_response.status.must_equal 200
       last_response.headers['Content-Type'].must_equal 'text/css'
-      last_response.headers['Content-Disposition'].must_equal 'attachment; filename=test.css'
+      last_response.headers['Content-Disposition'].must_be_nil
       last_response.headers['Content-Length'].must_equal '116'
       last_response.headers['Etag'].must_equal css_etag
       last_response.body.to_s.length.must_equal 116
@@ -35,7 +39,7 @@ describe Angelo::Server do
       head '/test.css'
       last_response.status.must_equal 200
       last_response.headers['Content-Type'].must_equal 'text/css'
-      last_response.headers['Content-Disposition'].must_equal 'attachment; filename=test.css'
+      last_response.headers['Content-Disposition'].must_be_nil
       last_response.headers['Content-Length'].must_equal '116'
       last_response.headers['Etag'].must_equal css_etag
       last_response.body.to_s.length.must_equal 0
@@ -45,7 +49,7 @@ describe Angelo::Server do
       get '/test.html'
       last_response.status.must_equal 200
       last_response.headers['Content-Type'].must_equal 'text/html'
-      last_response.headers['Content-Disposition'].must_equal 'attachment; filename=test.html'
+      last_response.headers['Content-Disposition'].must_be_nil
       last_response.body.to_s.must_equal File.read(File.join TEST_APP_ROOT, 'public', 'test.html')
     end
 
@@ -67,6 +71,12 @@ describe Angelo::Server do
       end
     end
 
-  end
+    it 'sends files as attachments when using send_file helper' do
+      get '/attachment.png'
+      last_response.status.must_equal 200
+      last_response.headers['Content-Type'].must_equal 'image/png'
+      last_response.headers['Content-Disposition'].must_equal 'attachment; filename="attachment.png"'
+    end
 
+  end
 end
