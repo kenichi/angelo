@@ -36,7 +36,7 @@ module Angelo
     private
 
     def dispatch! meth, connection, request
-      if staticable?(meth) and lp = local_path(request.path)
+      if staticable?(meth) and lp = @base.local_path(request.path)
         static! meth, connection, request, lp
       else
         route! meth, connection, request
@@ -56,13 +56,6 @@ module Angelo
       end
     end
 
-    def local_path path
-      if @base.public_dir
-        lp = File.join(@base.public_dir, path)
-        File.file?(lp) ? lp : nil
-      end
-    end
-
     def staticable? meth
       STATICABLE.include? meth
     end
@@ -79,11 +72,6 @@ module Angelo
           #
           CONTENT_TYPE_HEADER_KEY =>
             (MIME::Types.type_for(File.extname(local_path))[0].content_type rescue HTML_TYPE),
-
-          # Content-Disposition
-          #
-          CONTENT_DISPOSITION_HEADER_KEY =>
-            DEFAULT_CONTENT_DISPOSITION + "; filename=#{File.basename local_path}",
 
           # Content-Length
           #

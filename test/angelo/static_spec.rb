@@ -18,8 +18,16 @@ describe Angelo::Server do
         'you should not see this'
       end
 
+      get '/img' do
+        send_file 'what.png'
+      end
+
+      get '/what' do
+        send_file 'what.png', disposition: :attachment
+      end
+
       get '/attachment.png' do
-        send_file 'what.png', disposition: :attachment, filename: 'attachment.png'
+        send_file 'what.png', filename: 'attachment.png'
       end
 
     end
@@ -71,7 +79,21 @@ describe Angelo::Server do
       end
     end
 
-    it 'sends files as attachments when using send_file helper' do
+    it 'sends files' do
+      get '/img'
+      last_response.status.must_equal 200
+      last_response.headers['Content-Type'].must_equal 'image/png'
+      last_response.headers['Content-Disposition'].must_be_nil
+    end
+
+    it 'sends files with attachment disposition' do
+      get '/what'
+      last_response.status.must_equal 200
+      last_response.headers['Content-Type'].must_equal 'image/png'
+      last_response.headers['Content-Disposition'].must_equal 'attachment; filename="what.png"'
+    end
+
+    it 'sends files as different filename' do
       get '/attachment.png'
       last_response.status.must_equal 200
       last_response.headers['Content-Type'].must_equal 'image/png'

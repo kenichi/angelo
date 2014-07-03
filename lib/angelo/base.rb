@@ -119,6 +119,13 @@ module Angelo
         sleep
       end
 
+      def local_path path
+        if public_dir
+          lp = File.join(public_dir, path)
+          File.file?(lp) ? lp : nil
+        end
+      end
+
     end
 
     def async meth, *args
@@ -170,6 +177,28 @@ module Angelo
 
     def halt status = 400, body = ''
       throw :halt, HALT_STRUCT.new(status, body)
+    end
+
+    def send_file local_file, opts = {}
+      lp = self.class.local_path local_file
+
+      # Content-Type
+      #
+      headers CONTENT_TYPE_HEADER_KEY =>
+        (MIME::Types.type_for(File.extname(lp))[0].content_type rescue HTML_TYPE)
+
+      # Content-Disposition
+      #
+      if opts[:disposition] == :attachment or opts[:filename]
+        headers CONTENT_DISPOSITION_HEADER_KEY =>
+          ATTACHMENT_CONTENT_DISPOSITION % (opts[:filename] or File.basename(lp))
+      end
+
+      # Content-Length
+      #
+      headers CONTENT_LENGTH_HEADER_KEY => File.size(lp)
+
+      halt 200, File.read(lp)
     end
 
   end

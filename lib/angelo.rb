@@ -21,7 +21,7 @@ module Angelo
   CONTENT_TYPE_HEADER_KEY = 'Content-Type'
   CONTENT_DISPOSITION_HEADER_KEY = 'Content-Disposition'
   CONTENT_LENGTH_HEADER_KEY = 'Content-Length'
-  DEFAULT_CONTENT_DISPOSITION = 'attachment'
+  ATTACHMENT_CONTENT_DISPOSITION = 'attachment; filename="%s"'
   ETAG_HEADER_KEY = 'ETag'
   IF_NONE_MATCH_HEADER_KEY = 'If-None-Match'
   LOCATION_HEADER_KEY = 'Location'
