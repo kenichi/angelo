@@ -1,0 +1,8 @@
+source 'https://rubygems.org'
+
+ruby '2.1.2'
+
+gem 'angelo'
+gem 'tilt'
+gem 'mustermann'
+gem 'celluloid-redis'

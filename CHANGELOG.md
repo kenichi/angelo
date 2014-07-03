@@ -1,6 +1,11 @@
 changelog
 =========
 
+### 0.1.14 3 jul 2014
+
+* add send_file with disposition support
+* remove disposition header from static file serving
+
 ### 0.1.13 19 jun 2014
 
 * add log level settings
