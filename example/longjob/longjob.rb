@@ -3,7 +3,6 @@ $:.unshift File.expand_path '../../../lib', __FILE__
 require 'bundler'
 Bundler.require
 
-require 'angelo/tilt/erb'
 require 'angelo/mustermann'
 
 REDIS_CHANNEL = 'progress:%s'
@@ -21,23 +20,26 @@ class Job
   def initialize
     @id = generate_id(4)
     @redis = ::Redis.new driver: :celluloid
+    @redis.sadd :jobs, @id
   end
 
   def go
     10.times do |n|
-      sleep 3 # work hard for 3 seconds! :)
+      sleep rand(5) + 1
       @redis.publish REDIS_CHANNEL % @id, {progress: (n+1)*10}.to_json
     end
+    @redis.srem :jobs, @id
   end
 
 end
 
 class Longjob < Angelo::Base
-  include Angelo::Tilt::ERB
   include Angelo::Mustermann
 
+  @@redis = ::Redis.new driver: :celluloid
+
   get '/' do
-    erb :index
+    redirect '/longjob.html'
   end
 
   post '/start' do
@@ -48,8 +50,12 @@ class Longjob < Angelo::Base
   end
 
   websocket '/progress/:id' do |ws|
-    websockets << ws
-    async :track_progress, params[:id], ws
+    if @@redis.sismember :jobs, params[:id]
+      websockets << ws
+      async :track_progress, params[:id], ws
+    else
+      ws.close
+    end
   end
 
   task :track_progress do |id, ws|
