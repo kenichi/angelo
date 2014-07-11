@@ -13,6 +13,8 @@ module Angelo
     @@ping_time = DEFAULT_PING_TIME
     @@log_level = DEFAULT_LOG_LEVEL
 
+    @@report_errors = false
+
     if ARGV.any? and not Kernel.const_defined?('Minitest')
       require 'optparse'
       OptionParser.new { |op|
@@ -175,6 +177,18 @@ module Angelo
       end
     end
 
+    task :handle_event_source do |socket, block|
+      begin
+        block[socket]
+      rescue Errno::EPIPE => bp
+        # eventsource was closed on client, not a problem
+      rescue => e
+        error e.inspect
+      ensure
+        socket.close unless socket.closed?
+      end
+    end
+
     def halt status = 400, body = ''
       throw :halt, HALT_STRUCT.new(status, body)
     end
@@ -199,6 +213,16 @@ module Angelo
       headers CONTENT_LENGTH_HEADER_KEY => File.size(lp)
 
       halt 200, File.read(lp)
+    end
+
+    def eventsource &block
+      headers SSE_HEADER
+      async :handle_event_source, responder.connection.detach.socket, block
+      halt 200, :sse
+    end
+
+    def report_errors?
+      @@report_errors
     end
 
   end

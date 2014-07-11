@@ -16,13 +16,15 @@ class Bar < Angelo::Base
   @@ping_time = 3
   @@hearting = false
   @@beating = false
+  @@report_errors = true
 
   after do
     puts "I'm after!"
   end
 
   get '/' do
-    redirect '/index'
+    erb :index
+    # redirect '/index'
   end
 
   get '/index' do
@@ -105,6 +107,16 @@ class Bar < Angelo::Base
   get '/raise' do
     raise 'this is another weird error!'
     'foo'
+  end
+
+  get '/sse' do
+    eventsource do |client|
+      loop do
+        data = {time: Time.now}.to_json
+        client.write "event: sse\ndata: #{data}\n\n"
+        sleep 1
+      end
+    end
   end
 
 end

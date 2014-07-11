@@ -25,6 +25,7 @@ module Angelo
   ETAG_HEADER_KEY = 'ETag'
   IF_NONE_MATCH_HEADER_KEY = 'If-None-Match'
   LOCATION_HEADER_KEY = 'Location'
+  SSE_HEADER = { CONTENT_TYPE_HEADER_KEY => 'text/event-stream' }
 
   HTML_TYPE = 'text/html'
   JSON_TYPE = 'application/json'

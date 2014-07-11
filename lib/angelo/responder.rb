@@ -32,7 +32,7 @@ module Angelo
 
     end
 
-    attr_writer :connection
+    attr_accessor :connection
     attr_reader :request
 
     def initialize &block
@@ -56,22 +56,31 @@ module Angelo
       if @response_handler
         @base.before if @base.respond_to? :before
         @body = catch(:halt) { @response_handler.bind(@base).call || EMPTY_STRING }
-        @base.after if @base.respond_to? :after
+
+        case @body
+        when HALT_STRUCT
+          if @body.body != :sse and @base.respond_to? :after
+            @base.after
+          end
+        else
+          @base.after if @base.respond_to? :after
+        end
+
         respond
       else
         raise NotImplementedError
       end
     rescue JSON::ParserError => jpe
-      handle_error jpe, :bad_request, false
+      handle_error jpe, :bad_request
     rescue FormEncodingError => fee
-      handle_error fee, :bad_request, false
+      handle_error fee, :bad_request
     rescue RequestError => re
-      handle_error re, re.type, false
+      handle_error re, re.type
     rescue => e
       handle_error e
     end
 
-    def handle_error _error, type = :internal_server_error, report = true
+    def handle_error _error, type = :internal_server_error, report = @base.report_errors?
       err_msg = error_message _error
       Angelo.log @connection, @request, nil, type, err_msg.size
       @connection.respond type, headers, err_msg
@@ -130,6 +139,7 @@ module Angelo
       when HALT_STRUCT
         status = @body.status
         @body = @body.body
+        @body = nil if @body == :sse
         if Hash === @body
           @body = {error: @body} if status != :ok or status < 200 && status >= 300
           @body = @body.to_json if respond_with? :json
@@ -148,11 +158,12 @@ module Angelo
 
       status ||= @redirect.nil? ? :ok : :moved_permanently
       headers LOCATION_HEADER_KEY => @redirect if @redirect
+      size = @body.nil? ? 0 : @body.size
 
-      Angelo.log @connection, @request, nil, status, @body.size
+      Angelo.log @connection, @request, nil, status, size
       @connection.respond status, headers, @body
     rescue => e
-      handle_error e, :internal_server_error, false
+      handle_error e, :internal_server_error
     end
 
     def redirect url
