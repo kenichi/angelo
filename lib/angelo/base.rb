@@ -180,7 +180,7 @@ module Angelo
     task :handle_event_source do |socket, block|
       begin
         block[socket]
-      rescue Errno::EPIPE => bp
+      rescue Errno::EPIPE, IOError => e
         # eventsource was closed on client, not a problem
       rescue => e
         error e.inspect
