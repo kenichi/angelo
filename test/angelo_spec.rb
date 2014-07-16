@@ -62,29 +62,25 @@ describe Angelo::Base do
     end
 
     it 'responds to requests concurrently' do
+      wait_end = nil
+      get_end = nil
+      latch = CountDownLatch.new 2
 
-      Reactor.define_action :get_wait do
+      Thread.new do
         get '/wait'
-        Time.now
+        wait_end = Time.now
+        latch.count_down
       end
 
-      Reactor.define_action :get_get do
+      Thread.new do
         get '/'
-        Time.now
+        get_end = Time.now
+        latch.count_down
       end
 
-      Reactor.unstop!
-
-      wait_end = $reactor.future.get_wait
-      get_end = $reactor.future.get_get
-
-      wait_end.value.must_be :>, get_end.value
-
-      Reactor.stop!
-      Reactor.remove_action :get_wait
-      Reactor.remove_action :get_get
+      latch.wait
+      get_end.must_be :<, wait_end
     end
-
   end
 
   describe 'before filter' do

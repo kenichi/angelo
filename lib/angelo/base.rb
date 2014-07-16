@@ -201,6 +201,11 @@ module Angelo
       halt 200, File.read(lp)
     end
 
+    def sleep time
+      Celluloid.sleep time
+    end
+
+
   end
 
 end
