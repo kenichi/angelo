@@ -31,6 +31,11 @@ describe Angelo::Base do
         redirect '/'
       end
 
+      get '/wait' do
+        sleep 1
+        nil
+      end
+
     end
 
     it 'responds to http requests properly' do
@@ -56,6 +61,26 @@ describe Angelo::Base do
       last_response.headers['Location'].must_equal '/'
     end
 
+    it 'responds to requests concurrently' do
+      wait_end = nil
+      get_end = nil
+      latch = CountDownLatch.new 2
+
+      Thread.new do
+        get '/wait'
+        wait_end = Time.now
+        latch.count_down
+      end
+
+      Thread.new do
+        get '/'
+        get_end = Time.now
+        latch.count_down
+      end
+
+      latch.wait
+      get_end.must_be :<, wait_end
+    end
   end
 
   describe 'before filter' do

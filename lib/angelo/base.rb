@@ -225,6 +225,10 @@ module Angelo
       @@report_errors
     end
 
+    def sleep time
+      Celluloid.sleep time
+    end
+
   end
 
 end
