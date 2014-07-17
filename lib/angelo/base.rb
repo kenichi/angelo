@@ -101,9 +101,15 @@ module Angelo
       end
 
       def websockets
-        @websockets ||= Stash.new server
+        @websockets ||= Stash::Websocket.new server
         @websockets.reject! &:closed?
         @websockets
+      end
+
+      def sses
+        @sses ||= Stash::SSE.new server
+        @sses.reject! &:closed?
+        @sses
       end
 
       def content_type type
@@ -128,6 +134,14 @@ module Angelo
         end
       end
 
+      def sse_event event_name, data
+        SSE_EVENT_TEMPLATE % [event_name.to_s, data]
+      end
+
+      def sse_message data
+        SSE_DATA_TEMPLATE % data
+      end
+
     end
 
     def async meth, *args
@@ -147,6 +161,7 @@ module Angelo
     end
 
     def websockets; self.class.websockets; end
+    def sses; self.class.sses; end
 
     def request_headers
       @request_headers ||= Hash.new do |hash, key|
@@ -180,11 +195,12 @@ module Angelo
     task :handle_event_source do |socket, block|
       begin
         block[socket]
-      rescue Errno::EPIPE, IOError => e
-        # eventsource was closed on client, not a problem
+      rescue Reel::SocketError, IOError, SystemCallError => e
+        # probably closed on client
+        warn e.message if @@report_errors
+        socket.close unless socket.closed?
       rescue => e
         error e.inspect
-      ensure
         socket.close unless socket.closed?
       end
     end
@@ -228,6 +244,9 @@ module Angelo
     def sleep time
       Celluloid.sleep time
     end
+
+    def sse_event event_name, data; self.class.sse_event event_name, data; end
+    def sse_message data; self.class.sse_message data; end
 
   end
 

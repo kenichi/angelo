@@ -58,6 +58,9 @@ module Angelo
 
   HALT_STRUCT = Struct.new :status, :body
 
+  SSE_DATA_TEMPLATE = "data: %s\n\n"
+  SSE_EVENT_TEMPLATE = "event: %s\ndata: %s\n\n"
+
   class << self
 
     attr_writer :response_log_level

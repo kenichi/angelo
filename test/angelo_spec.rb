@@ -81,6 +81,7 @@ describe Angelo::Base do
       latch.wait
       get_end.must_be :<, wait_end
     end
+
   end
 
   describe 'before filter' do

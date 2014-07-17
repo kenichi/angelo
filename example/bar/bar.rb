@@ -17,6 +17,7 @@ class Bar < Angelo::Base
   @@hearting = false
   @@beating = false
   @@report_errors = true
+  @@log_level = Logger::DEBUG
 
   after do
     puts "I'm after!"
@@ -110,13 +111,26 @@ class Bar < Angelo::Base
   end
 
   get '/sse' do
-    eventsource do |client|
-      loop do
-        data = {time: Time.now}.to_json
-        client.write "event: sse\ndata: #{data}\n\n"
-        sleep 1
+    sse = eventsource do |client|
+      sses[params[:event].to_sym] << client if params[:event]
+      if params[:time]
+        loop do
+          data = {time: Time.now}.to_json
+          client.write sse_event(:time, data)
+          sleep 1
+        end
       end
     end
+  end
+
+  post '/sse_event' do
+    sses[params[:event].to_sym].event hello: 'there', fools: 'you!'
+    nil
+  end
+
+  post '/sse_msg' do
+    sses[params[:context].to_sym].message 'this is a message!'
+    nil
   end
 
 end
