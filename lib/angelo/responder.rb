@@ -34,14 +34,10 @@ module Angelo
 
     attr_accessor :connection
     attr_reader :request
+    attr_writer :base
 
     def initialize &block
       @response_handler = Base.compile! :request_handler, &block
-    end
-
-    def base= base
-      @base = base
-      @base.responder = self
     end
 
     def request= request

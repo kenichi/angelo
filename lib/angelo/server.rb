@@ -47,7 +47,7 @@ module Angelo
       rs = @base.routes[meth][request.path]
       if rs
         responder = rs.dup
-        responder.base = @base.new
+        responder.base = @base.new responder
         responder.connection = connection
         responder.request = request
       else

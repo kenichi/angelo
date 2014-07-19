@@ -66,20 +66,27 @@ describe Angelo::Base do
       get_end = nil
       latch = CountDownLatch.new 2
 
-      Thread.new do
+      ActorPool.define_action :do_wait do
         get '/wait'
         wait_end = Time.now
         latch.count_down
       end
 
-      Thread.new do
-        get '/'
+      ActorPool.define_action :do_get do
         get_end = Time.now
         latch.count_down
       end
 
+      ActorPool.unstop!
+      $pool.async :do_wait
+      $pool.async :do_get
+
       latch.wait
       get_end.must_be :<, wait_end
+
+      ActorPool.stop!
+      ActorPool.remove_action :do_wait
+      ActorPool.remove_action :do_get
     end
 
   end

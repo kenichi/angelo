@@ -6,6 +6,7 @@ module Angelo
 
     extend Forwardable
     def_delegators :@responder, :content_type, :headers, :redirect, :request
+    def_delegators :@klass, :websockets, :sses, :sse_event, :sse_message
 
     @@addr = DEFAULT_ADDR
     @@port = DEFAULT_PORT
@@ -92,6 +93,9 @@ module Angelo
         routes[:websocket][path] = WebsocketResponder.new &block
       end
 
+      def eventsource path, &block
+      end
+
       def on_pong &block
         WebsocketResponder.on_pong = block
       end
@@ -144,6 +148,11 @@ module Angelo
 
     end
 
+    def initialize responder
+      @responder = responder
+      @klass = self.class
+    end
+
     def async meth, *args
       self.class.server.async.__send__ meth, *args
     end
@@ -159,9 +168,6 @@ module Angelo
                   when PUT;  parse_post_body
                   end
     end
-
-    def websockets; self.class.websockets; end
-    def sses; self.class.sses; end
 
     def request_headers
       @request_headers ||= Hash.new do |hash, key|
@@ -244,9 +250,6 @@ module Angelo
     def sleep time
       Celluloid.sleep time
     end
-
-    def sse_event event_name, data; self.class.sse_event event_name, data; end
-    def sse_message data; self.class.sse_message data; end
 
   end
 

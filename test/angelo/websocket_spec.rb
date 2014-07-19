@@ -225,8 +225,14 @@ describe Angelo::WebsocketResponder do
   end
 
   describe 'helper contexts' do
-    let(:obj){ {'foo' => 'bar'} }
-    let(:wait_for_block){ ->(e){ assert_equal obj, JSON.parse(e.data) }}
+
+    def obj
+      { 'foo' => 'bar' }
+    end
+
+    def wait_for_block
+      ->(e){ assert_equal obj, JSON.parse(e.data) }
+    end
 
     define_app do
 
@@ -341,6 +347,35 @@ describe Angelo::WebsocketResponder do
         Reactor.testers.delete k
       end
       Reactor.remove_action :go
+    end
+
+  end
+
+  describe 'params' do
+
+    def wait_for_block
+      ->(e){ assert_equal({'bar' => 'foo', 'baz' => 'bat'}, JSON.parse(e.data)) }
+    end
+
+    define_app do
+
+      websocket '/' do |ws|
+        websockets[params[:bar].to_sym] << ws
+      end
+
+      post '/' do
+        pj = params.to_json
+        websockets[params[:bar].to_sym].each {|ws| ws.write pj}
+      end
+
+    end
+
+    it 'uses params correctly' do
+      latch = CountDownLatch.new CONCURRENCY
+      websocket_wait_for '/?bar=foo', latch, wait_for_block do
+        post '/', bar: 'foo', baz: 'bat'
+        latch.wait
+      end
     end
 
   end

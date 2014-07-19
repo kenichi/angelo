@@ -12,11 +12,6 @@ module Angelo
 
     end
 
-    def params
-      @params ||= parse_query_string
-      @params
-    end
-
     def request= request
       @params = nil
       @request = request
