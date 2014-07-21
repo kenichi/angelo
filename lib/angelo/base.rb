@@ -90,14 +90,15 @@ module Angelo
       end
 
       def websocket path, &block
-        routes[:websocket][path] = WebsocketResponder.new &block
+        routes[:websocket][path] = Responder::Websocket.new &block
       end
 
       def eventsource path, &block
+        routes[:get][path] = Responder::Eventsource.new &block
       end
 
       def on_pong &block
-        WebsocketResponder.on_pong = block
+        Responder::Websocket.on_pong = block
       end
 
       def task name, &block

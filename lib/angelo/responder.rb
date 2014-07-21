@@ -53,6 +53,7 @@ module Angelo
         @base.before if @base.respond_to? :before
         @body = catch(:halt) { @response_handler.bind(@base).call || EMPTY_STRING }
 
+        # TODO any real reason not to run afters with SSE?
         case @body
         when HALT_STRUCT
           if @body.body != :sse and @base.respond_to? :after
@@ -157,7 +158,7 @@ module Angelo
       size = @body.nil? ? 0 : @body.size
 
       Angelo.log @connection, @request, nil, status, size
-      @connection.respond status, headers, @body
+      @request.respond status, headers, @body
     rescue => e
       handle_error e, :internal_server_error
     end

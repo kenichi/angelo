@@ -1,33 +1,26 @@
 module Angelo
   class Responder
-    class Websocket < Responder
-
-      class << self
-
-        attr_writer :on_pong
-
-        def on_pong
-          @on_pong ||= ->(e){}
-        end
-
-      end
+    class Eventsource < Responder
 
       def request= request
         @params = nil
         @request = request
-        @websocket = @request.websocket
         handle_request
       end
 
       def handle_request
         begin
           if @response_handler
-            Angelo.log @connection, @request, @websocket, :switching_protocols
-            @bound_response_handler ||= @response_handler.bind @base
-            @websocket.on_pong &Responder::Websocket.on_pong
             @base.before if @base.respond_to? :before
-            @bound_response_handler[@websocket]
-            @base.after if @base.respond_to? :after
+            @body = catch(:halt) { @base.eventsource &@response_handler.bind(@base) }
+            if HALT_STRUCT === @body
+              raise RequestError.new 'unknown sse error' unless @body.body == :sse
+            end
+
+            # TODO any real reason not to run afters with SSE?
+            # @base.after if @base.respond_to? :after
+
+            respond
           else
             raise NotImplementedError
           end
@@ -45,9 +38,9 @@ module Angelo
         end
       end
 
-      def close_websocket
-        @websocket.close
-        @base.websockets.remove_socket @websocket
+      def respond
+        Angelo.log @connection, @request, nil, :ok
+        @request.respond 200, headers, nil
       end
 
     end

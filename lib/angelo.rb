@@ -126,6 +126,7 @@ require 'angelo/server'
 require 'angelo/base'
 require 'angelo/stash'
 require 'angelo/responder'
+require 'angelo/responder/eventsource'
 require 'angelo/responder/websocket'
 
 # trap "INT" do

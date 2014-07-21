@@ -1,6 +1,6 @@
 require_relative '../spec_helper'
 
-describe Angelo::WebsocketResponder do
+describe Angelo::Responder::Websocket do
 
   def websocket_wait_for path, latch, expectation, key = :swf, &block
     Reactor.testers[key] = Array.new CONCURRENCY do

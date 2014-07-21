@@ -125,12 +125,23 @@ class Bar < Angelo::Base
 
   post '/sse_event' do
     sses[params[:event].to_sym].event hello: 'there', fools: 'you!'
-    nil
   end
 
   post '/sse_msg' do
     sses[params[:context].to_sym].message 'this is a message!'
-    nil
+  end
+
+  eventsource '/meh' do |client|
+    sses[:meh] << client
+    loop do
+      data = {time: Time.now}.to_json
+      client.write sse_event(:time, data)
+      sleep 1
+    end
+  end
+
+  post '/sse_meh' do
+    sses[:meh].message params[:meh]
   end
 
 end

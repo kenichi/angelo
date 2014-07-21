@@ -32,7 +32,7 @@ describe Angelo::Base do
       end
 
       get '/wait' do
-        sleep 1
+        sleep 3
         nil
       end
 
@@ -73,6 +73,8 @@ describe Angelo::Base do
       end
 
       ActorPool.define_action :do_get do
+        sleep 1
+        get '/'
         get_end = Time.now
         latch.count_down
       end

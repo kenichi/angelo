@@ -62,13 +62,14 @@ module Angelo
       end
     end
 
-    # remove a websocket from the stash, warn user, drop peeraddr info
+    # remove a socket from the stash, warn user, drop peeraddr info
     #
-    def remove_socket ws
-      if stash.include? ws
-        warn "removing socket from context ':#{@context}' (#{peeraddrs[ws][2]})"
-        stash.delete ws
-        peeraddrs.delete ws
+    def remove_socket s
+      s.close unless s.closed?
+      if stash.include? s
+        warn "removing socket from context ':#{@context}' (#{peeraddrs[s][2]})"
+        stash.delete s
+        peeraddrs.delete s
       end
     end
 
@@ -131,11 +132,13 @@ module Angelo
         raise ArgumentError.new 'use #message method for "messages"' if @context == :default
         data = data.to_json if Hash === data
         each {|s| s.write Angelo::Base.sse_event(@context, data)}
+        nil
       end
 
       def message data
         data = data.to_json if Hash === data
         each {|s| s.write Angelo::Base.sse_message(data)}
+        nil
       end
 
     end
