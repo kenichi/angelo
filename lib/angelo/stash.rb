@@ -60,6 +60,7 @@ module Angelo
           remove_socket s
         end
       end
+      nil
     end
 
     # remove a socket from the stash, warn user, drop peeraddr info

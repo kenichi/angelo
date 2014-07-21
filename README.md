@@ -174,6 +174,31 @@ post '/sse_event' do
 end
 ```
 
+##### `eventsource` instance helper
+
+Additionally, you can also start SSE handling *conditionally* from inside a GET block:
+
+```ruby
+get '/sse_maybe' do
+  if params[:sse]
+    eventsource do |c|
+      sses << c
+      c.write sse_message 'wooo fancy SSE for you!'
+    end
+  else
+    'boring regular old get response'
+  end
+end
+
+post '/sse_event' do
+  sses.each {|sse| sse.write sse_event(:foo, 'fancy sse event!')}
+end
+```
+
+Handling this on the client may require conditionals for [browsers](http://caniuse.com/eventsource) that
+do not support EventSource yet, since this will respond with a non-"text/event-stream" Content-Type if
+'sse' is not present in the params.
+
 ### Tasks + Async / Future
 
 Angelo is built on Reel and Celluloid::IO, giving your web application class the ability to define

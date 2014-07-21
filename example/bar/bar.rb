@@ -111,15 +111,19 @@ class Bar < Angelo::Base
   end
 
   get '/sse' do
-    sse = eventsource do |client|
-      sses[params[:event].to_sym] << client if params[:event]
-      if params[:time]
-        loop do
-          data = {time: Time.now}.to_json
-          client.write sse_event(:time, data)
-          sleep 1
+    if params[:sse]
+      eventsource do |client|
+        sses[params[:event].to_sym] << client if params[:event]
+        if params[:time]
+          loop do
+            data = {time: Time.now}.to_json
+            client.write sse_event(:time, data)
+            sleep 1
+          end
         end
       end
+    else
+      'boring'
     end
   end
 
