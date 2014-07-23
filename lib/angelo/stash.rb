@@ -131,13 +131,11 @@ module Angelo
 
       def event data
         raise ArgumentError.new 'use #message method for "messages"' if @context == :default
-        data = data.to_json if Hash === data
         each {|s| s.write Angelo::Base.sse_event(@context, data)}
         nil
       end
 
       def message data
-        data = data.to_json if Hash === data
         each {|s| s.write Angelo::Base.sse_message(data)}
         nil
       end

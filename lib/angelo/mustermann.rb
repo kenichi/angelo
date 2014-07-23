@@ -33,6 +33,11 @@ module Angelo
         super path, &block
       end
 
+      def eventsource path, &block
+        path = ::Mustermann.new path
+        super path, &block
+      end
+
       def routes
         @routes ||= {}
         ROUTABLE.each do |m|

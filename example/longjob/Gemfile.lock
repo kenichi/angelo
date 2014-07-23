@@ -1,32 +1,43 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    angelo (0.1.13)
+    angelo (0.1.14)
       mime-types
       reel
-    celluloid (0.15.2)
-      timers (~> 1.1.0)
-    celluloid-io (0.15.0)
-      celluloid (>= 0.15.0)
-      nio4r (>= 0.5.0)
+    celluloid (0.16.0.pre2)
+      timers (~> 3.0.0)
+    celluloid-io (0.16.0.pre2)
+      celluloid (>= 0.16.0.pre)
+      nio4r (>= 1.0.0)
     celluloid-redis (0.0.2)
       celluloid-io (>= 0.13.0.pre)
       redis
+    coderay (1.1.0)
+    hitimes (1.2.2)
     http (0.6.1)
       http_parser.rb (~> 0.6.0)
     http_parser.rb (0.6.0)
+    method_source (0.8.2)
     mime-types (2.3)
     mustermann (0.2.0)
     nio4r (1.0.0)
-    redis (3.0.7)
+    pry (0.9.12.6)
+      coderay (~> 1.0)
+      method_source (~> 0.8)
+      slop (~> 3.4)
+    pry-nav (0.2.3)
+      pry (~> 0.9.10)
+    redis (3.1.0)
     reel (0.5.0)
       celluloid (>= 0.15.1)
       celluloid-io (>= 0.15.0)
       http (>= 0.6.0.pre)
       http_parser.rb (>= 0.6.0)
       websocket_parser (>= 0.1.6)
+    slop (3.6.0)
     tilt (2.0.1)
-    timers (1.1.0)
+    timers (3.0.1)
+      hitimes
     websocket_parser (0.1.6)
 
 PLATFORMS
@@ -36,4 +47,6 @@ DEPENDENCIES
   angelo
   celluloid-redis
   mustermann
+  pry
+  pry-nav
   tilt

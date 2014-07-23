@@ -6,3 +6,6 @@ gem 'angelo'
 gem 'tilt'
 gem 'mustermann'
 gem 'celluloid-redis'
+
+gem 'pry'
+gem 'pry-nav'

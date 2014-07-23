@@ -92,6 +92,9 @@ module Angelo
       OpenSSL::Digest::SHA.hexdigest fs.ino.to_s + fs.size.to_s + fs.mtime.to_s
     end
 
+    def sse_event *a; Base.sse_event *a; end
+    def sse_message *a; Base.sse_message *a; end
+
   end
 
 end

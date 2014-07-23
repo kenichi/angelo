@@ -140,10 +140,12 @@ module Angelo
       end
 
       def sse_event event_name, data
+        data = data.to_json if Hash === data
         SSE_EVENT_TEMPLATE % [event_name.to_s, data]
       end
 
       def sse_message data
+        data = data.to_json if Hash === data
         SSE_DATA_TEMPLATE % data
       end
 

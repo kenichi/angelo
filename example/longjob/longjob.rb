@@ -36,6 +36,7 @@ end
 class Longjob < Angelo::Base
   include Angelo::Mustermann
 
+  @@log_level = Logger::DEBUG
   @@redis = ::Redis.new driver: :celluloid
 
   get '/' do
@@ -50,24 +51,56 @@ class Longjob < Angelo::Base
   end
 
   websocket '/progress/:id' do |ws|
-    if @@redis.sismember :jobs, params[:id]
+    if job_exists? params[:id]
       websockets << ws
       async :track_progress, params[:id], ws
     else
+      ws.write({progress: 'done'}.to_json)
       ws.close
     end
   end
 
-  task :track_progress do |id, ws|
-    catch :done do
-      ::Redis.new(driver: :celluloid).subscribe(REDIS_CHANNEL % id) do |on|
-        on.message do |channel, msg|
-          ws.write msg
-          throw :done if JSON.parse(msg)['progress'] == 100
+  eventsource '/progress/:id' do |es|
+    if job_exists? params[:id]
+      async :track_progress, params[:id], es
+    else
+      es.write sse_event(:progress, progress: 'done')
+      es.close
+    end
+  end
+
+  # ---
+
+  task :track_progress do |id, s|
+    case s
+    when Reel::WebSocket
+      catch :done do
+        ::Redis.new(driver: :celluloid).subscribe(REDIS_CHANNEL % id) do |on|
+          on.message do |channel, msg|
+            s.write msg
+            throw :done if JSON.parse(msg)['progress'] == 100
+          end
         end
       end
+      s.write({progress: 'done'}.to_json)
+      s.close
+
+    when Celluloid::IO::TCPSocket
+      catch :done do
+        ::Redis.new(driver: :celluloid).subscribe(REDIS_CHANNEL % id) do |on|
+          on.message do |channel, msg|
+            s.write sse_event :progress, msg
+            throw :done if JSON.parse(msg)['progress'] == 100
+          end
+        end
+      end
+      s.write sse_event :progress, progress: 'done'
+      s.close
     end
-    ws.close
+  end
+
+  def job_exists? id
+    @@redis.sismember :jobs, id
   end
 
 end
