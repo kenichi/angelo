@@ -1,7 +1,7 @@
 changelog
 =========
 
-### 0.1.15
+### 0.1.15 24 jul 2014
 
 * WebsocketResponder -> Responder::Websocket
 * add Responder::Eventsource
