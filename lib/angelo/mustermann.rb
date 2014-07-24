@@ -12,7 +12,7 @@ module Angelo
         def_delegator :@responder, :mustermann
       end
 
-      [Responder, WebsocketResponder].each do |res|
+      [Responder, Responder::Websocket, Responder::Eventsource].each do |res|
         res.class_eval do
           attr_accessor :mustermann
         end
@@ -29,6 +29,11 @@ module Angelo
       end
 
       def websocket path, &block
+        path = ::Mustermann.new path
+        super path, &block
+      end
+
+      def eventsource path, &block
         path = ::Mustermann.new path
         super path, &block
       end

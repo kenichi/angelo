@@ -1,6 +1,15 @@
 changelog
 =========
 
+### 0.1.15
+
+* WebsocketResponder -> Responder::Websocket
+* add Responder::Eventsource
+* split Stash into module with Websocket and SSE classes
+* add SSE eventsource route builder and helper
+* add #event and #message to Stash::SSE
+* add .sse_event and .sse_message to Base
+
 ### 0.1.14 3 jul 2014
 
 * add send_file with disposition support

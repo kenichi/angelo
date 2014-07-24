@@ -25,6 +25,7 @@ module Angelo
   ETAG_HEADER_KEY = 'ETag'
   IF_NONE_MATCH_HEADER_KEY = 'If-None-Match'
   LOCATION_HEADER_KEY = 'Location'
+  SSE_HEADER = { CONTENT_TYPE_HEADER_KEY => 'text/event-stream' }
 
   HTML_TYPE = 'text/html'
   JSON_TYPE = 'application/json'
@@ -56,6 +57,9 @@ module Angelo
   EMPTY_STRING = ''
 
   HALT_STRUCT = Struct.new :status, :body
+
+  SSE_DATA_TEMPLATE = "data: %s\n\n"
+  SSE_EVENT_TEMPLATE = "event: %s\ndata: %s\n\n"
 
   class << self
 
@@ -122,6 +126,7 @@ require 'angelo/server'
 require 'angelo/base'
 require 'angelo/stash'
 require 'angelo/responder'
+require 'angelo/responder/eventsource'
 require 'angelo/responder/websocket'
 
 # trap "INT" do

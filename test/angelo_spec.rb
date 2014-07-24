@@ -31,6 +31,11 @@ describe Angelo::Base do
         redirect '/'
       end
 
+      get '/wait' do
+        sleep 3
+        nil
+      end
+
     end
 
     it 'responds to http requests properly' do
@@ -54,6 +59,36 @@ describe Angelo::Base do
       get '/redirect'
       last_response.status.must_equal 301
       last_response.headers['Location'].must_equal '/'
+    end
+
+    it 'responds to requests concurrently' do
+      wait_end = nil
+      get_end = nil
+      latch = CountDownLatch.new 2
+
+      ActorPool.define_action :do_wait do
+        get '/wait'
+        wait_end = Time.now
+        latch.count_down
+      end
+
+      ActorPool.define_action :do_get do
+        sleep 1
+        get '/'
+        get_end = Time.now
+        latch.count_down
+      end
+
+      ActorPool.unstop!
+      $pool.async :do_wait
+      $pool.async :do_get
+
+      latch.wait
+      get_end.must_be :<, wait_end
+
+      ActorPool.stop!
+      ActorPool.remove_action :do_wait
+      ActorPool.remove_action :do_get
     end
 
   end

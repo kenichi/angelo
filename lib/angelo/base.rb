@@ -6,12 +6,15 @@ module Angelo
 
     extend Forwardable
     def_delegators :@responder, :content_type, :headers, :redirect, :request
+    def_delegators :@klass, :websockets, :sses, :sse_event, :sse_message
 
     @@addr = DEFAULT_ADDR
     @@port = DEFAULT_PORT
 
     @@ping_time = DEFAULT_PING_TIME
     @@log_level = DEFAULT_LOG_LEVEL
+
+    @@report_errors = false
 
     if ARGV.any? and not Kernel.const_defined?('Minitest')
       require 'optparse'
@@ -87,11 +90,15 @@ module Angelo
       end
 
       def websocket path, &block
-        routes[:websocket][path] = WebsocketResponder.new &block
+        routes[:websocket][path] = Responder::Websocket.new &block
+      end
+
+      def eventsource path, &block
+        routes[:get][path] = Responder::Eventsource.new &block
       end
 
       def on_pong &block
-        WebsocketResponder.on_pong = block
+        Responder::Websocket.on_pong = block
       end
 
       def task name, &block
@@ -99,9 +106,15 @@ module Angelo
       end
 
       def websockets
-        @websockets ||= Stash.new server
+        @websockets ||= Stash::Websocket.new server
         @websockets.reject! &:closed?
         @websockets
+      end
+
+      def sses
+        @sses ||= Stash::SSE.new server
+        @sses.reject! &:closed?
+        @sses
       end
 
       def content_type type
@@ -126,6 +139,21 @@ module Angelo
         end
       end
 
+      def sse_event event_name, data
+        data = data.to_json if Hash === data
+        SSE_EVENT_TEMPLATE % [event_name.to_s, data]
+      end
+
+      def sse_message data
+        data = data.to_json if Hash === data
+        SSE_DATA_TEMPLATE % data
+      end
+
+    end
+
+    def initialize responder
+      @responder = responder
+      @klass = self.class
     end
 
     def async meth, *args
@@ -143,8 +171,6 @@ module Angelo
                   when PUT;  parse_post_body
                   end
     end
-
-    def websockets; self.class.websockets; end
 
     def request_headers
       @request_headers ||= Hash.new do |hash, key|
@@ -175,6 +201,19 @@ module Angelo
       end
     end
 
+    task :handle_event_source do |socket, block|
+      begin
+        block[socket]
+      rescue Reel::SocketError, IOError, SystemCallError => e
+        # probably closed on client
+        warn e.message if @@report_errors
+        socket.close unless socket.closed?
+      rescue => e
+        error e.inspect
+        socket.close unless socket.closed?
+      end
+    end
+
     def halt status = 400, body = ''
       throw :halt, HALT_STRUCT.new(status, body)
     end
@@ -199,6 +238,20 @@ module Angelo
       headers CONTENT_LENGTH_HEADER_KEY => File.size(lp)
 
       halt 200, File.read(lp)
+    end
+
+    def eventsource &block
+      headers SSE_HEADER
+      async :handle_event_source, responder.connection.detach.socket, block
+      halt 200, :sse
+    end
+
+    def report_errors?
+      @@report_errors
+    end
+
+    def sleep time
+      Celluloid.sleep time
     end
 
   end

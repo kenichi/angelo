@@ -31,14 +31,18 @@ module Angelo
         @hc ||= HTTPClient.new
       end
 
-      def hc_req method, path, params = {}, headers = {}
+      def url path = nil
         url = HTTP_URL % [DEFAULT_ADDR, DEFAULT_PORT]
-        @last_response = hc.__send__ method, url+path, params, headers
+        url += path if path
+        url
+      end
+
+      def hc_req method, path, params = {}, headers = {}
+        @last_response = hc.__send__ method, url(path), params, headers
       end
       private :hc_req
 
       def http_req method, path, params = {}, headers = {}
-        url = HTTP_URL % [DEFAULT_ADDR, DEFAULT_PORT] + path
         params = case params
                  when String; {body: params}
                  when Hash
@@ -51,9 +55,9 @@ module Angelo
                  end
         @last_response = case
                          when !headers.empty?
-                           ::HTTP.with(headers).__send__ method, url, params
+                           ::HTTP.with(headers).__send__ method, url(path), params
                          else
-                           ::HTTP.__send__ method, url, params
+                           ::HTTP.__send__ method, url(path), params
                          end
       end
       private :http_req
@@ -63,6 +67,10 @@ module Angelo
           # http_req m, path, params, headers
           hc_req m, path, params, headers
         end
+      end
+
+      def get_sse path, params = {}, headers = {}, &block
+        @last_response = hc.get url(path), params, headers, &block
       end
 
       def websocket_helper path, params = {}

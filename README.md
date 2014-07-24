@@ -8,7 +8,8 @@ A [Sinatra](https://github.com/sinatra/sinatra)-esque DSL for [Reel](https://git
 ### tl;dr
 
 * websocket support via `websocket('/path'){|s| ... }` route builder
-* contextual websocket stashing via `websockets` helper
+* SSE support via `eventsource('/path'){|s| ... }` route builder
+* contextual websocket/sse stashing via `websockets` and `sses` helpers
 * `task` handling via `async` and `future` helpers
 * no rack
 * optional tilt/erb support
@@ -98,6 +99,105 @@ a `.each` block.
 When a `POST /` with a 'foo' param is received, any value is messaged out to any '/' connected
 websockets. When a `POST /bar` with a 'bar' param is received, any value is messaged out to all
 websockets that connected to '/bar'.
+
+### SSE - Server-Sent Events
+
+The `eventsource` route builder also accepts a path and a block, and passes the socket to the block,
+just like the `websocket` builder. This socket is actually the raw `Celluloid::IO::TCPSocket` and is
+"detached" from the regular handling. There are no "on-*" methods; the `write` method should suffice.
+To make it easier to deal with creation of the properly formatted Strings to send, Angelo provides
+a couple helpers.
+
+##### `sse_event` helper
+
+To create an "event" that a javascript EventListener on the client can respond to:
+
+```ruby
+eventsource '/sse' do |s|
+  event = sse_event :foo, some_key: 'blah', other_key: 'boo'
+  s.write event
+  s.close
+end
+```
+
+In this case, the EventListener would have to be configured to listen for the `foo` event:
+
+```javascript
+var sse = new EventSource('/sse');
+sse.addEventListener('foo', function(e){ console.log("got foo event!\n" + JSON.parse(e.data)); });
+```
+
+The `sse_event` helper accepts a normal `String` for the data, but will automatically convert a `Hash`
+argument to a JSON object.
+
+##### `sse_message` helper
+
+The `sse_message` helper behaves exactly the same as `sse_event`, but does not take an event name:
+
+```ruby
+eventsource '/sse' do |s|
+  msg = sse_msg some_key: 'blah', other_key: 'boo'
+  s.write msg 
+  s.close
+end
+```
+
+The client javascript would need to be altered to use the `EventSource.onmessage` property as well:
+
+```javascript
+var sse = new EventSource('/sse');
+sse.onmessage = function(e){ console.log("got message!\n" + JSON.parse(e.data)); };
+```
+
+##### `sses` helper
+
+Angelo also includes a "stash" helper for SSE connections. One can `<<` a socket into `sses` from
+inside an `eventsource` handler block. These can also be "later" be iterated over so one can do things
+like emit a message on every SSE connection when the service receives a POST request.
+
+The `sses` helper includes the same a context ability as the `websockets` helper. In addition, the
+`sses` stash includes methods for easily sending events or messages to all stashed connections. **Note
+that the `Stash::SSE#event` method only works on non-default contexts and uses the context name as
+the event name.**
+
+```ruby
+eventsource '/sse' do |s|
+  sses[:foo] << s
+end
+
+post '/sse_message' do
+  sses[:foo].message params[:data]
+end
+
+post '/sse_event' do
+  sses[:foo].event params[:data]
+end
+```
+
+##### `eventsource` instance helper
+
+Additionally, you can also start SSE handling *conditionally* from inside a GET block:
+
+```ruby
+get '/sse_maybe' do
+  if params[:sse]
+    eventsource do |c|
+      sses << c
+      c.write sse_message 'wooo fancy SSE for you!'
+    end
+  else
+    'boring regular old get response'
+  end
+end
+
+post '/sse_event' do
+  sses.each {|sse| sse.write sse_event(:foo, 'fancy sse event!')}
+end
+```
+
+Handling this on the client may require conditionals for [browsers](http://caniuse.com/eventsource) that
+do not support EventSource yet, since this will respond with a non-"text/event-stream" Content-Type if
+'sse' is not present in the params.
 
 ### Tasks + Async / Future
 

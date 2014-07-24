@@ -16,13 +16,16 @@ class Bar < Angelo::Base
   @@ping_time = 3
   @@hearting = false
   @@beating = false
+  @@report_errors = true
+  @@log_level = Logger::DEBUG
 
   after do
     puts "I'm after!"
   end
 
   get '/' do
-    redirect '/index'
+    erb :index
+    # redirect '/index'
   end
 
   get '/index' do
@@ -105,6 +108,44 @@ class Bar < Angelo::Base
   get '/raise' do
     raise 'this is another weird error!'
     'foo'
+  end
+
+  get '/sse' do
+    if params[:sse]
+      eventsource do |client|
+        sses[params[:event].to_sym] << client if params[:event]
+        if params[:time]
+          loop do
+            data = {time: Time.now}.to_json
+            client.write sse_event(:time, data)
+            sleep 1
+          end
+        end
+      end
+    else
+      'boring'
+    end
+  end
+
+  post '/sse_event' do
+    sses[params[:event].to_sym].event hello: 'there', fools: 'you!'
+  end
+
+  post '/sse_msg' do
+    sses[params[:context].to_sym].message 'this is a message!'
+  end
+
+  eventsource '/meh' do |client|
+    sses[:meh] << client
+    loop do
+      data = {time: Time.now}.to_json
+      client.write sse_event(:time, data)
+      sleep 1
+    end
+  end
+
+  post '/sse_meh' do
+    sses[:meh].message params[:meh]
   end
 
 end

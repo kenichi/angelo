@@ -47,7 +47,7 @@ module Angelo
       rs = @base.routes[meth][request.path]
       if rs
         responder = rs.dup
-        responder.base = @base.new
+        responder.base = @base.new responder
         responder.connection = connection
         responder.request = request
       else
@@ -91,6 +91,9 @@ module Angelo
       fs = File::Stat.new local_path
       OpenSSL::Digest::SHA.hexdigest fs.ino.to_s + fs.size.to_s + fs.mtime.to_s
     end
+
+    def sse_event *a; Base.sse_event *a; end
+    def sse_message *a; Base.sse_message *a; end
 
   end
 
