@@ -147,8 +147,8 @@ describe Angelo::Base do
     end
 
     it 'runs after filters after routes' do
-      a = %w[2 6 14 30]
-      b = [4, 12, 28, 60]
+      a = %w[2 6 14 30 62]
+      b = [4, 12, 28, 60, 124]
 
       Angelo::HTTPABLE.each_with_index do |m,i|
         __send__ m, '/after', obj

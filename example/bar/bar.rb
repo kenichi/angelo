@@ -148,6 +148,20 @@ class Bar < Angelo::Base
     sses[:meh].message params[:meh]
   end
 
+  options '/cors' do
+    headers 'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, POST',
+            'Access-Control-Allow-Headers' => 'Accept, Authorization, Content-Type, Origin'
+    nil
+  end
+
+  get '/cors' do
+    headers 'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, POST',
+            'Access-Control-Allow-Headers' => 'Accept, Authorization, Content-Type, Origin'
+    'hi there'
+  end
+
 end
 
 Bar.run unless $0 == 'irb'

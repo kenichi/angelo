@@ -1,6 +1,11 @@
 changelog
 =========
 
+### 0.1.16 8 aug 2014
+
+* recursively symhash JSON POST bodies
+* add options route builder
+
 ### 0.1.15 24 jul 2014
 
 * WebsocketResponder -> Responder::Websocket

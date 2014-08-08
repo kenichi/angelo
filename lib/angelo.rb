@@ -14,8 +14,8 @@ module Angelo
   DELETE =  'DELETE'
   OPTIONS = 'OPTIONS'
 
-  ROUTABLE = [:get, :post, :put, :delete, :websocket]
-  HTTPABLE = [:get, :post, :put, :delete]
+  ROUTABLE = [:get, :post, :put, :delete, :options, :websocket]
+  HTTPABLE = [:get, :post, :put, :delete, :options]
   STATICABLE = [:get, :head]
 
   CONTENT_TYPE_HEADER_KEY = 'Content-Type'

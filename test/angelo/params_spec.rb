@@ -60,6 +60,25 @@ describe Angelo::ParamsParser do
     parser.parse_post_body.must_equal post_params
   end
 
+  it 'recursively symhashes JSON POST bodies params' do
+    nested = {
+      foo: {
+        bar: 'baz',
+        that: {
+          holmes: true
+        }
+      }
+    }
+    parser.form_encoded = false
+    parser.json = true
+    parser.body = nested.to_json
+    parsed = parser.parse_post_body
+    parsed['foo']['bar'].must_equal 'baz'
+    parsed[:foo][:bar].must_equal 'baz'
+    assert parsed['foo']['that']['holmes']
+    assert parsed[:foo][:that][:holmes]
+  end
+
   it 'should override query string with JSON POST bodies params' do
     parser.form_encoded = false
     parser.json = true

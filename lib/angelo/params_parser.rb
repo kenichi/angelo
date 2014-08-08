@@ -34,10 +34,20 @@ module Angelo
       when json?
         body = EMPTY_JSON if body.empty?
         body = JSON.parse body
-        qs.merge! body
+        recurse_symhash qs.merge! body
       else
         qs
       end
+    end
+
+    def recurse_symhash h
+      h.each do |k,v|
+        if Hash === v
+          h[k] = Responder.symhash.merge! v
+          recurse_symhash h[k]
+        end
+      end
+      h
     end
 
     def form_encoded?
