@@ -240,6 +240,26 @@ module Angelo
       halt 200, File.read(lp)
     end
 
+    def send_data data, opts = {}
+      # Content-Type
+      #
+      headers CONTENT_TYPE_HEADER_KEY =>
+        (MIME::Types.type_for(File.extname(opts[:filename]))[0].content_type rescue HTML_TYPE)
+
+      # Content-Disposition
+      #
+      if opts[:disposition] == :attachment
+        headers CONTENT_DISPOSITION_HEADER_KEY =>
+          ATTACHMENT_CONTENT_DISPOSITION % opts[:filename]
+      end
+
+      # Content-Length
+      #
+      headers CONTENT_LENGTH_HEADER_KEY => data.length
+
+      halt 200, data
+    end
+
     def eventsource &block
       headers SSE_HEADER
       async :handle_event_source, responder.connection.detach.socket, block

@@ -22,8 +22,8 @@ module Angelo
     module ClassMethods
 
       HTTPABLE.each do |m|
-        define_method m do |path, &block|
-          path = ::Mustermann.new path
+        define_method m do |path, opts = {}, &block|
+          path = ::Mustermann.new path, opts
           routes[m][path] = Responder.new &block
         end
       end

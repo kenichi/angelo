@@ -1,6 +1,11 @@
 changelog
 =========
 
+### 0.1.17 9 aug 2014
+
+* add Base#send_data
+* add ability to pass options to Mustermann instances
+
 ### 0.1.16 8 aug 2014
 
 * recursively symhash JSON POST bodies
