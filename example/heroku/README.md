@@ -1,7 +1,4 @@
-Shamelessly forked from:
+moved!
+======
 
-https://github.com/heroku-examples/ruby-websockets-chat-demo
-
-This app is running live on Heroku at:
-
-https://angelo-test.herokuapp.com
+moved to https://github.com/kenichi/angelo-ws-heroku
