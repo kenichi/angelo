@@ -56,7 +56,7 @@ module Angelo
         begin
           yield s
         rescue Reel::SocketError, IOError, SystemCallError => e
-          debug e.message
+          debug "context: #{@context} - #{e.message}"
           remove_socket s
         end
       end
@@ -88,7 +88,7 @@ module Angelo
         begin
           yield s
         rescue Reel::SocketError, IOError, SystemCallError => e
-          debug e.message
+          debug "all - #{e.message}"
           remove_socket s
         end
       end

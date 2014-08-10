@@ -189,7 +189,7 @@ module Angelo
           ws.read
         end
       rescue Reel::SocketError, IOError, SystemCallError => e
-        debug e.message
+        debug "ws: #{ws} - #{e.message}"
         websockets.remove_socket ws
       end
     end

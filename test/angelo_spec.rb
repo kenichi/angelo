@@ -91,6 +91,12 @@ describe Angelo::Base do
       ActorPool.remove_action :do_get
     end
 
+    it 'does not crash when receiving unknown http request type' do
+      r = HTTP.patch(url('/'))
+      assert @server.alive?
+      r.status.must_equal 404
+    end
+
   end
 
   describe 'before filter' do

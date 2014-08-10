@@ -1,6 +1,11 @@
 changelog
 =========
 
+### 0.1.19 10 aug 2014
+
+* fix crash on unsupported HTTP request types
+* more info in debug messages from sockets/stashes
+
 ### 0.1.18 9 aug 2014
 
 * handle more errors during ws read task
