@@ -1,6 +1,10 @@
 changelog
 =========
 
+### 0.1.20 10 aug 2014
+
+* add forward for SSE stash from Server for tasks
+
 ### 0.1.19 10 aug 2014
 
 * fix crash on unsupported HTTP request types
