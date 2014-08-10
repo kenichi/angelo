@@ -1,7 +1,7 @@
 changelog
 =========
 
-### 0.1.20 10 aug 2014
+### 0.1.21 10 aug 2014
 
 * add forward for SSE stash from Server for tasks
 

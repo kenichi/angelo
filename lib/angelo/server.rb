@@ -7,7 +7,7 @@ module Angelo
     extend Forwardable
     include Celluloid::Logger
 
-    def_delegator :@base, :websockets, :sses
+    def_delegators :@base, :websockets, :sses
 
     def initialize base, host = '127.0.0.1', port = 4567
       @base = base
