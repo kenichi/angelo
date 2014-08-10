@@ -1,6 +1,10 @@
 changelog
 =========
 
+### 0.1.18 9 aug 2014
+
+* handle more errors during ws read task
+
 ### 0.1.17 9 aug 2014
 
 * add Base#send_data

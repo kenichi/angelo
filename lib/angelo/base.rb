@@ -188,7 +188,8 @@ module Angelo
         while !ws.closed? do
           ws.read
         end
-      rescue IOError
+      rescue Reel::SocketError, IOError, SystemCallError => e
+        debug e.message
         websockets.remove_socket ws
       end
     end
