@@ -12,7 +12,7 @@ class Bar < Angelo::Base
   include Angelo::Tilt::ERB
   include Angelo::Mustermann unless RUBY_PLATFORM == 'java'
 
-  HEART = '<3'
+  HEART = '❤️'
   @@ping_time = 3
   @@hearting = false
   @@beating = false
