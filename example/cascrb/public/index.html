@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <title>cascrb</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  </head>
+  <body>
+
+    <input type="text" id="msg-input" placeholder="msg here"></input>
+    <br/>
+    <button id="send-msg">Send</button>
+
+    <script>
+      var ws = new WebSocket('ws://localhost:4567/');
+      ws.onmessage = function(e) {
+        alert(e.data);
+      };
+      $('#send-msg').on('click', function(e) {
+        e.preventDefault();
+        ws.send($('#msg-input').val());
+        $('#msg-input').val('');
+      });
+    </script>
+  </body>
+</html>
