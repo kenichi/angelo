@@ -16,14 +16,14 @@ module Angelo
       def handle_request
         begin
           if @response_handler
-            @base.before if @base.respond_to? :before
+            @base.filter :before
             @body = catch(:halt) { @base.eventsource &@response_handler.bind(@base) }
             if HALT_STRUCT === @body
               raise RequestError.new 'unknown sse error' unless @body.body == :sse
             end
 
             # TODO any real reason not to run afters with SSE?
-            # @base.after if @base.respond_to? :after
+            # @base.filter :after
 
             respond
           else

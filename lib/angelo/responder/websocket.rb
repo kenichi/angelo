@@ -25,9 +25,9 @@ module Angelo
             Angelo.log @connection, @request, @websocket, :switching_protocols
             @bound_response_handler ||= @response_handler.bind @base
             @websocket.on_pong &Responder::Websocket.on_pong
-            @base.before if @base.respond_to? :before
+            @base.filter :before
             @bound_response_handler[@websocket]
-            @base.after if @base.respond_to? :after
+            @base.filter :after
           else
             raise NotImplementedError
           end

@@ -75,12 +75,32 @@ module Angelo
         @routes
       end
 
+      def filters
+        @filters ||= {before: {default: []}, after: {default: []}}
+      end
+
+      def filter which, opts = {}, &block
+        f = compile! :filter, &block
+        case opts
+        when String
+          filters[which][opts] ||= []
+          filters[which][opts] << f
+        when Hash
+          if opts[:path]
+            filters[which][opts[:path]] ||= []
+            filters[which][opts[:path]] << f
+          else
+            filters[which][:default] << f
+          end
+        end
+      end
+
       def before opts = {}, &block
-        define_method :before, &block
+        filter :before, opts, &block
       end
 
       def after opts = {}, &block
-        define_method :after, &block
+        filter :after, opts, &block
       end
 
       HTTPABLE.each do |m|
@@ -274,6 +294,12 @@ module Angelo
 
     def sleep time
       Celluloid.sleep time
+    end
+
+    def filter which
+      fs = self.class.filters[which][:default]
+      fs += self.class.filters[which][request.path] if self.class.filters[which][request.path]
+      fs.each {|f| f.bind(self).call}
     end
 
   end

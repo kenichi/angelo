@@ -1,5 +1,3 @@
-require 'date'
-
 module Angelo
 
   class Responder
@@ -50,17 +48,15 @@ module Angelo
 
     def handle_request
       if @response_handler
-        @base.before if @base.respond_to? :before
+        @base.filter :before
         @body = catch(:halt) { @response_handler.bind(@base).call || EMPTY_STRING }
 
         # TODO any real reason not to run afters with SSE?
         case @body
         when HALT_STRUCT
-          if @body.body != :sse and @base.respond_to? :after
-            @base.after
-          end
+          @base.filter :after if @body.body != :sse
         else
-          @base.after if @base.respond_to? :after
+          @base.filter :after
         end
 
         respond

@@ -10,7 +10,6 @@ describe Angelo::Base do
     obj.keys.reduce({}){|h,k| h[k] = obj[k].to_s; h}
   end
 
-
   describe 'before filter' do
 
     define_app do
