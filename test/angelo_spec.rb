@@ -97,6 +97,15 @@ describe Angelo::Base do
       r.status.must_equal 404
     end
 
+    it 'does not crash when receiving invalid uri' do
+      s = TCPSocket.new Angelo::DEFAULT_ADDR, Angelo::DEFAULT_PORT
+      s.write 'GET /?file=<SCRIPT>window.alert</SCRIPT>' + "\n\n"
+      r = s.read
+      s.close
+      assert @server.alive?
+      r.must_match /400 Bad Request/
+    end
+
   end
 
   describe 'before filter' do

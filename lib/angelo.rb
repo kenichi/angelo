@@ -48,7 +48,7 @@ module Angelo
 
   NOT_FOUND = 'Not Found'
 
-  LOG_FORMAT = '%s - - "%s %s%s HTTP/%s" %d %s'
+  LOG_FORMAT = '%s - - "%s %s HTTP/%s" %d %s'
 
   DEFAULT_PING_TIME = 30
 
@@ -84,8 +84,7 @@ module Angelo
     Celluloid::Logger.__send__ Angelo.response_log_level, LOG_FORMAT % [
       remote_ip[],
       request.method,
-      request.path,
-      request.query_string.nil? ? nil : '?'+request.query_string,
+      request.url,
       request.version,
       Symbol === status ? HTTP::Response::SYMBOL_TO_STATUS_CODE[status] : status,
       body_size

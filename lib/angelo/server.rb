@@ -41,6 +41,9 @@ module Angelo
       else
         route! meth, connection, request
       end
+    rescue URI::InvalidURIError => e
+      Angelo.log connection, request, nil, :bad_request
+      connection.respond :bad_request, DEFAULT_RESPONSE_HEADERS, e.message
     end
 
     def route! meth, connection, request
