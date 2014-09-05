@@ -145,15 +145,23 @@ module Angelo
       end
 
       def run addr = @@addr, port = @@port
+        run! :new, addr, port
+      end
+
+      def supervise addr = @@addr, port = @@port
+        run! :supervise, addr, port
+      end
+
+      def run! meth, addr, port
         Celluloid.logger.level = @@log_level
-        @server = Angelo::Server.new self, addr, port
-        @server.async.ping_websockets
+        @server = Angelo::Server.__send__ meth, self, addr, port
         trap "INT" do
           @server.terminate if @server and @server.alive?
           exit
         end
         sleep
       end
+      private :run!
 
       def local_path path
         if public_dir

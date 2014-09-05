@@ -14,6 +14,7 @@ module Angelo
       info "Angelo #{VERSION}"
       info "listening on #{host}:#{port}"
       super host, port, &method(:on_connection)
+      async.ping_websockets
     end
 
     def on_connection connection
