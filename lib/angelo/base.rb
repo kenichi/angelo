@@ -144,24 +144,27 @@ module Angelo
         Responder.content_type type
       end
 
-      def run addr = @@addr, port = @@port
-        run! :new, addr, port
-      end
-
-      def supervise addr = @@addr, port = @@port
-        run! :supervise, addr, port
-      end
-
-      def run! meth, addr, port
+      def run addr = @@addr, port = @@port, supervise = false
         Celluloid.logger.level = @@log_level
-        @server = Angelo::Server.__send__ meth, self, addr, port
+
+        if supervise
+          @supervisor = Angelo::Server.supervise self, addr, port
+          @server = @supervisor.actors.first
+        else
+          @server = Angelo::Server.new self, addr, port
+        end
+
         trap "INT" do
           @server.terminate if @server and @server.alive?
           exit
         end
+
         sleep
       end
-      private :run!
+
+      def supervise addr = @@addr, port = @@port
+        run addr, port, true
+      end
 
       def local_path path
         if public_dir
