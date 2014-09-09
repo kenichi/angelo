@@ -1,6 +1,10 @@
 changelog
 =========
 
+### 0.1.22 9 sep 2014
+
+* handle bad/malformed requests better
+
 ### 0.1.21 10 aug 2014
 
 * add forward for SSE stash from Server for tasks
