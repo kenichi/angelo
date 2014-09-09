@@ -7,6 +7,8 @@ module Angelo
     extend Forwardable
     include Celluloid::Logger
 
+    @@supervised_tasks = []
+
     def_delegators :@base, :websockets, :sses
 
     def initialize base, host = '127.0.0.1', port = 4567
@@ -14,7 +16,10 @@ module Angelo
       info "Angelo #{VERSION}"
       info "listening on #{host}:#{port}"
       super host, port, &method(:on_connection)
-      async.ping_websockets
+
+      Stash::Websocket.reset!
+      Stash::SSE.reset!
+      @@supervised_tasks.each {|t| async.__send__ t}
     end
 
     def on_connection connection
@@ -26,7 +31,10 @@ module Angelo
       # RubyProf.pause
     end
 
-    def self.define_task name, &action
+    def self.define_task name, supervised = false, &action
+      if supervised
+        @@supervised_tasks << name unless @@supervised_tasks.include? name
+      end
       define_method name, &action
     end
 

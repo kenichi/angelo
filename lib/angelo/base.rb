@@ -124,8 +124,8 @@ module Angelo
         Responder::Websocket.on_pong = block
       end
 
-      def task name, &block
-        Angelo::Server.define_task name, &block
+      def task name, supervised = false, &block
+        Angelo::Server.define_task name, supervised, &block
       end
 
       def websockets
@@ -219,6 +219,7 @@ module Angelo
     end
 
     task :handle_websocket do |ws|
+      debug ':handle_websocket task starting...'
       begin
         while !ws.closed? do
           ws.read
@@ -229,7 +230,8 @@ module Angelo
       end
     end
 
-    task :ping_websockets do
+    task :ping_websockets, true do
+      debug ':ping_websockets task starting...'
       every(@@ping_time) do
         websockets.all_each do |ws|
           ws.socket << ::WebSocket::Message.ping.to_data
