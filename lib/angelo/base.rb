@@ -83,16 +83,19 @@ module Angelo
         f = compile! :filter, &block
         case opts
         when String
-          filters[which][opts] ||= []
-          filters[which][opts] << f
+          filter_by which, opts, f
         when Hash
           if opts[:path]
-            filters[which][opts[:path]] ||= []
-            filters[which][opts[:path]] << f
+            filter_by which, opts[:path], f
           else
             filters[which][:default] << f
           end
         end
+      end
+
+      def filter_by which, path, meth
+        filters[which][path] ||= []
+        filters[which][path] << meth
       end
 
       def before opts = {}, &block

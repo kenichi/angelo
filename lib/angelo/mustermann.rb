@@ -46,10 +46,36 @@ module Angelo
         @routes
       end
 
+      def filter_by which, path, meth
+        pattern = ::Mustermann.new path
+        filters[which][pattern] ||= []
+        filters[which][pattern] << meth
+      end
+
     end
 
     def params
       @params ||= super.merge mustermann.params(request.path)
+    end
+
+    def filter which
+      fs = self.class.filters[which][:default].dup
+      self.class.filters[which].each do |pattern, f|
+        if ::Mustermann::Sinatra === pattern and pattern.match request.path
+          fs << [f, pattern]
+        end
+      end
+      fs.each do |f|
+        case f
+        when UnboundMethod
+          f.bind(self).call
+        when Array
+          @pre_filter_params = params
+          @params = @pre_filter_params.merge f[1].params(request.path)
+          f[0].each {|filter| filter.bind(self).call}
+          @params = @pre_filter_params
+        end
+      end
     end
 
     class RouteMap

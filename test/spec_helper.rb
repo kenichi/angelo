@@ -84,3 +84,11 @@ class ActorPool
 end
 
 $pool = ActorPool.pool size: CONCURRENCY
+
+def obj
+  {'foo' => 'bar', 'bar' => 123.4567890123456, 'bat' => true}
+end
+
+def obj_s
+  obj.keys.reduce({}){|h,k| h[k] = obj[k].to_s; h}
+end

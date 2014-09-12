@@ -2,14 +2,6 @@ require_relative '../spec_helper.rb'
 
 describe Angelo::Base do
 
-  def obj
-    {'foo' => 'bar', 'bar' => 123.4567890123456, 'bat' => true}
-  end
-
-  def obj_s
-    obj.keys.reduce({}){|h,k| h[k] = obj[k].to_s; h}
-  end
-
   describe 'before filter' do
 
     describe 'single default' do
@@ -147,7 +139,7 @@ describe Angelo::Base do
           __send__ m, '/before_bat', obj.to_json, {Angelo::CONTENT_TYPE_HEADER_KEY => Angelo::JSON_TYPE}
           last_response_must_be_json obj.select {|k,v| ['foo','bat'].include? k}
         end
-        
+
       end
 
     end
