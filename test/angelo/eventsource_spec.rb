@@ -52,6 +52,23 @@ describe 'eventsource helper' do
       end
     end
 
+    get '/headers_out' do
+      headers foo: 'bar'
+      eventsource do |c|
+        c.write sse_event :sse, 'headers_out'
+        c.close
+      end
+    end
+
+    get '/headers_in' do
+      eventsource do |c|
+        headers foo: 'bar'
+        c.write sse_event :sse, 'headers_in'
+        c.close
+      end
+    end
+
+
   end
 
   it 'sends messages' do
@@ -64,6 +81,20 @@ describe 'eventsource helper' do
     get_sse '/event' do |msg|
       msg.must_equal "event: sse\ndata: bye\n\n"
     end
+  end
+
+  it 'allows headers to be set outside block' do
+    get_sse '/headers_out' do |msg|
+      msg.must_equal "event: sse\ndata: headers_out\n\n"
+    end
+    last_response.headers['foo'].must_equal 'bar'
+  end
+
+  it 'allows headers to be set inside block' do
+    get_sse '/headers_in' do |msg|
+      msg.must_equal "event: sse\ndata: headers_in\n\n"
+    end
+    last_response.headers['foo'].must_equal 'bar'
   end
 
 end
