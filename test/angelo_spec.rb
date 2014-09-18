@@ -385,7 +385,7 @@ describe Angelo::Base do
 
     define_app do
 
-      [:get, :post].each do |m|
+      Angelo::HTTPABLE.each do |m|
         __send__ m, '/json' do
           content_type :json
           params
@@ -407,6 +407,13 @@ describe Angelo::Base do
     it 'does not parse body when request content-type not set' do
       post '/json', obj, {'Content-Type' => ''}
       last_response_must_be_json({})
+    end
+
+    (Angelo::HTTPABLE - [:post, :put]).each do |m|
+      it "returns a populated hash for #{m.to_s.upcase} requests" do
+        send m, '/json?foo=bar'
+        last_response_must_be_json('foo' => 'bar')
+      end
     end
 
   end

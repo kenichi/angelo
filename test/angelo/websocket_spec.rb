@@ -194,7 +194,7 @@ describe Angelo::Responder::Websocket do
       Angelo::HTTPABLE.each do |m|
         __send__ m, '/concur' do
           websockets.each do |ws|
-            msg = "from #{params ? params[:foo] : 'http'} #{m.to_s}"
+            msg = "from #{params[:foo]} #{m.to_s}"
             ws.write msg
           end
           ''
@@ -216,7 +216,7 @@ describe Angelo::Responder::Websocket do
       }
 
       websocket_wait_for '/concur', latch, expectation do
-        Angelo::HTTPABLE.each {|m| __send__ m, '/concur', foo: 'http'}
+        Angelo::HTTPABLE.each {|m| __send__ m, '/concur?foo=http'}
         latch.wait
       end
 
