@@ -166,9 +166,10 @@ module Angelo
 
     def params
       @params ||= case request.method
-                  when GET;  parse_query_string
-                  when POST; parse_post_body
-                  when PUT;  parse_post_body
+                  when GET, DELETE, OPTIONS
+                    parse_query_string
+                  when POST, PUT
+                    parse_post_body
                   end
     end
 
