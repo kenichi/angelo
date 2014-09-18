@@ -1,6 +1,13 @@
 changelog
 =========
 
+### 0.1.23 18 sep 2014 (thanks @chewi, @samjohnduke)
+
+* multiple before/after filters with mustermann support (#3)
+* accept extra headers in eventsource route builder (#6)
+* handle errors in before blocks for eventsource-built routes (#6)
+* let DELETE and OPTIONS routes see query params (#8)
+
 ### 0.1.22 9 sep 2014
 
 * handle bad/malformed requests better
