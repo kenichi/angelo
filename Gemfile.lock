@@ -16,7 +16,8 @@ GEM
     method_source (0.8.2)
     mime-types (2.3)
     minitest (5.4.0)
-    mustermann (0.2.0)
+    mustermann (0.3.1)
+      tool (~> 0.2)
     nio4r (1.0.0)
     nio4r (1.0.0-java)
     pry (0.9.12.6)
@@ -42,6 +43,7 @@ GEM
       ffi
     tilt (2.0.1)
     timers (1.1.0)
+    tool (0.2.2)
     websocket-driver (0.3.4)
     websocket-driver (0.3.4-java)
     websocket_parser (0.1.6)

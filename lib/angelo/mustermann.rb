@@ -61,7 +61,7 @@ module Angelo
     def filter which
       fs = self.class.filters[which][:default].dup
       self.class.filters[which].each do |pattern, f|
-        if ::Mustermann::Sinatra === pattern and pattern.match request.path
+        if ::Mustermann === pattern and pattern.match request.path
           fs << [f, pattern]
         end
       end
