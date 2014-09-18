@@ -2,6 +2,11 @@ module Angelo
   class Responder
     class Eventsource < Responder
 
+      def initialize _headers = nil, &block
+        headers _headers if _headers
+        super &block
+      end
+
       def request= request
         @params = nil
         @request = request

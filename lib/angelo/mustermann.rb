@@ -33,9 +33,9 @@ module Angelo
         super path, &block
       end
 
-      def eventsource path, &block
+      def eventsource path, headers = nil, &block
         path = ::Mustermann.new path
-        super path, &block
+        super path, headers, &block
       end
 
       def routes

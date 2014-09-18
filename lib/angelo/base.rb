@@ -93,8 +93,8 @@ module Angelo
         routes[:websocket][path] = Responder::Websocket.new &block
       end
 
-      def eventsource path, &block
-        routes[:get][path] = Responder::Eventsource.new &block
+      def eventsource path, headers = nil, &block
+        routes[:get][path] = Responder::Eventsource.new headers, &block
       end
 
       def on_pong &block
