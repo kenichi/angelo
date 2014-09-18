@@ -31,15 +31,8 @@ module Angelo
           end
         rescue IOError => ioe
           warn "#{ioe.class} - #{ioe.message}"
-          close_websocket
         rescue => e
-          error e.message
-          ::STDERR.puts e.backtrace
-          begin
-            @connection.close
-          rescue Reel::StateError => rcse
-            close_websocket
-          end
+          handle_error e
         end
       end
 
