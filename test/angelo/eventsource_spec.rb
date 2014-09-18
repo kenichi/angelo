@@ -16,6 +16,11 @@ describe Angelo::Responder::Eventsource do
         c.close
       end
 
+      eventsource '/headers', foo: 'bar' do |c|
+        c.write sse_event :sse, 'headers'
+        c.close
+      end
+
     end
 
     it 'sends messages' do
@@ -28,6 +33,13 @@ describe Angelo::Responder::Eventsource do
       get_sse '/event' do |msg|
         msg.must_equal "event: sse\ndata: bye\n\n"
       end
+    end
+
+    it 'accepts extra headers hash as second optional parameter' do
+      get_sse '/headers' do |msg|
+        msg.must_equal "event: sse\ndata: headers\n\n"
+      end
+      last_response.headers['Foo'].must_equal 'bar'
     end
 
   end
@@ -52,10 +64,10 @@ describe 'eventsource helper' do
       end
     end
 
-    get '/headers_out' do
+    get '/headers' do
       headers foo: 'bar'
       eventsource do |c|
-        c.write sse_event :sse, 'headers_out'
+        c.write sse_event :sse, 'headers'
         c.close
       end
     end
@@ -75,10 +87,10 @@ describe 'eventsource helper' do
   end
 
   it 'allows headers to be set outside block' do
-    get_sse '/headers_out' do |msg|
-      msg.must_equal "event: sse\ndata: headers_out\n\n"
+    get_sse '/headers' do |msg|
+      msg.must_equal "event: sse\ndata: headers\n\n"
     end
-    last_response.headers['foo'].must_equal 'bar'
+    last_response.headers['Foo'].must_equal 'bar'
   end
 
 end

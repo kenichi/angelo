@@ -13,6 +13,9 @@ class Bar < Angelo::Base
   include Angelo::Mustermann unless RUBY_PLATFORM == 'java'
 
   HEART = '❤️'
+  CORS = { 'Access-Control-Allow-Origin' => '*',
+           'Access-Control-Allow-Methods' => 'GET, POST',
+           'Access-Control-Allow-Headers' => 'Accept, Authorization, Content-Type, Origin' }
   @@ping_time = 3
   @@hearting = false
   @@beating = false
@@ -149,17 +152,18 @@ class Bar < Angelo::Base
   end
 
   options '/cors' do
-    headers 'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Methods' => 'GET, POST',
-            'Access-Control-Allow-Headers' => 'Accept, Authorization, Content-Type, Origin'
+    headers CORS
     nil
   end
 
   get '/cors' do
-    headers 'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Methods' => 'GET, POST',
-            'Access-Control-Allow-Headers' => 'Accept, Authorization, Content-Type, Origin'
+    headers CORS
     'hi there'
+  end
+
+  eventsource '/sse_cors', CORS do |c|
+    c.write sse_event :cors, 'cors!'
+    c.close
   end
 
 end
