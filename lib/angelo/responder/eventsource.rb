@@ -31,6 +31,8 @@ module Angelo
           end
         rescue IOError => ioe
           warn "#{ioe.class} - #{ioe.message}"
+        rescue RequestError => re
+          handle_error re, re.type
         rescue => e
           handle_error e
         end

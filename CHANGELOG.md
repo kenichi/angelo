@@ -1,7 +1,15 @@
 changelog
 =========
 
-### 0.1.23 18 sep 2014 (thanks @chewi, @samjohnduke)
+### 0.1.24 19 sep 2014
+
+thanks: @chewi
+
+* handle RequestError in before blocks for eventsource properly (#9)
+
+### 0.1.23 18 sep 2014
+
+thanks: @chewi, @samjohnduke
 
 * multiple before/after filters with mustermann support (#3)
 * accept extra headers in eventsource route builder (#6)

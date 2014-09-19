@@ -50,12 +50,21 @@ describe Angelo::Responder::Eventsource do
 
       define_app do
 
-        before do
+        before '/msg' do
           raise 'wrong'
+        end
+
+        before '/other' do
+          raise Angelo::RequestError.new sse_message('foo'), 200
         end
 
         eventsource '/msg' do |c|
           c.write sse_message 'hi'
+          c.close
+        end
+
+        eventsource '/other' do |c|
+          c.write sse_message 'other'
           c.close
         end
 
@@ -66,6 +75,13 @@ describe Angelo::Responder::Eventsource do
           msg.must_equal "wrong"
         end
         last_response.status.must_equal 500
+      end
+
+      it 'handles RequestError exceptions in before blocks' do
+        get_sse '/other' do |msg|
+          msg.must_equal "data: foo\n\n"
+        end
+        last_response.status.must_equal 200
       end
 
     end
