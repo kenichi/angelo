@@ -38,7 +38,11 @@ module Angelo
       end
 
       def hc_req method, path, params = {}, headers = {}
-        @last_response = hc.__send__ method, url(path), params, headers
+        @last_response = if block_given?
+                           hc.__send__ method, url(path), params, headers, &Proc.new
+                         else
+                           hc.__send__ method, url(path), params, headers
+                         end
       end
       private :hc_req
 
@@ -64,8 +68,14 @@ module Angelo
 
       [:get, :post, :put, :delete, :options, :head].each do |m|
         define_method m do |path, params = {}, headers = {}|
+
           # http_req m, path, params, headers
-          hc_req m, path, params, headers
+
+          if block_given?
+            hc_req m, path, params, headers, &Proc.new
+          else
+            hc_req m, path, params, headers
+          end
         end
       end
 

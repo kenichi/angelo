@@ -117,6 +117,19 @@ module Angelo
       end
     end
 
+    def transfer_encoding *encodings
+      encodings.flatten.each do |encoding|
+        case encoding
+        when :chunked
+          @chunked = true
+          headers transfer_encoding: :chunked
+        # when :compress, :deflate, :gzip, :identity
+        else
+          raise ArgumentError.new "invalid transfer_conding: #{encoding}"
+        end
+      end
+    end
+
     def respond_with? type
       case headers[CONTENT_TYPE_HEADER_KEY]
       when JSON_TYPE
@@ -147,14 +160,37 @@ module Angelo
 
       when NilClass
         @body = EMPTY_STRING
+
+      else
+        unless @chunked and @body.respond_to? :each
+          raise RequestError.new "what is this? #{@body}"
+        end
       end
 
       status ||= @redirect.nil? ? :ok : :moved_permanently
       headers LOCATION_HEADER_KEY => @redirect if @redirect
-      size = @body.nil? ? 0 : @body.size
 
-      Angelo.log @connection, @request, nil, status, size
-      @request.respond status, headers, @body
+      if @chunked
+        Angelo.log @connection, @request, nil, status
+        @request.respond status, headers
+        err = nil
+        begin
+          @body.each do |r|
+            r = r.to_json + NEWLINE if respond_with? :json
+            @request << r
+          end
+        rescue => e
+          err = e
+        ensure
+          @request.finish_response
+          raise err if err
+        end
+      else
+        size = @body.nil? ? 0 : @body.size
+        Angelo.log @connection, @request, nil, status, size
+        @request.respond status, headers, @body
+      end
+
     rescue => e
       handle_error e, :internal_server_error
     end

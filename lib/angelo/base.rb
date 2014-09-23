@@ -5,7 +5,7 @@ module Angelo
     include Celluloid::Logger
 
     extend Forwardable
-    def_delegators :@responder, :content_type, :headers, :redirect, :request
+    def_delegators :@responder, :content_type, :headers, :redirect, :request, :transfer_encoding
     def_delegators :@klass, :websockets, :sses, :sse_event, :sse_message
 
     @@addr = DEFAULT_ADDR
@@ -287,7 +287,7 @@ module Angelo
 
     def eventsource &block
       headers SSE_HEADER
-      async :handle_event_source, responder.connection.detach.socket, block
+      async :handle_event_source, EventSource.new(responder.connection.detach.socket), block
       halt 200, :sse
     end
 
@@ -303,6 +303,43 @@ module Angelo
       fs = self.class.filters[which][:default]
       fs += self.class.filters[which][request.path] if self.class.filters[which][request.path]
       fs.each {|f| f.bind(self).call}
+    end
+
+    def chunked_response &block
+      transfer_encoding :chunked
+      ChunkedResponse.new &block
+    end
+
+    class EventSource
+      extend Forwardable
+
+      def_delegators :@socket, :close, :closed?, :<<, :write
+      attr_reader :socket
+
+      def initialize socket
+        @socket = socket
+      end
+
+      def event name, data = nil
+        @socket.write Base.sse_event(name, data)
+      end
+
+      def message data
+        @socket.write Base.sse_message(data)
+      end
+
+    end
+
+    class ChunkedResponse
+
+      def initialize &block
+        @chunker = block
+      end
+
+      def each &block
+        @chunker[block]
+      end
+
     end
 
   end

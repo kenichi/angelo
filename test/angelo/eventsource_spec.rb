@@ -9,17 +9,17 @@ describe Angelo::Responder::Eventsource do
       define_app do
 
         eventsource '/msg' do |c|
-          c.write sse_message 'hi'
+          c.message 'hi'
           c.close
         end
 
         eventsource '/event' do |c|
-          c.write sse_event :sse, 'bye'
+          c.event :sse, 'bye'
           c.close
         end
 
         eventsource '/headers', foo: 'bar' do |c|
-          c.write sse_event :sse, 'headers'
+          c.event :sse, 'headers'
           c.close
         end
 
@@ -59,12 +59,12 @@ describe Angelo::Responder::Eventsource do
         end
 
         eventsource '/msg' do |c|
-          c.write sse_message 'hi'
+          c.message 'hi'
           c.close
         end
 
         eventsource '/other' do |c|
-          c.write sse_message 'other'
+          c.message 'other'
           c.close
         end
 

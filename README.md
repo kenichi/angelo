@@ -26,15 +26,20 @@ Celluloid::IO and gives you a reactor with evented IO in Ruby!**
 Note: There currently is no "standalone" capability where one can define route handlers at the top level.
 
 Things will feel very familiar to anyone experienced with Sinatra. Inside the subclass, you can define
-route handlers denoted by HTTP verb and path. Unlike Sinatra, the only acceptable return value from a
-route block is the body of the response in full. Chunked response support was recently added to Reel,
-and look for that support in Angelo soon.
-
-Angelo also features `before` and `after` blocks, just like Sinatra. The one difference lies in how
-after blocks are handled. See the Errors section below for more info.
+route handlers denoted by HTTP verb and path. One acceptable return value from a route block is the body
+of the response in full as a `String`. Another is a `Hash` if the content type is set to `:json`. Finally,
+you may return any object that responds to `#each(&block)` if the transfer encoding is set to `:chunked`.
+There is also a `chunked_response` helper that will take a block, set the transfer encoding, and return
+an appropriate object for you.
 
 There is also [Mustermann](#mustermann) support for full-on, Sinatra-like path
 matching and params.
+
+Angelo also features `before` and `after` blocks, just like Sinatra. Filters are ordered as defined,
+and called in that order. When defined without a path, they run for all matched requests. With a path,
+the path must match exactly for the block to be called. If `Angelo::Mustermann` is included, the paths
+are interpreted as a Mustermann pattern and params are merged. For more info on the difference in how
+after blocks are handled, see the Errors section below for more info.
 
 ### Websockets!
 
@@ -48,7 +53,7 @@ The `websocket` route builder accepts a path and a block, and passes the actual 
 as the only argument. This socket is an instance of Reel's
 [WebSocket](https://github.com/celluloid/reel/blob/master/lib/reel/websocket.rb) class, and, as such,
 responds to methods like `on_message` and `on_close`. A service-wide `on_pong` handler (defined at the
-class-level of the Angelo app) is available to customize the behavior when a pong frame comes back from
+
 a connected websocket client.
 
 ##### `websockets` helper
@@ -130,14 +135,23 @@ sse.addEventListener('foo', function(e){ console.log("got foo event!\n" + JSON.p
 The `sse_event` helper accepts a normal `String` for the data, but will automatically convert a `Hash`
 argument to a JSON object.
 
+NOTE: there is a shortcut helper on the actual SSE object itself:
+
+```ruby
+eventsource '/sse' do |sse|
+  sse.event :foo, some_key: 'blah', other_key: 'boo'
+  sse.event :close
+end
+```
+
 ##### `sse_message` helper
 
 The `sse_message` helper behaves exactly the same as `sse_event`, but does not take an event name:
 
 ```ruby
 eventsource '/sse' do |s|
-  msg = sse_msg some_key: 'blah', other_key: 'boo'
-  s.write msg 
+  msg = sse_message some_key: 'blah', other_key: 'boo'
+  s.write msg
   s.close
 end
 ```
@@ -147,6 +161,15 @@ The client javascript would need to be altered to use the `EventSource.onmessage
 ```javascript
 var sse = new EventSource('/sse');
 sse.onmessage = function(e){ console.log("got message!\n" + JSON.parse(e.data)); };
+```
+
+NOTE: there is a shortcut helper on the actual SSE object itself:
+
+```ruby
+eventsource '/sse' do |sse|
+  sse.message some_key: 'blah', other_key: 'boo'
+  sse.event :close
+end
 ```
 
 ##### `sses` helper
@@ -355,6 +378,67 @@ Content-Length: 18
 everything's fine
 ```
 
+### [Tilt](https://github.com/rtomayko/tilt) / ERB
+
+To make `erb` available in route blocks
+
+1. add `tilt` to your `Gemfile`: `gem 'tilt'`
+2. require `angelo/tilt/erb`
+3. include `Angelo::Tilt::ERB` in your app
+
+```ruby
+class Foo < Angelo::Base
+  include Angelo::Tilt::ERB
+
+  @@views = 'some/other/path' # defaults to './views'
+
+  get '/' do
+    erb :index
+  end
+
+end
+```
+
+### [Mustermann](https://github.com/rkh/mustermann)
+
+To make routes blocks match path with Mustermann patterns
+
+1. be using ruby &gt;=2.0.0
+2. add 'mustermann' to to your `Gemfile`: `platform(:ruby_20){ gem 'mustermann' }`
+3. require `angelo/mustermann`
+4. include `Angelo::Mustermann` in your app
+
+```ruby
+class Foo < Angelo::Base
+  include Angelo::Tilt::ERB
+  include Angelo::Mustermann
+
+  get '/:foo/things/:bar' do
+
+    # `params` is merged with the Mustermann object#params hash, so
+    # a "GET /some/things/are_good?foo=other&bar=are_bad" would have:
+    #   params: {
+    #     'foo' => 'some',
+    #     'bar' => 'are_good'
+    #   }
+
+    @foo = params[:foo]
+    @bar = params[:bar]
+    erb :index
+  end
+
+  before '/:fu/things/*' do
+
+    # `params` is merged with the Mustermann object#params hash, as
+    # parsed with the current request path against this before block's
+    # pattern. in the route handler, `params[:fu]` is no longer available.
+
+    @fu = params[:fu]
+  end
+
+end
+```
+
 ### WORK LEFT TO DO
 
 Lots of work left to do!
@@ -466,61 +550,26 @@ class Foo < Angelo::Base
     msg
   end
 
+  # return a chunked response of JSON for 5 seconds
+  #
+  get '/chunky_json' do
+    content_type :json
+
+    # this helper requires a block that takes one arg, the response 
+    # proc to call with each chunk (i.e. the block that is passed to
+    # `#each`)
+    #
+    chunked_response do |response|
+      5.times do
+        response.call time: Time.now.to_i
+        sleep 1
+      end
+    end
+  end
+
 end
 
 Foo.run
-```
-
-### [Tilt](https://github.com/rtomayko/tilt) / ERB
-
-To make `erb` available in route blocks
-
-1. add `tilt` to your `Gemfile`: `gem 'tilt'`
-2. require `angelo/tilt/erb`
-3. include `Angelo::Tilt::ERB` in your app
-
-```ruby
-class Foo < Angelo::Base
-  include Angelo::Tilt::ERB
-
-  @@views = 'some/other/path' # defaults to './views'
-
-  get '/' do
-    erb :index
-  end
-
-end
-```
-
-### [Mustermann](https://github.com/rkh/mustermann)
-
-To make routes blocks match path with Mustermann patterns
-
-1. be using ruby &gt;=2.0.0
-2. add 'mustermann' to to your `Gemfile`: `platform(:ruby_20){ gem 'mustermann' }`
-3. require `angelo/mustermann`
-4. include `Angelo::Mustermann` in your app
-
-```ruby
-class Foo < Angelo::Base
-  include Angelo::Tilt::ERB
-  include Angelo::Mustermann
-
-  get '/:foo/things/:bar' do
-
-    # `params` is merged with the Mustermann object#params hash, so
-    # a "GET /some/things/are_good?foo=other&bar=are_bad" would have:
-    #   params: {
-    #     'foo' => 'some',
-    #     'bar' => 'are_good'
-    #   }
-
-    @foo = params[:foo]
-    @bar = params[:bar]
-    erb :index
-  end
-
-end
 ```
 
 ### Contributing

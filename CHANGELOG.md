@@ -1,6 +1,12 @@
 changelog
 =========
 
+### 0.2.0 23 sep 2014
+
+* chunked responses with `transfer_encoding :chunked` and `return_obj.each`
+* chunked responses with `chunked_response(){|r| ... }`
+* `event` and `message` helpers on sse objects
+
 ### 0.1.24 19 sep 2014
 
 thanks: @chewi

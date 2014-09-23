@@ -55,6 +55,7 @@ module Angelo
   UNDERSCORE = '_'
   DASH = '-'
   EMPTY_STRING = ''
+  NEWLINE = "\n"
 
   HALT_STRUCT = Struct.new :status, :body
 

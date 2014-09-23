@@ -379,4 +379,60 @@ describe Angelo::Base do
 
   end
 
+  describe 'chunked responses' do
+
+    define_app do
+
+      get '/chunk' do
+        chunked_response do |r|
+          5.times {|n| r[n + "\n"]}
+        end
+      end
+
+      get '/chunk.json' do
+        content_type :json
+        chunked_response do |r|
+          5.times {|n| r[{n: n}]}
+        end
+      end
+
+      get '/chunk_each' do
+        transfer_encoding :chunked
+        Object.new.tap do |o|
+          def o.each; 5.times {|n| yield n + "\n"}; end
+        end
+      end
+
+    end
+
+    it 'chunks responses with helper' do
+      i = 0
+      get '/chunk' do |c|
+        c.must_equal i.to_s
+        i += 1
+      end
+      last_response_must_be_html
+    end
+
+    it 'chunks responses with helper in json' do
+      i = 0
+      get '/chunk.json' do |c|
+        JSON.parse(c)['n'].must_equal i
+        i += 1
+      end
+      last_response.status.must_equal 200
+      last_response.headers['Content-Type'].split(';').must_include Angelo::JSON_TYPE
+    end
+
+    it 'chunks responses with any object that responds_to? :each' do
+      i = 0
+      get '/chunk_each' do |c|
+        c.must_equal i.to_s
+        i += 1
+      end
+      last_response_must_be_html
+    end
+
+  end
+
 end

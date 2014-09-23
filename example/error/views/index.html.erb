@@ -1,0 +1,39 @@
+<img src="/what.png"/>
+<button id="sse-error">error!</button>
+<button id="sse-no-error">no error!</button>
+
+<script>
+
+var sse;
+
+$(function() {
+
+  var addListeners = function() {
+    sse.addEventListener('ok', function(e) {
+      console.log('ok!', e.data);
+    });
+
+    sse.addEventListener('close', function(e) {
+      console.log('closing!', e.data);
+      sse.close();
+    });
+
+    sse.addEventListener('error', function(e) {
+      console.log('error!', e.data);
+      sse.close();
+    });
+  };
+
+  $('#sse-error').on('click', function(e) {
+    sse = new EventSource('/json');
+    addListeners();
+  });
+
+  $('#sse-no-error').on('click', function(e) {
+    sse = new EventSource('/json?error=false');
+    addListeners();
+  });
+
+});
+
+</script>

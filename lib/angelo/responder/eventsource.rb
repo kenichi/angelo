@@ -32,6 +32,7 @@ module Angelo
         rescue IOError => ioe
           warn "#{ioe.class} - #{ioe.message}"
         rescue RequestError => re
+          headers SSE_HEADER
           handle_error re, re.type
         rescue => e
           handle_error e
