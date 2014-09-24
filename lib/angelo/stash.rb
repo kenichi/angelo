@@ -52,7 +52,7 @@ module Angelo
     # as needed
     #
     def each &block
-      stash.each do |s|
+      stash.dup.each do |s|
         begin
           yield s
         rescue Reel::SocketError, IOError, SystemCallError => e
