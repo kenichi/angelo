@@ -1,6 +1,12 @@
 changelog
 =========
 
+### 0.2.1 7 oct 2014
+
+thanks: @chewi
+
+* fix stash socket iteration error handling (#11)
+
 ### 0.2.0 23 sep 2014
 
 * chunked responses with `transfer_encoding :chunked` and `return_obj.each`
