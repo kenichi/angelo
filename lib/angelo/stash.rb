@@ -38,7 +38,6 @@ module Angelo
     #
     def << s
       peeraddrs[s] = s.peeraddr
-      yield if block_given?
       stashes[@context] << s
     end
 
@@ -52,7 +51,7 @@ module Angelo
     # as needed
     #
     def each &block
-      stash.each do |s|
+      stash.dup.each do |s|
         begin
           yield s
         rescue Reel::SocketError, IOError, SystemCallError => e
@@ -118,9 +117,8 @@ module Angelo
       include Stash
 
       def << ws
-        super do
-          @server.async.handle_websocket ws
-        end
+        super
+        @server.async.handle_websocket ws
       end
 
     end
