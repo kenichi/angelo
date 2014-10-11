@@ -538,7 +538,7 @@ class Foo < Angelo::Base
     # this is a call to Base#future, telling the reactor
     # do this thing and we'll want the value eventually
     #
-    f = future :in_sec params[:sec], params[:msg]
+    f = future :in_sec, params[:sec], params[:msg]
     f.value
   end
 
