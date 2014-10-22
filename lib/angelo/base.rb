@@ -333,6 +333,11 @@ module Angelo
         @responder.on_close = block
       end
 
+      def on_close= block
+        raise ArgumentError.new unless Proc === block
+        @responder.on_close = block
+      end
+
     end
 
     class ChunkedResponse

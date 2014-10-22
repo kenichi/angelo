@@ -13,11 +13,14 @@ class Casc < Angelo::Base
 
   get '/' do
     eventsource do |es|
-      es.on_close do
-        sses(false).remove_socket es
-      end
+      es.on_close = ->{sses(false).remove_socket es}
       sses << es
     end
+  end
+
+  eventsource '/sse' do |es|
+    es.on_close {sses(false).remove_socket es}
+    sses << es
   end
 
 end
