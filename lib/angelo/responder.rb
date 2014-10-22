@@ -30,7 +30,7 @@ module Angelo
 
     end
 
-    attr_accessor :connection
+    attr_accessor :connection, :on_close
     attr_reader :request
     attr_writer :base
 
