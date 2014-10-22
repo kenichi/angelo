@@ -329,6 +329,10 @@ module Angelo
         @socket.write Base.sse_message(data)
       end
 
+      def on_close &block
+        @responder.on_close = block
+      end
+
     end
 
     class ChunkedResponse

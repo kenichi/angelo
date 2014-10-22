@@ -30,20 +30,18 @@ module Angelo
 
     end
 
-    attr_accessor :connection
-    attr_reader :request
+    attr_accessor :connection, :request
     attr_writer :base
 
     def initialize &block
       @response_handler = Base.compile! :request_handler, &block
     end
 
-    def request= request
+    def reset!
       @params = nil
       @redirect = nil
       @body = nil
-      @request = request
-      handle_request
+      @request = nil
     end
 
     def handle_request
@@ -197,6 +195,15 @@ module Angelo
 
     def redirect url
       @redirect = url
+    end
+
+    def on_close= on_close
+      raise ArgumentError.new unless Proc === on_close
+      @on_close = on_close
+    end
+
+    def on_close
+      @on_close[] if @on_close
     end
 
   end

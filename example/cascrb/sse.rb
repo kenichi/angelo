@@ -1,4 +1,10 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.expand_path '../../../lib', __FILE__
+require 'bundler'
+Bundler.require :default, :development
 require 'angelo'
+
 class Casc < Angelo::Base
 
   post '/' do
@@ -7,6 +13,9 @@ class Casc < Angelo::Base
 
   get '/' do
     eventsource do |es|
+      es.on_close do
+        sses(false).remove_socket es
+      end
       sses << es
     end
   end

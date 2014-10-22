@@ -18,10 +18,15 @@ module Angelo
 
     def on_connection connection
       # RubyProf.resume
+      responders = []
+
       connection.each_request do |request|
         meth = request.websocket? ? :websocket : request.method.downcase.to_sym
-        dispatch! meth, connection, request
+        responder = dispatch! meth, connection, request
+        responders << responder if responder and responder.respond_to? :on_close
       end
+
+      responders.each &:on_close
       # RubyProf.pause
     end
 
@@ -49,9 +54,12 @@ module Angelo
     def route! meth, connection, request
       if @base.routes[meth] and rs = @base.routes[meth][request.path]
         responder = rs.dup
+        responder.reset!
         responder.base = @base.new responder
         responder.connection = connection
         responder.request = request
+        responder.handle_request
+        responder
       else
         Angelo.log connection, request, nil, :not_found
         connection.respond :not_found, DEFAULT_RESPONSE_HEADERS, NOT_FOUND
