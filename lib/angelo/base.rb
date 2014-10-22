@@ -128,15 +128,15 @@ module Angelo
         Angelo::Server.define_task name, &block
       end
 
-      def websockets
+      def websockets reject = true
         @websockets ||= Stash::Websocket.new server
-        @websockets.reject! &:closed?
+        @websockets.reject! &:closed? if reject
         @websockets
       end
 
-      def sses
+      def sses reject = true
         @sses ||= Stash::SSE.new server
-        @sses.reject! &:closed?
+        @sses.reject! &:closed? if reject
         @sses
       end
 
@@ -287,7 +287,7 @@ module Angelo
 
     def eventsource &block
       headers SSE_HEADER
-      async :handle_event_source, EventSource.new(responder.connection.detach.socket), block
+      async :handle_event_source, EventSource.new(responder), block
       halt 200, :sse
     end
 
@@ -313,11 +313,12 @@ module Angelo
     class EventSource
       extend Forwardable
 
-      def_delegators :@socket, :close, :closed?, :<<, :write
-      attr_reader :socket
+      def_delegators :@socket, :close, :closed?, :<<, :write, :peeraddr
+      attr_reader :responder, :socket
 
-      def initialize socket
-        @socket = socket
+      def initialize responder
+        @responder = responder
+        @socket = @responder.connection.detach.socket
       end
 
       def event name, data = nil
