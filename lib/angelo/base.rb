@@ -124,8 +124,8 @@ module Angelo
         Responder::Websocket.on_pong = block
       end
 
-      def task name, &block
-        Angelo::Server.define_task name, &block
+      def task name, supervised = false, &block
+        Angelo::Server.define_task name, supervised, &block
       end
 
       def websockets reject = true
@@ -144,15 +144,26 @@ module Angelo
         Responder.content_type type
       end
 
-      def run addr = @@addr, port = @@port
+      def run addr = @@addr, port = @@port, supervise = false
         Celluloid.logger.level = @@log_level
-        @server = Angelo::Server.new self, addr, port
-        @server.async.ping_websockets
+
+        if supervise
+          @supervisor = Angelo::Server.supervise self, addr, port
+          @server = @supervisor.actors.first
+        else
+          @server = Angelo::Server.new self, addr, port
+        end
+
         trap "INT" do
           @server.terminate if @server and @server.alive?
           exit
         end
+
         sleep
+      end
+
+      def supervise addr = @@addr, port = @@port
+        run addr, port, true
       end
 
       def local_path path
@@ -208,6 +219,7 @@ module Angelo
     end
 
     task :handle_websocket do |ws|
+      debug ':handle_websocket task starting...'
       begin
         while !ws.closed? do
           ws.read
@@ -218,7 +230,8 @@ module Angelo
       end
     end
 
-    task :ping_websockets do
+    task :ping_websockets, true do
+      debug ':ping_websockets task starting...'
       every(@@ping_time) do
         websockets.all_each do |ws|
           ws.socket << ::WebSocket::Message.ping.to_data

@@ -168,4 +168,4 @@ class Bar < Angelo::Base
 
 end
 
-Bar.run unless $0 == 'irb'
+Bar.supervise unless $0 == 'irb'

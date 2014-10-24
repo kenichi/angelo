@@ -10,7 +10,10 @@ module Angelo
       # the underlying arrays of websockets, by context
       #
       def stashes
-        @stashes ||= {}
+        binding.pry
+        @stashes = {} if @stashes.nil?
+        @stashes
+        # @stashes ||= {}
       end
 
       # hold the peeraddr info for use after the socket is closed (logging)
@@ -19,9 +22,15 @@ module Angelo
         @peeraddrs ||= {}
       end
 
+      # reset the stashes
+      #
+      def reset!
+        @stashes, @peeraddrs = nil, nil
+      end
+
     end
 
-    def stashes; self.class.stashes; end
+    def stashes; binding.pry; self.class.stashes; end
     def peeraddrs; self.class.peeraddrs; end
 
     # create a new instance with a context, creating the array if needed
@@ -44,6 +53,7 @@ module Angelo
     # access the underlying array of this context
     #
     def stash
+      binding.pry
       stashes[@context]
     end
 
@@ -96,6 +106,7 @@ module Angelo
     # pass the given block to the underlying stashed array's reject! method
     #
     def reject! &block
+      binding.pry
       stash.reject! &block
     end
 
