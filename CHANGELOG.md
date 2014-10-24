@@ -1,6 +1,13 @@
 changelog
 =========
 
+### 0.2.2 22 oct 2014
+
+thanks: @chewi
+
+* add on_close setter to EventSource
+* fix peeraddr forward on EventSource
+
 ### 0.2.1 7 oct 2014
 
 thanks: @chewi

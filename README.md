@@ -63,7 +63,8 @@ from inside a websocket handler block. These can "later" be iterated over so one
 emit a message on every connected websocket when the service receives a POST request.
 
 The `websockets` helper also includes a context ability, so you can stash connected websocket clients
-into different "sections".
+into different "sections". Also, by default, the helper will `reject!` any closed sockets before
+returning; you may optionally pass `false` to the helper to skip this step.
 
 ##### Example!
 
@@ -178,10 +179,12 @@ Angelo also includes a "stash" helper for SSE connections. One can `<<` a socket
 inside an `eventsource` handler block. These can also be "later" be iterated over so one can do things
 like emit a message on every SSE connection when the service receives a POST request.
 
-The `sses` helper includes the same a context ability as the `websockets` helper. In addition, the
-`sses` stash includes methods for easily sending events or messages to all stashed connections. **Note
-that the `Stash::SSE#event` method only works on non-default contexts and uses the context name as
-the event name.**
+The `sses` helper includes the same a context ability as the `websockets` helper. Also, by default,
+the helper will `reject!` any closed sockets before returning, just like `websockets`. You may
+optionally pass `false` to the helper to skip this step.In addition, the `sses` stash includes
+methods for easily sending events or messages to all stashed connections. **Note that the
+`Stash::SSE#event` method only works on non-default contexts and uses the context name as the event
+name.**
 
 ```ruby
 eventsource '/sse' do |s|
@@ -221,6 +224,37 @@ end
 Handling this on the client may require conditionals for [browsers](http://caniuse.com/eventsource) that
 do not support EventSource yet, since this will respond with a non-"text/event-stream" Content-Type if
 'sse' is not present in the params.
+
+##### `EventSource#on_close` helper
+
+When inside an eventsource block, you can use may want to do something specific when a client closes the
+connection. For this case, there are `on_close` and `on_close=` methods on the object passed to the block
+that will get called if the client closes the socket. The assignment method takes a proc object and the
+other one takes a block:
+
+```ruby
+get '/' do
+  eventsource do |es|
+
+    # assignment!
+    es.on_close = ->{sses(false).remove_socket es}
+
+    sses << es
+  end
+end
+
+eventsource '/sse' do |es|
+
+  # just passing a block here
+  es.on_close {sses(false).remove_socket es}
+
+  sses << es
+end
+```
+
+Note the use of the optional parameter the stashes here; by default, stash accessors (`websockets` and
+`sses`) will `reject!` any closed sockets before letting you in. If you pass `false` to the stash
+accessors, they will skip the `reject!` step.
 
 ### Tasks + Async / Future
 
@@ -555,7 +589,7 @@ class Foo < Angelo::Base
   get '/chunky_json' do
     content_type :json
 
-    # this helper requires a block that takes one arg, the response 
+    # this helper requires a block that takes one arg, the response
     # proc to call with each chunk (i.e. the block that is passed to
     # `#each`)
     #
