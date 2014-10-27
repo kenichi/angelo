@@ -144,15 +144,22 @@ module Angelo
         Responder.content_type type
       end
 
-      def run addr = @@addr, port = @@port
+      def run! addr = @@addr, port = @@port
+        run addr, port, true
+      end
+
+      def run addr = @@addr, port = @@port, bang = false
         Celluloid.logger.level = @@log_level
         @server = Angelo::Server.new self, addr, port
         @server.async.ping_websockets
-        trap "INT" do
-          @server.terminate if @server and @server.alive?
-          exit
+        if bang
+          trap "INT" do
+            @server.terminate if @server and @server.alive?
+            exit
+          end
+          sleep
         end
-        sleep
+        @server
       end
 
       def local_path path
