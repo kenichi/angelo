@@ -1,6 +1,14 @@
 changelog
 =========
 
+### 0.2.3 28 oct 2014
+
+thanks: @mighe, @chewi
+
+* add flag (default: false) to `Base.run` to trap INT and sleep or not
+* add `Base.run!` which calls `.run` with flag set true
+* fix for form params keys with no values
+
 ### 0.2.2 22 oct 2014
 
 thanks: @chewi
