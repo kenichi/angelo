@@ -148,11 +148,11 @@ module Angelo
         run addr, port, true
       end
 
-      def run addr = @@addr, port = @@port, bang = false
+      def run addr = @@addr, port = @@port, blocking = false
         Celluloid.logger.level = @@log_level
         @server = Angelo::Server.new self, addr, port
         @server.async.ping_websockets
-        if bang
+        if blocking
           trap "INT" do
             @server.terminate if @server and @server.alive?
             exit
