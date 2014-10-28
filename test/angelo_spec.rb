@@ -327,7 +327,7 @@ describe Angelo::Base do
 
     it 'does not parse JSON body when content-type is formencoded' do
       post '/json', obj.to_json, {'Content-Type' => Angelo::FORM_TYPE}
-      last_response.status.must_equal 400
+      last_response_must_be_json(obj.to_json => nil)
     end
 
     it 'does not parse body when request content-type not set' do
@@ -339,6 +339,13 @@ describe Angelo::Base do
       it "returns a populated hash for #{m.to_s.upcase} requests" do
         send m, '/json?foo=bar'
         last_response_must_be_json('foo' => 'bar')
+      end
+    end
+
+    Angelo::HTTPABLE.each do |m|
+      it "does not choke on #{m.to_s.upcase} requests with without param values" do
+        send m, '/json?foo'
+        last_response_must_be_json('foo' => nil)
       end
     end
 

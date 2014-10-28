@@ -12,7 +12,6 @@ module Angelo
     AMPERSAND = '&'
 
     def parse_formencoded str
-      raise FormEncodingError unless str.empty? or str.index EQUALS
       str.split(AMPERSAND).reduce(Responder.symhash) do |p, kv|
         key, value = kv.split(EQUALS).map {|s| CGI.unescape s}
         p[key] = value
