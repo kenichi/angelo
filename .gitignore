@@ -1,2 +1,3 @@
 angelo-*.gem
 tmp
+Gemfile.lock

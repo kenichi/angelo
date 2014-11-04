@@ -12,6 +12,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Angelo::VERSION
   gem.license       = 'apache'
-  gem.add_dependency 'reel'
-  gem.add_dependency 'mime-types'
+  gem.add_runtime_dependency 'reel', '~>0.5'
+  gem.add_runtime_dependency 'mime-types', '~>2.4'
 end

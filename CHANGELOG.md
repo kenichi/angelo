@@ -1,6 +1,13 @@
 changelog
 =========
 
+### 0.2.4 4 nov 2014 totally voted
+
+thanks: @mighe
+
+* fix for responding more than once to websocket and sse requests (#17)
+* clean up gemfile and gemspec
+
 ### 0.2.3 28 oct 2014
 
 thanks: @mighe, @chewi

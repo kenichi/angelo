@@ -10,7 +10,6 @@ module Angelo
       def request= request
         @params = nil
         @request = request
-        handle_request
       end
 
       def handle_request

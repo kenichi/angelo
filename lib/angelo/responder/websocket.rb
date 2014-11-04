@@ -16,7 +16,6 @@ module Angelo
         @params = nil
         @request = request
         @websocket = @request.websocket
-        handle_request
       end
 
       def handle_request
