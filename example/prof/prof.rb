@@ -4,7 +4,7 @@ require 'angelo'
 
 class Prof < Angelo::Base
 
-  @@log_level = Logger::ERROR
+  log_level = Logger::ERROR
 
   get '/' do
     Angelo::EMPTY_STRING
@@ -12,4 +12,4 @@ class Prof < Angelo::Base
 
 end
 
-Prof.run
+Prof.run!

@@ -98,4 +98,4 @@ class Foo < Angelo::Base
 
 end
 
-Foo.run unless $0 == 'irb'
+Foo.run! unless $0 == 'irb'

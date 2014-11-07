@@ -41,4 +41,4 @@ class Bar < Angelo::Base
 
 end
 
-Bar.run
+Bar.run!

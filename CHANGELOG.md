@@ -1,6 +1,18 @@
 changelog
 =========
 
+### 0.3.0 7 nov 2014
+
+thanks: @mighe
+
+* refactor bind address, port, log level and error reporting setting into top level DSLish methods
+    * set bind address with `addr '0.0.0.0'`
+    * set bind port with `port 4567`
+    * set log level with `log_level ::Logger::DEBUG`
+    * set error reporting with `report_errors!`
+    * bind address and port can still be specified on `.run` or `.run!` calls
+* remove command line option parsing completely
+
 ### 0.2.4 4 nov 2014 totally voted
 
 thanks: @mighe

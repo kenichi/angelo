@@ -36,7 +36,8 @@ end
 class Longjob < Angelo::Base
   include Angelo::Mustermann
 
-  @@log_level = Logger::DEBUG
+  log_level = Logger::DEBUG
+
   @@redis = ::Redis.new driver: :celluloid
 
   get '/' do
@@ -105,4 +106,4 @@ class Longjob < Angelo::Base
 
 end
 
-Longjob.run
+Longjob.run!

@@ -16,11 +16,15 @@ class Bar < Angelo::Base
   CORS = { 'Access-Control-Allow-Origin' => '*',
            'Access-Control-Allow-Methods' => 'GET, POST',
            'Access-Control-Allow-Headers' => 'Accept, Authorization, Content-Type, Origin' }
-  @@ping_time = 3
+
+  addr '0.0.0.0'
+  port 3000
+  ping_time 3
+  report_errors!
+  log_level Logger::INFO
+
   @@hearting = false
   @@beating = false
-  @@report_errors = true
-  @@log_level = Logger::DEBUG
 
   after do
     puts "I'm after!"

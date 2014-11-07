@@ -12,7 +12,7 @@ class Chunk < Angelo::Base
   include Angelo::Tilt::ERB
   include Angelo::Mustermann
 
-  @@report_errors = true
+  report_errors = true
 
   get '/' do
     erb :index
@@ -30,4 +30,4 @@ class Chunk < Angelo::Base
 
 end
 
-Chunk.run unless $0 == 'irb'
+Chunk.run! unless $0 == 'irb'

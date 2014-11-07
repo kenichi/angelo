@@ -11,4 +11,4 @@ class Casc < Angelo::Base
 
 end
 
-Casc.run
+Casc.run!

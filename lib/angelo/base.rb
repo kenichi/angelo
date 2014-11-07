@@ -6,23 +6,7 @@ module Angelo
 
     extend Forwardable
     def_delegators :@responder, :content_type, :headers, :redirect, :request, :transfer_encoding
-    def_delegators :@klass, :websockets, :sses, :sse_event, :sse_message
-
-    @@addr = DEFAULT_ADDR
-    @@port = DEFAULT_PORT
-
-    @@ping_time = DEFAULT_PING_TIME
-    @@log_level = DEFAULT_LOG_LEVEL
-
-    @@report_errors = false
-
-    if ARGV.any? and not Kernel.const_defined?('Minitest')
-      require 'optparse'
-      OptionParser.new { |op|
-        op.on('-p port',   'set the port (default is 4567)')      { |val| @@port = Integer(val) }
-        op.on('-o addr',   "set the host (default is #{@@addr})") { |val| @@addr = val }
-      }.parse!(ARGV.dup)
-    end
+    def_delegators :@klass, :report_errors?, :sse_event, :sse_message, :sses, :websockets
 
     attr_accessor :responder
 
@@ -39,6 +23,12 @@ module Angelo
         # bring RequestError into this namespace
         #
         subclass.class_eval 'class RequestError < Angelo::RequestError; end'
+
+        subclass.addr DEFAULT_ADDR
+        subclass.port DEFAULT_PORT
+
+        subclass.ping_time DEFAULT_PING_TIME
+        subclass.log_level DEFAULT_LOG_LEVEL
 
         class << subclass
 
@@ -58,6 +48,34 @@ module Angelo
 
         end
 
+      end
+
+      def addr a = nil
+        @addr = a if a
+        @addr
+      end
+
+      def log_level ll = nil
+        @log_level = ll if ll
+        @log_level
+      end
+
+      def ping_time pt = nil
+        @ping_time = pt if pt
+        @ping_time
+      end
+
+      def port p = nil
+        @port = p if p
+        @port
+      end
+
+      def report_errors!
+        @report_errors = true
+      end
+
+      def report_errors?
+        !!@report_errors
       end
 
       def compile! name, &block
@@ -144,13 +162,13 @@ module Angelo
         Responder.content_type type
       end
 
-      def run! addr = @@addr, port = @@port
-        run addr, port, true
+      def run! _addr = addr, _port = port
+        run _addr, _port, true
       end
 
-      def run addr = @@addr, port = @@port, blocking = false
-        Celluloid.logger.level = @@log_level
-        @server = Angelo::Server.new self, addr, port
+      def run _addr = addr, _port = port, blocking = false
+        Celluloid.logger.level = log_level
+        @server = Angelo::Server.new self, _addr, _port
         @server.async.ping_websockets
         if blocking
           trap "INT" do
@@ -226,7 +244,7 @@ module Angelo
     end
 
     task :ping_websockets do
-      every(@@ping_time) do
+      every(@base.ping_time) do
         websockets.all_each do |ws|
           ws.socket << ::WebSocket::Message.ping.to_data
         end
@@ -238,7 +256,7 @@ module Angelo
         block[socket]
       rescue Reel::SocketError, IOError, SystemCallError => e
         # probably closed on client
-        warn e.message if @@report_errors
+        warn e.message if report_errors
         socket.close unless socket.closed?
       rescue => e
         error e.inspect
@@ -296,10 +314,6 @@ module Angelo
       headers SSE_HEADER
       async :handle_event_source, EventSource.new(responder), block
       halt 200, :sse
-    end
-
-    def report_errors?
-      @@report_errors
     end
 
     def sleep time
