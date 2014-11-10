@@ -9,11 +9,15 @@ module Angelo
 
     def_delegators :@base, :websockets, :sses
 
-    def initialize base, host = '127.0.0.1', port = 4567
+    attr_reader :base
+
+    def initialize base, addr = nil, port = nil
       @base = base
+      addr ||= @base.addr
+      port ||= @base.port
       info "Angelo #{VERSION}"
-      info "listening on #{host}:#{port}"
-      super host, port, &method(:on_connection)
+      info "listening on #{addr}:#{port}"
+      super addr, port, &method(:on_connection)
     end
 
     def on_connection connection

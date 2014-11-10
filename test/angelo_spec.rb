@@ -442,4 +442,73 @@ describe Angelo::Base do
 
   end
 
+  describe 'dsl configs' do
+
+    describe 'addr' do
+
+      define_app do
+        addr '0.0.0.0'
+        get('/'){ 'hi' }
+      end
+
+      it 'binds to the specified addr' do
+        ->{ TCPServer.new '0.0.0.0', 4567 }.must_raise Errno::EADDRINUSE
+      end
+
+    end
+
+    describe 'port' do
+
+      define_app do
+        port 3000
+        get('/'){ 'hi' }
+      end
+
+      it 'binds to the specified port' do
+        ->{ TCPServer.new Angelo::DEFAULT_ADDR, 3000 }.must_raise Errno::EADDRINUSE
+      end
+
+    end
+
+    describe 'log_level' do
+
+      define_app do
+        log_level Logger::FATAL
+        get('/'){ 'hi' }
+      end
+
+      it 'sets the logging level' do
+        @server.base.log_level.must_equal Logger::FATAL
+      end
+
+    end
+
+    describe 'ping_time' do
+
+      define_app do
+        ping_time 3
+        get('/'){ 'hi' }
+      end
+
+      it 'sets the websocket ping time' do
+        @server.base.ping_time.must_equal 3
+      end
+
+    end
+
+    describe 'report_errors!' do
+
+      define_app do
+        report_errors!
+        get('/'){ 'hi' }
+      end
+
+      it 'sets flag for reporting error traces in the log' do
+        assert @server.base.report_errors?
+      end
+
+    end
+
+  end
+
 end

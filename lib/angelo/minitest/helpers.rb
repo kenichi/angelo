@@ -13,7 +13,10 @@ module Angelo
 
         before do
           app = Class.new Angelo::Base
-          app.class_eval { content_type :html } # reset
+
+          app.class_eval { content_type :html }    # reset
+          Celluloid.logger.level = ::Logger::ERROR # see spec_helper.rb:9
+
           app.class_eval &block
           @server = Angelo::Server.new app
           app.server = @server

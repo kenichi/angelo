@@ -1,7 +1,7 @@
 changelog
 =========
 
-### 0.3.0 7 nov 2014
+### 0.3.0 10 nov 2014
 
 thanks: @mighe
 

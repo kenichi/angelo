@@ -1,3 +1,3 @@
 module Angelo
-  VERSION = '0.3.0pre'
+  VERSION = '0.3.0'
 end
