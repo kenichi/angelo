@@ -36,7 +36,7 @@ module Angelo
   DEFAULT_ADDR = '127.0.0.1'
   DEFAULT_PORT = 4567
 
-  DEFAULT_VIEW_DIR = 'views'
+  DEFAULT_VIEWS_DIR = 'views'
   DEFAULT_PUBLIC_DIR = 'public'
 
   DEFAULT_LOG_LEVEL = ::Logger::INFO

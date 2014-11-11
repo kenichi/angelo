@@ -36,16 +36,6 @@ module Angelo
             @root ||= File.expand_path '..', app_file
           end
 
-          def view_dir
-            v = self.class_variable_get(:@@views) rescue DEFAULT_VIEW_DIR
-            File.join root, v
-          end
-
-          def public_dir
-            p = self.class_variable_get(:@@public_dir) rescue DEFAULT_PUBLIC_DIR
-            File.join root, p
-          end
-
         end
 
       end
@@ -68,6 +58,18 @@ module Angelo
       def port p = nil
         @port = p if p
         @port
+      end
+
+      def views_dir d = nil
+        @views_dir = d if d
+        @views_dir ||= DEFAULT_VIEWS_DIR
+        File.join root, @views_dir
+      end
+
+      def public_dir d = nil
+        @public_dir = d if d
+        @public_dir ||= DEFAULT_PUBLIC_DIR
+        File.join root, @public_dir
       end
 
       def report_errors!

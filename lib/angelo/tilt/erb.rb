@@ -16,12 +16,12 @@ module Angelo
         DEFAULT_LAYOUT = 'layout.html.erb'
 
         def view_glob *glob
-          File.join view_dir, *glob
+          File.join views_dir, *glob
         end
 
         def templatify *glob
           Dir[view_glob *glob].reduce({}) do |h,v|
-            sym = v.gsub view_dir + '/', ''
+            sym = v.gsub views_dir + '/', ''
             return h if (block_given? && yield(v))
             sym.gsub! '/', '_'
             sym.gsub! /\.\w+?\.erb$/, ''

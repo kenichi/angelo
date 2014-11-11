@@ -424,7 +424,7 @@ To make `erb` available in route blocks
 class Foo < Angelo::Base
   include Angelo::Tilt::ERB
 
-  @@views = 'some/other/path' # defaults to './views'
+  views_dir 'some/other/path' # defaults to './views'
 
   get '/' do
     erb :index
@@ -603,7 +603,7 @@ class Foo < Angelo::Base
 
 end
 
-Foo.run
+Foo.run!
 ```
 
 ### Contributing

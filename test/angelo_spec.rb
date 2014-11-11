@@ -509,6 +509,34 @@ describe Angelo::Base do
 
     end
 
+    describe 'views_dir' do
+
+      define_app do
+        views_dir 'sucka'
+        get('/'){ self.class.views_dir }
+      end
+
+      it 'sets dir for view templates' do
+        get '/'
+        last_response_must_be_html File.join(@server.base.root, 'sucka')
+      end
+
+    end
+
+    describe 'public_dir' do
+
+      define_app do
+        public_dir 'sucka'
+        get('/'){ self.class.public_dir }
+      end
+
+      it 'sets dir for public files' do
+        get '/'
+        last_response_must_be_html File.join(@server.base.root, 'sucka')
+      end
+
+    end
+
   end
 
 end

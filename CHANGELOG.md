@@ -1,6 +1,12 @@
 changelog
 =========
 
+### 0.3.1 10 nov 2014 yep, same day - jeez
+
+* refactor views dir and public dir setting into top level DSLish methods
+    * set views path with `views_dir 'vues'`
+    * set public path with `public_dir 'publick'`
+
 ### 0.3.0 10 nov 2014
 
 thanks: @mighe
