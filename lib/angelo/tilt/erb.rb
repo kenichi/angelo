@@ -21,9 +21,9 @@ module Angelo
 
         def templatify *glob
           Dir[view_glob *glob].reduce({}) do |h,v|
-            sym = v.gsub views_dir + '/', ''
+            sym = v.gsub views_dir + File::SEPARATOR, ''
             return h if (block_given? && yield(v))
-            sym.gsub! '/', '_'
+            sym.gsub! File::SEPARATOR, '_'
             sym.gsub! /\.\w+?\.erb$/, ''
             h[sym.to_sym] = ::Tilt::ERBTemplate.new v
             h

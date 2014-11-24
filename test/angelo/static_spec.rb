@@ -19,15 +19,19 @@ describe Angelo::Server do
       end
 
       get '/img' do
-        send_file 'what.png'
+        send_file 'public/what.png'
       end
 
       get '/what' do
-        send_file 'what.png', disposition: :attachment
+        send_file 'public/what.png', disposition: :attachment
       end
 
       get '/attachment.png' do
-        send_file 'what.png', filename: 'attachment.png'
+        send_file 'public/what.png', filename: 'attachment.png'
+      end
+
+      get '/does_not_exist' do
+        send_file 'does_not_exist'
       end
 
     end
@@ -98,6 +102,11 @@ describe Angelo::Server do
       last_response.status.must_equal 200
       last_response.headers['Content-Type'].must_equal 'image/png'
       last_response.headers['Content-Disposition'].must_equal 'attachment; filename="attachment.png"'
+    end
+
+    it '404s when send_file is called with a non-existent file' do
+      get '/does_not_exist'
+      last_response.status.must_equal 404
     end
 
   end

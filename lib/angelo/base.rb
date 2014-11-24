@@ -271,7 +271,8 @@ module Angelo
     end
 
     def send_file local_file, opts = {}
-      lp = self.class.local_path local_file
+      lp = local_file[0] == File::SEPARATOR ? local_file : File.expand_path(File.join(self.class.root, local_file))
+      halt 404 unless File.exist? lp
 
       # Content-Type
       #

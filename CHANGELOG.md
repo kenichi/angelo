@@ -1,6 +1,12 @@
 changelog
 =========
 
+### 0.3.2
+
+thanks: @mighe
+
+* send_file now accepts both full paths and paths relative to app file's dir
+
 ### 0.3.1 10 nov 2014 yep, same day - jeez
 
 * refactor views dir and public dir setting into top level DSLish methods
