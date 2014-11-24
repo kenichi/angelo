@@ -34,6 +34,10 @@ describe Angelo::Server do
         send_file 'does_not_exist'
       end
 
+      get '/etc/passwd' do
+        send_file '/etc/passwd'
+      end
+
     end
 
     it 'serves static files for gets' do
@@ -107,6 +111,18 @@ describe Angelo::Server do
     it '404s when send_file is called with a non-existent file' do
       get '/does_not_exist'
       last_response.status.must_equal 404
+    end
+
+    it 'sends fully pathed fileds' do
+      get '/etc/passwd'
+      if File.exist?('/etc/passwd')
+        last_response.status.must_equal 200
+        last_response.headers['Content-Type'].must_equal 'text/html'
+        last_response.headers['Content-Disposition'].must_be_nil
+        last_response.body.must_equal File.read('/etc/passwd')
+      else
+        last_response.status.must_equal 404
+      end
     end
 
   end
