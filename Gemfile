@@ -5,8 +5,8 @@ gem 'tilt', '~>2.0'
 gem 'mime-types', '~>2.4'
 gem 'websocket-driver', '~>0.3'
 
-platform :ruby_20, :ruby_21 do
-  gem 'mustermann', '~>0.3'
+platform :ruby_21 do
+  gem 'mustermann', '~>0.4'
 end
 
 group :development do
