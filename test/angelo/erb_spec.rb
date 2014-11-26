@@ -46,7 +46,6 @@ XML
     expected_json_nl = <<JSON
 {"foo": "asdf", "bar": ["bat"]}
 JSON
-JSON
 
     expected_javascript_nl = <<JS
 var foo = "asdf";
