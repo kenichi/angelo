@@ -444,7 +444,7 @@ The Angleo::Tilt::ERB module and the `erb` method do some extra work for you:
     * `Content-Type` response header value
     * default to `:html`
 
-See /test/test_app_root/views/index.*.erb for examples.
+See [views](https://github.com/kenichi/angelo/tree/master/test/test_app_root/views) for examples.
 
 ### [Mustermann](https://github.com/rkh/mustermann)
 
