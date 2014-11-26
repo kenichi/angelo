@@ -5,6 +5,11 @@ module Angelo
   module Tilt
     module ERB
 
+      DEFAULT_LAYOUT = 'layout.%s.erb'
+      DEFAULT_TYPE = :html
+      LAYOUTS_DIR = 'layouts'
+      ACCEPT_ALL = '*/*'
+
       # hrm, sneaky
       #
       def self.included base
@@ -12,8 +17,6 @@ module Angelo
       end
 
       module ClassMethods
-
-        DEFAULT_LAYOUT = 'layout.html.erb'
 
         def view_glob *glob
           File.join views_dir, *glob
@@ -23,55 +26,73 @@ module Angelo
           Dir[view_glob *glob].reduce({}) do |h,v|
             sym = v.gsub views_dir + File::SEPARATOR, ''
             return h if (block_given? && yield(v))
-            sym.gsub! File::SEPARATOR, '_'
-            sym.gsub! /\.\w+?\.erb$/, ''
+            sym.gsub! File::SEPARATOR, UNDERSCORE
+            sym.gsub! /\.\w+?\.erb$/, EMPTY_STRING
             h[sym.to_sym] = ::Tilt::ERBTemplate.new v
             h
           end
         end
 
-        def templates
-          @templates ||= templatify('**', '*.erb'){|v| v =~ /^layouts\//}
-        end
-
-        def layout_templates
-          @layout_templates ||= templatify 'layouts', '*.erb'
-        end
-
-        def default_layout
-          if @default_layout.nil?
-            l = view_glob(DEFAULT_LAYOUT)
-            @default_layout = ::Tilt::ERBTemplate.new l if File.exist? l
+        def templates type = DEFAULT_TYPE
+          @templates ||= {}
+          @templates[type] ||= templatify('**', "*.#{type}.erb") do |v|
+            v =~ /^#{LAYOUTS_DIR}#{File::SEPARATOR}/
           end
-          @default_layout
+        end
+
+        def layout_templates type = DEFAULT_TYPE
+          @layout_templates ||= templatify LAYOUTS_DIR, "*.#{type}.erb"
+        end
+
+        def default_layout type = DEFAULT_TYPE
+          @default_layout ||= {}
+          if @default_layout[type].nil?
+            l = view_glob(DEFAULT_LAYOUT % type)
+            @default_layout[type] = ::Tilt::ERBTemplate.new l if File.exist? l
+          end
+          @default_layout[type]
         end
 
       end
 
       def erb view, opts = {locals: {}}
+        type = opts[:type] || template_type
+        content_type type
         locals = Hash === opts[:locals] ? opts[:locals] : {}
         render = case view
                  when String
                    ->{ view }
                  when Symbol
-                   ->{self.class.templates[view].render self, locals}
+                   ->{self.class.templates(type)[view].render self, locals}
                  end
         case opts[:layout]
         when false
           render[]
         when Symbol
-          if lt = self.class.layout_templates[opts[:layout]]
+          if lt = self.class.layout_templates(type)[opts[:layout]]
             lt.render self, locals, &render
           else
             raise ArgumentError.new "unknown layout - :#{opts[:layout]}"
           end
         else
-          if self.class.default_layout
-            self.class.default_layout.render self, locals, &render
+          if self.class.default_layout(type)
+            self.class.default_layout(type).render self, locals, &render
           else
             render[]
           end
         end
+      end
+
+      def template_type
+        accept = request.headers[ACCEPT_REQUEST_HEADER_KEY]
+        mt = if accept.nil? or accept == ACCEPT_ALL
+               MIME::Types[headers[CONTENT_TYPE_HEADER_KEY]]
+             else
+               MIME::Types[request.headers[ACCEPT_REQUEST_HEADER_KEY]]
+             end
+        mt.first.extensions.first.to_sym
+      rescue
+        DEFAULT_TYPE
       end
 
     end

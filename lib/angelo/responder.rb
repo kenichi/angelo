@@ -7,6 +7,7 @@ module Angelo
 
       attr_writer :default_headers
 
+      # top-level setter
       def content_type type
         dhs = self.default_headers
         case type
@@ -102,6 +103,7 @@ module Angelo
       @headers
     end
 
+    # route handler helper
     def content_type type
       case type
       when :json
@@ -110,6 +112,8 @@ module Angelo
         headers CONTENT_TYPE_HEADER_KEY => HTML_TYPE
       when :js
         headers CONTENT_TYPE_HEADER_KEY => JS_TYPE
+      when :xml
+        headers CONTENT_TYPE_HEADER_KEY => XML_TYPE
       else
         raise ArgumentError.new "invalid content_type: #{type}"
       end

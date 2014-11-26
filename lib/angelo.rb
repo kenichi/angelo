@@ -18,6 +18,8 @@ module Angelo
   HTTPABLE = [:get, :post, :put, :delete, :options]
   STATICABLE = [:get, :head]
 
+  ACCEPT_REQUEST_HEADER_KEY = 'Accept'
+
   CONTENT_TYPE_HEADER_KEY = 'Content-Type'
   CONTENT_DISPOSITION_HEADER_KEY = 'Content-Disposition'
   CONTENT_LENGTH_HEADER_KEY = 'Content-Length'
@@ -31,7 +33,8 @@ module Angelo
   JSON_TYPE = 'application/json'
   FORM_TYPE = 'application/x-www-form-urlencoded'
   FILE_TYPE = 'application/octet-stream'
-  JS_TYPE =   'text/javascript'
+  JS_TYPE =   'application/javascript'
+  XML_TYPE =  'application/xml'
 
   DEFAULT_ADDR = '127.0.0.1'
   DEFAULT_PORT = 4567
