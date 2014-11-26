@@ -433,6 +433,19 @@ class Foo < Angelo::Base
 end
 ```
 
+The Angleo::Tilt::ERB module and the `erb` method do some extra work for you:
+
+* templates are pre-compiled, sorted by type.
+* template type is determined by word between name and .erb (ex: `index.html.erb`
+  is `:index` name and `:html` type)
+* the template chosen to render is determined based on:
+    * `:type` option passed to `erb` helper
+    * `Accept` request header value
+    * `Content-Type` response header value
+    * default to `:html`
+
+See /test/test_app_root/views/index.*.erb for examples.
+
 ### [Mustermann](https://github.com/rkh/mustermann)
 
 To make routes blocks match path with Mustermann patterns

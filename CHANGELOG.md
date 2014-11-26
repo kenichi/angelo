@@ -3,9 +3,10 @@ changelog
 
 ### 0.3.2
 
-thanks: @mighe
+thanks: @mighe, @artworx
 
 * send_file now accepts both full paths and paths relative to app file's dir
+* erb templates now sorted by type, finer control of response template type
 
 ### 0.3.1 10 nov 2014 yep, same day - jeez
 
