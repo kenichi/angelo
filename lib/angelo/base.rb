@@ -258,7 +258,7 @@ module Angelo
         block[socket]
       rescue Reel::SocketError, IOError, SystemCallError => e
         # probably closed on client
-        warn e.message if report_errors
+        warn e.message if report_errors?
         socket.close unless socket.closed?
       rescue => e
         error e.inspect
