@@ -7,9 +7,6 @@ module Angelo
   module ParamsParser
 
     EMPTY_JSON = '{}'
-    SEMICOLON = ';'
-    EQUALS = '='
-    AMPERSAND = '&'
 
     def parse_formencoded str
       str.split(AMPERSAND).reduce(Responder.symhash) do |p, kv|
@@ -20,7 +17,7 @@ module Angelo
     end
 
     def parse_query_string
-      parse_formencoded(request.query_string || '')
+      parse_formencoded(request.query_string || EMPTY_STRING)
     end
 
     def parse_post_body

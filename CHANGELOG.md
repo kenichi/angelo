@@ -1,6 +1,13 @@
 changelog
 =========
 
+### 0.3.3
+
+thanks: @mighe, @tarcieri
+
+* `public_dir` accessor forwarded from base now
+* `redirect` returns nil
+
 ### 0.3.2 27 nov 2014 ¡gracias!
 
 thanks: @mighe, @artworx

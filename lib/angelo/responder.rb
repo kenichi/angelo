@@ -199,6 +199,7 @@ module Angelo
 
     def redirect url
       @redirect = url
+      nil
     end
 
     def on_close= on_close

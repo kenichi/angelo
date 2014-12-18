@@ -6,7 +6,7 @@ module Angelo
 
     extend Forwardable
     def_delegators :@responder, :content_type, :headers, :redirect, :request, :transfer_encoding
-    def_delegators :@klass, :report_errors?, :sse_event, :sse_message, :sses, :websockets
+    def_delegators :@klass, :public_dir, :report_errors?, :sse_event, :sse_message, :sses, :websockets
 
     attr_accessor :responder
 

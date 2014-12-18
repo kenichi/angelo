@@ -59,6 +59,9 @@ module Angelo
   DASH = '-'
   EMPTY_STRING = ''
   NEWLINE = "\n"
+  SEMICOLON = ';'
+  EQUALS = '='
+  AMPERSAND = '&'
 
   HALT_STRUCT = Struct.new :status, :body
 

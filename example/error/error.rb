@@ -26,6 +26,10 @@ class Bar < Angelo::Base
     end
   end
 
+  after '/lazy_params' do
+    puts "after: #{params[:foo]}"
+  end
+
   get '/' do
     content_type :html
     erb :index
@@ -37,6 +41,10 @@ class Bar < Angelo::Base
       sleep 1
     end
     sse.event :close
+  end
+
+  post '/lazy_params' do
+    {public_dir: public_dir}
   end
 
 end
