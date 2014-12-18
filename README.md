@@ -93,7 +93,7 @@ class Foo < Angelo::Base
 
 end
 
-Foo.run
+Foo.run!
 ```
 
 In this case, any clients that connected to a websocket at the path '/' would be stashed in the
