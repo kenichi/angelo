@@ -30,6 +30,10 @@ module Angelo
         subclass.ping_time DEFAULT_PING_TIME
         subclass.log_level DEFAULT_LOG_LEVEL
 
+        # Parse options if angelo/main was required.
+        #
+        subclass.parse_options(ARGV.dup) if subclass.respond_to? :parse_options
+
         class << subclass
 
           def root
