@@ -5,8 +5,8 @@ describe "angelo/main" do
   helpers = Module.new do
     def self.with_args(args, &block)
       orig_argv = ARGV.dup
+      ARGV.replace(args.split)
       begin
-        ARGV.replace(args.split)
         block.call
       ensure
         ARGV.replace(orig_argv)
