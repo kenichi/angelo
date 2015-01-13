@@ -3,10 +3,12 @@ changelog
 
 ### 0.3.3
 
-thanks: @mighe, @tarcieri
+thanks: @mighe, @tarcieri, @jc00ke
 
+* update tests for 2.2.0 URI.parse (https://bugs.ruby-lang.org/issues/10669)
 * `public_dir` accessor forwarded from base now
 * `redirect` returns nil
+* travis tests against rbx (#23)
 
 ### 0.3.2 27 nov 2014 ¡gracias!
 

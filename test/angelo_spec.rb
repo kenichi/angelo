@@ -91,7 +91,7 @@ describe Angelo::Base do
 
     it 'does not crash when receiving invalid uri' do
       s = TCPSocket.new Angelo::DEFAULT_ADDR, Angelo::DEFAULT_PORT
-      s.write 'GET /?file=<SCRIPT>window.alert</SCRIPT>' + "\n\n"
+      s.write 'GET /?file=<SCRIPT>window.alert&*(#%)(^&*</SCRIPT>' + "\n\n"
       r = s.read
       s.close
       assert @server.alive?
