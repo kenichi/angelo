@@ -11,13 +11,13 @@ module Angelo
 
     attr_reader :base
 
-    def initialize base, addr = nil, port = nil
+    def initialize base, addr = nil, port = nil, options = {}
       @base = base
       addr ||= @base.addr
       port ||= @base.port
       info "Angelo #{VERSION}"
       info "listening on #{addr}:#{port}"
-      super addr, port, &method(:on_connection)
+      super addr, port, options, &method(:on_connection)
     end
 
     def on_connection connection
