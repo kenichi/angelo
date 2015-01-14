@@ -164,13 +164,13 @@ module Angelo
         Responder.content_type type
       end
 
-      def run! _addr = addr, _port = port
-        run _addr, _port, true
+      def run! _addr = addr, _port = port, options = {}
+        run _addr, _port, options, true
       end
 
-      def run _addr = addr, _port = port, blocking = false
+      def run _addr = addr, _port = port, options = {}, blocking = false
         Celluloid.logger.level = log_level
-        @server = Angelo::Server.new self, _addr, _port
+        @server = Angelo::Server.new self, _addr, _port, options
         @server.async.ping_websockets
         if blocking
           trap "INT" do
