@@ -88,11 +88,7 @@ module Angelo
       end
 
       def routes
-        @routes ||= {}
-        ROUTABLE.each do |m|
-          @routes[m] ||= {}
-        end
-        @routes
+        @routes ||= Hash.new{|h,k| h[k] = {}}
       end
 
       def filters
