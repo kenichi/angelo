@@ -3,8 +3,9 @@ changelog
 
 ### 0.3.3
 
-thanks: @mighe, @tarcieri, @jc00ke
+thanks: @mighe, @tarcieri, @jc00ke, @gunnarmarten
 
+* Base.run, Base.run! now accept an options hash to pass to Reel (#26)
 * update tests for 2.2.0 URI.parse (https://bugs.ruby-lang.org/issues/10669)
 * `public_dir` accessor forwarded from base now
 * `redirect` returns nil
