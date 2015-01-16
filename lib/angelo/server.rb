@@ -56,7 +56,7 @@ module Angelo
     end
 
     def route! meth, connection, request
-      if @base.routes[meth] and rs = @base.routes[meth][request.path]
+      if rs = @base.routes[meth][request.path]
         responder = rs.dup
         responder.reset!
         responder.base = @base.new responder
