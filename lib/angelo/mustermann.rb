@@ -39,11 +39,7 @@ module Angelo
       end
 
       def routes
-        @routes ||= {}
-        ROUTABLE.each do |m|
-          @routes[m] ||= RouteMap.new
-        end
-        @routes
+        @routes ||= Hash.new{|h,k| h[k] = RouteMap.new}
       end
 
       def filter_by which, path, meth
