@@ -13,6 +13,7 @@ module Angelo
       # hrm, sneaky
       #
       def self.included base
+        raise "Angelo requires Tilt >= 2.0, you have #{::Tilt::VERSION}" unless ::Tilt::VERSION.to_i >= 2
         base.extend ClassMethods
       end
 
