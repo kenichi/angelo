@@ -1,11 +1,12 @@
 changelog
 =========
 
-### 0.3.3
+### 0.3.3 16 jan 2015
 
 thanks: @mighe, @tarcieri, @jc00ke, @gunnarmarten, @tommay
 
 * RuntimeError if Angelo::Tilt::ERB is included and Tilt is < 2.0
+    * add deprecation warning - plan for Tilt inclusion by default
 * Base.run, Base.run! now accept an options hash to pass to Reel (#26)
 * update tests for 2.2.0 URI.parse (https://bugs.ruby-lang.org/issues/10669)
 * `public_dir` accessor forwarded from base now
