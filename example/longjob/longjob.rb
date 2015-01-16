@@ -3,8 +3,6 @@ $:.unshift File.expand_path '../../../lib', __FILE__
 require 'bundler'
 Bundler.require
 
-require 'angelo/mustermann'
-
 REDIS_CHANNEL = 'progress:%s'
 ID_POSSIBLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 
@@ -34,7 +32,6 @@ class Job
 end
 
 class Longjob < Angelo::Base
-  include Angelo::Mustermann
 
   log_level = Logger::DEBUG
 

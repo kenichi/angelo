@@ -5,12 +5,8 @@ $:.unshift File.expand_path '../../../lib', __FILE__
 Bundler.require :default, :development
 
 require 'angelo'
-require 'angelo/tilt/erb'
-require 'angelo/mustermann'
 
 class Bar < Angelo::Base
-  include Angelo::Tilt::ERB
-  include Angelo::Mustermann
 
   OK = {status: 'ok'}
   ERROR = {type: 'foo', message: 'bar'}

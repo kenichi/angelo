@@ -1,10 +1,8 @@
 if RUBY_VERSION =~ /^2\.(\d)/ and $1.to_i > 0 and RUBY_PLATFORM != 'java'
 
   require_relative '../spec_helper'
-  require 'angelo/mustermann'
-  require 'angelo/tilt/erb'
 
-  describe Angelo::Mustermann do
+  describe 'mustermann integration' do
 
     describe 'pattern matching' do
 
@@ -12,7 +10,6 @@ if RUBY_VERSION =~ /^2\.(\d)/ and $1.to_i > 0 and RUBY_PLATFORM != 'java'
       let(:mm_pattern){ ::Mustermann.new(pattern) }
 
       define_app do
-        include Angelo::Mustermann
         content_type :json
 
         get pattern do
@@ -59,8 +56,6 @@ if RUBY_VERSION =~ /^2\.(\d)/ and $1.to_i > 0 and RUBY_PLATFORM != 'java'
     describe 'tilt/erb integration' do
 
       define_app do
-        include Angelo::Tilt::ERB
-        include Angelo::Mustermann
 
         @root = TEST_APP_ROOT
 
@@ -99,7 +94,6 @@ HTML
     describe 'params in route blocks' do
 
       define_app do
-        include Angelo::Mustermann
 
         before '/before/:foo' do
           @foo = params[:foo]
@@ -127,7 +121,6 @@ HTML
     describe 'wildcard' do
 
       define_app do
-        include Angelo::Mustermann
 
         before do
           @foo = params[:foo]

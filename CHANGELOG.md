@@ -3,10 +3,9 @@ changelog
 
 ### 0.4.0
 
-thanks: @tommay
-
+* Mustermann wholly integrated
 * include Angelo::Tilt::ERB by default
-* add Tilt ~> 2.0 to gemspec
+* add Tilt ~> 2.0 and Mustermann ~> 0.4 to gemspec
 * require ruby >= 2.1 (also a Mustermann requirement)
 
 ### 0.3.3 16 jan 2015

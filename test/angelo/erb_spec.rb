@@ -1,5 +1,4 @@
 require_relative '../spec_helper'
-require 'angelo/tilt/erb'
 
 describe Angelo::Base do
   describe Angelo::Tilt::ERB do
@@ -53,8 +52,6 @@ var bar = "bat";
 JS
 
     define_app do
-
-      include Angelo::Tilt::ERB
 
       @root = TEST_APP_ROOT
 

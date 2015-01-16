@@ -5,10 +5,8 @@ $:.unshift File.expand_path '../../../lib', __FILE__
 Bundler.require :default, :development
 
 require 'angelo'
-require 'angelo/tilt/erb'
 
 class Templates < Angelo::Base
-  include Angelo::Tilt::ERB
 
   log_level Logger::DEBUG
   report_errors!

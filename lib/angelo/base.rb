@@ -5,8 +5,9 @@ module Angelo
     include ParamsParser
     include Celluloid::Logger
     include Tilt::ERB
+    include Mustermann
 
-    def_delegators :@responder, :content_type, :headers, :redirect, :request, :transfer_encoding
+    def_delegators :@responder, :content_type, :headers, :mustermann, :redirect, :request, :transfer_encoding
     def_delegators :@klass, :public_dir, :report_errors?, :sse_event, :sse_message, :sses, :websockets
 
     attr_accessor :responder
@@ -89,7 +90,7 @@ module Angelo
       end
 
       def routes
-        @routes ||= Hash.new{|h,k| h[k] = {}}
+        @routes ||= Hash.new{|h,k| h[k] = RouteMap.new}
       end
 
       def filters
@@ -111,8 +112,9 @@ module Angelo
       end
 
       def filter_by which, path, meth
-        filters[which][path] ||= []
-        filters[which][path] << meth
+        pattern = ::Mustermann.new path
+        filters[which][pattern] ||= []
+        filters[which][pattern] << meth
       end
 
       def before opts = {}, &block
@@ -124,16 +126,19 @@ module Angelo
       end
 
       HTTPABLE.each do |m|
-        define_method m do |path, &block|
+        define_method m do |path, opts = {}, &block|
+          path = ::Mustermann.new path, opts
           routes[m][path] = Responder.new &block
         end
       end
 
       def websocket path, &block
+        path = ::Mustermann.new path
         routes[:websocket][path] = Responder::Websocket.new &block
       end
 
       def eventsource path, headers = nil, &block
+        path = ::Mustermann.new path
         routes[:get][path] = Responder::Eventsource.new headers, &block
       end
 
@@ -217,7 +222,7 @@ module Angelo
                     parse_query_string
                   when POST, PUT
                     parse_post_body
-                  end
+                  end.merge mustermann.params(request.path)
     end
 
     def request_headers
@@ -320,15 +325,50 @@ module Angelo
       Celluloid.sleep time
     end
 
-    def filter which
-      fs = self.class.filters[which][:default]
-      fs += self.class.filters[which][request.path] if self.class.filters[which][request.path]
-      fs.each {|f| f.bind(self).call}
-    end
-
     def chunked_response &block
       transfer_encoding :chunked
       ChunkedResponse.new &block
+    end
+
+    def filter which
+      fs = self.class.filters[which][:default].dup
+      self.class.filters[which].each do |pattern, f|
+        if ::Mustermann === pattern and pattern.match request.path
+          fs << [f, pattern]
+        end
+      end
+      fs.each do |f|
+        case f
+        when UnboundMethod
+          f.bind(self).call
+        when Array
+          @pre_filter_params = params
+          @params = @pre_filter_params.merge f[1].params(request.path)
+          f[0].each {|filter| filter.bind(self).call}
+          @params = @pre_filter_params
+        end
+      end
+    end
+
+    class RouteMap
+
+      def initialize
+        @hash = Hash.new
+      end
+
+      def []= route, responder
+        @hash[route] = responder
+      end
+
+      def [] route
+        responder = nil
+        if mustermann = @hash.keys.select {|k| k.match(route)}.first
+          responder = @hash.fetch mustermann
+          responder.mustermann = mustermann
+        end
+        responder
+      end
+
     end
 
     class EventSource

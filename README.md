@@ -3,7 +3,7 @@ Angelo
 
 [![Build Status](https://travis-ci.org/kenichi/angelo.png?branch=master)](https://travis-ci.org/kenichi/angelo)
 
-A [Sinatra](https://github.com/sinatra/sinatra)-esque DSL for [Reel](https://github.com/celluloid/reel).
+A [Sinatra](https://github.com/sinatra/sinatra)-like DSL for [Reel](https://github.com/celluloid/reel).
 
 ### tl;dr
 
@@ -12,8 +12,8 @@ A [Sinatra](https://github.com/sinatra/sinatra)-esque DSL for [Reel](https://git
 * contextual websocket/sse stashing via `websockets` and `sses` helpers
 * `task` handling via `async` and `future` helpers
 * no rack
-* optional tilt/erb support
-* optional mustermann support
+* tilt/erb support
+* mustermann support
 
 ### What is Angelo?
 
@@ -414,15 +414,8 @@ everything's fine
 
 ### [Tilt](https://github.com/rtomayko/tilt) / ERB
 
-To make `erb` available in route blocks
-
-1. add `tilt` to your `Gemfile`: `gem 'tilt'`
-2. require `angelo/tilt/erb`
-3. include `Angelo::Tilt::ERB` in your app
-
 ```ruby
 class Foo < Angelo::Base
-  include Angelo::Tilt::ERB
 
   views_dir 'some/other/path' # defaults to './views'
 
@@ -448,17 +441,8 @@ See [views](https://github.com/kenichi/angelo/tree/master/test/test_app_root/vie
 
 ### [Mustermann](https://github.com/rkh/mustermann)
 
-To make routes blocks match path with Mustermann patterns
-
-1. be using ruby &gt;=2.0.0
-2. add 'mustermann' to to your `Gemfile`: `platform(:ruby_20){ gem 'mustermann' }`
-3. require `angelo/mustermann`
-4. include `Angelo::Mustermann` in your app
-
 ```ruby
 class Foo < Angelo::Base
-  include Angelo::Tilt::ERB
-  include Angelo::Mustermann
 
   get '/:foo/things/:bar' do
 
@@ -494,10 +478,8 @@ Lots of work left to do!
 
 ```ruby
 require 'angelo'
-require 'angelo/mustermann'
 
 class Foo < Angelo::Base
-  include Angelo::Mustermann
 
   # just some constants to use in routes later...
   #

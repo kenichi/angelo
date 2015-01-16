@@ -5,12 +5,8 @@ $:.unshift File.expand_path '../../../lib', __FILE__
 Bundler.require :default, :development
 
 require 'angelo'
-require 'angelo/tilt/erb'
-require 'angelo/mustermann' unless RUBY_PLATFORM == 'java'
 
 class Bar < Angelo::Base
-  include Angelo::Tilt::ERB
-  include Angelo::Mustermann unless RUBY_PLATFORM == 'java'
 
   HEART = '❤️'
   CORS = { 'Access-Control-Allow-Origin' => '*',

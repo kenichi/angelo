@@ -31,7 +31,7 @@ module Angelo
 
     end
 
-    attr_accessor :connection, :request
+    attr_accessor :connection, :mustermann, :request
     attr_writer :base
 
     def initialize &block
