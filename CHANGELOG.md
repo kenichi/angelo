@@ -1,6 +1,14 @@
 changelog
 =========
 
+### 0.4.0
+
+thanks: @tommay
+
+* include Angelo::Tilt::ERB by default
+* add Tilt ~> 2.0 to gemspec
+* require ruby >= 2.1 (also a Mustermann requirement)
+
 ### 0.3.3 16 jan 2015
 
 thanks: @mighe, @tarcieri, @jc00ke, @gunnarmarten, @tommay

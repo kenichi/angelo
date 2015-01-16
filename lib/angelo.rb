@@ -128,11 +128,13 @@ end
 require 'angelo/version'
 require 'angelo/params_parser'
 require 'angelo/server'
-require 'angelo/base'
-require 'angelo/stash'
 require 'angelo/responder'
 require 'angelo/responder/eventsource'
 require 'angelo/responder/websocket'
+require 'angelo/tilt/erb'
+# require 'angelo/mustermann'
+require 'angelo/base'
+require 'angelo/stash'
 
 # trap "INT" do
 #   result = RubyProf.stop

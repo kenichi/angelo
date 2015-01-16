@@ -13,11 +13,6 @@ module Angelo
       # hrm, sneaky
       #
       def self.included base
-
-        # TODO: remove at 0.4
-        warn "[DEPRECATED] Angelo::Tilt::ERB will be included by default in angelo >= 0.4"
-        raise "Angelo requires Tilt >= 2.0, you have #{::Tilt::VERSION}" unless ::Tilt::VERSION.to_i >= 2
-
         base.extend ClassMethods
       end
 

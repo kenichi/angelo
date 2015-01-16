@@ -4,10 +4,7 @@ gem 'reel', '~>0.5'
 gem 'tilt', '~>2.0'
 gem 'mime-types', '~>2.4'
 gem 'websocket-driver', '~>0.3'
-
-platform :ruby_21, :ruby_22 do
-  gem 'mustermann', '~>0.4'
-end
+gem 'mustermann', '~>0.4'
 
 group :development do
   gem 'pry', '~>0.10'

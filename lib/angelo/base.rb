@@ -1,10 +1,11 @@
 module Angelo
 
   class Base
+    extend Forwardable
     include ParamsParser
     include Celluloid::Logger
+    include Tilt::ERB
 
-    extend Forwardable
     def_delegators :@responder, :content_type, :headers, :redirect, :request, :transfer_encoding
     def_delegators :@klass, :public_dir, :report_errors?, :sse_event, :sse_message, :sses, :websockets
 
