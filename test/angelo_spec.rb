@@ -442,6 +442,20 @@ describe Angelo::Base do
 
   end
 
+  class MyWebApp < Angelo::Base
+    get '/up_and_running' do
+      'ok'
+    end
+  end
+
+  describe 'test Angelo::Base subclasses' do
+    define_app_by_class MyWebApp
+    it 'answers to up_and_running' do
+      get '/up_and_running'
+      assert_equal(last_response.body, 'ok')
+    end
+  end
+
   describe 'dsl configs' do
 
     describe 'addr' do
