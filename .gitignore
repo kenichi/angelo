@@ -1,3 +1,4 @@
 angelo-*.gem
 tmp
 Gemfile.lock
+test/coverage
