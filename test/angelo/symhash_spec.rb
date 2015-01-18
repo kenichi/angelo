@@ -14,4 +14,30 @@ describe Angelo::SymHash do
     symhash["x"].must_equal "y"
     symhash[:x].must_equal "y"
   end
+
+  describe "#merge!" do
+    it "returns self" do
+      symhash = Angelo::SymHash.new
+      result = symhash.merge!("one" => "two")
+      result.must_be_same_as symhash
+    end
+
+    it "recursively merges a Hash into self" do
+      hash = {
+        "foo" => {
+          "bar" => "baz",
+          "that" => {
+            "holmes" => true,
+          },
+        },
+      }
+
+      symhash = Angelo::SymHash.new.merge!(hash)
+      symhash["foo"]["bar"].must_equal "baz"
+      symhash[:foo][:bar].must_equal "baz"
+      symhash["foo"]["that"]["holmes"].must_equal true
+      symhash[:foo][:that][:holmes].must_equal true
+    end
+  end
+
 end
