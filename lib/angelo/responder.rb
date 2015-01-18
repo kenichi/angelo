@@ -25,10 +25,6 @@ module Angelo
         @default_headers
       end
 
-      def symhash
-        Hash.new {|hash,key| hash[key.to_s] if Symbol === key }
-      end
-
     end
 
     attr_accessor :connection, :mustermann, :request
