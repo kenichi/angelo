@@ -8,7 +8,7 @@ module Angelo
 
     def merge!(other)
       super.tap do |result|
-        result.each do |k,v|
+        other.each do |k,v|
           # If any of the merged values are Hashes, replace them with
           # SymHashes all the way down.
           if v.kind_of?(Hash)
