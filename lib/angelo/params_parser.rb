@@ -1,4 +1,5 @@
 require 'cgi'
+require_relative 'symhash'
 
 module Angelo
 
@@ -9,7 +10,7 @@ module Angelo
     EMPTY_JSON = '{}'
 
     def parse_formencoded str
-      str.split(AMPERSAND).reduce(Responder.symhash) do |p, kv|
+      str.split(AMPERSAND).reduce(SymHash.new) do |p, kv|
         key, value = kv.split(EQUALS).map {|s| CGI.unescape s}
         p[key] = value
         p
@@ -29,21 +30,10 @@ module Angelo
         qs.merge! body
       when json?
         body = EMPTY_JSON if body.empty?
-        body = JSON.parse body
-        recurse_symhash qs.merge! body
+        qs.merge! SymHash.new JSON.parse body
       else
         qs
       end
-    end
-
-    def recurse_symhash h
-      h.each do |k,v|
-        if Hash === v
-          h[k] = Responder.symhash.merge! v
-          recurse_symhash h[k]
-        end
-      end
-      h
     end
 
     def form_encoded?
