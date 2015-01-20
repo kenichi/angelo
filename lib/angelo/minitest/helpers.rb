@@ -1,5 +1,43 @@
 require 'websocket/driver'
 
+module Cellper
+
+  @@stop = false
+  @@testers = {}
+
+  def define_action sym, &block
+    define_method sym, &block
+  end
+
+  def remove_action sym
+    remove_method sym
+  end
+
+  def unstop!
+    @@stop = false
+  end
+
+  def stop!
+    @@stop = true
+  end
+
+  def stop?
+    @@stop
+  end
+
+  def testers; @@testers; end
+end
+
+class Reactor
+  include Celluloid::IO
+  extend Cellper
+end
+
+class ActorPool
+  include Celluloid
+  extend Cellper
+end
+
 module Angelo
   module Minitest
 
@@ -10,7 +48,6 @@ module Angelo
       attr_reader :last_response
 
       def define_app &block
-
         before do
           app = Class.new Angelo::Base
 
@@ -20,14 +57,27 @@ module Angelo
           app.class_eval &block
           @server = Angelo::Server.new app
           app.server = @server
-          $reactor = Reactor.new unless $reactor.alive?
+          $reactor = Reactor.new if $reactor == nil || !$reactor.alive?
         end
 
         after do
           sleep 0.1
           @server.terminate if @server and @server.alive?
         end
+      end
 
+      def define_app_by_class app
+        before do
+          Celluloid.logger.level = ::Logger::ERROR # see spec_helper.rb:9
+          @server = Angelo::Server.new app
+          app.server = @server
+          $reactor = Reactor.new if $reactor == nil || !$reactor.alive?
+        end
+
+        after do
+          sleep 0.1
+          @server.terminate if @server and @server.alive?
+        end
       end
 
       def hc

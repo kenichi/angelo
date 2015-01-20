@@ -49,46 +49,7 @@ class CountDownLatch
 
 end
 
-module Cellper
-
-  @@stop = false
-  @@testers = {}
-
-  def define_action sym, &block
-    define_method sym, &block
-  end
-
-  def remove_action sym
-    remove_method sym
-  end
-
-  def unstop!
-    @@stop = false
-  end
-
-  def stop!
-    @@stop = true
-  end
-
-  def stop?
-    @@stop
-  end
-
-  def testers; @@testers; end
-
-end
-
-class Reactor
-  include Celluloid::IO
-  extend Cellper
-end
-
 $reactor = Reactor.new
-
-class ActorPool
-  include Celluloid
-  extend Cellper
-end
 
 $pool = ActorPool.pool size: CONCURRENCY
 
