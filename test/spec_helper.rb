@@ -1,5 +1,12 @@
 $:.unshift File.expand_path '../../lib', __FILE__
 
+if defined?(RUBY_ENGINE) && RUBY_ENGINE == "ruby" && RUBY_VERSION >= "1.9"
+  require 'simplecov'
+  SimpleCov.coverage_dir File.join('test', 'coverage')
+  SimpleCov.start
+  SimpleCov.command_name 'minitest'
+end
+
 require 'bundler'
 Bundler.require :default, :development, :test
 require 'minitest/pride'

@@ -20,4 +20,8 @@ end
 group :test do
   gem 'httpclient', '~>2.5'
   gem 'minitest', '~>5.4'
+
+  platform :mri do
+    gem 'simplecov', '~>0.9.1'
+  end
 end
