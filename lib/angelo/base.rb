@@ -221,7 +221,7 @@ module Angelo
                   when GET, DELETE, OPTIONS
                     parse_query_string
                   when POST, PUT
-                    parse_post_body
+                    parse_query_string_and_post_body
                   end.merge mustermann.params(request.path)
     end
 

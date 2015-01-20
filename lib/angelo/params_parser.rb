@@ -22,17 +22,18 @@ module Angelo
 
     def parse_post_body
       body = request.body.to_s
-      qs = parse_query_string
       case
       when form_encoded?
-        body = parse_formencoded body
-        qs.merge! body
-      when json?
-        body = EMPTY_JSON if body.empty?
-        qs.merge! SymHash.new JSON.parse body
+        parse_formencoded body
+      when json? && !body.empty?
+        SymHash.new JSON.parse body
       else
-        qs
+        {}
       end
+    end
+
+    def parse_query_string_and_post_body
+      parse_query_string.merge! parse_post_body
     end
 
     def form_encoded?
