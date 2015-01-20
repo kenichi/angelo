@@ -30,21 +30,22 @@ module Angelo
         qs.merge! body
       when json?
         body = EMPTY_JSON if body.empty?
-        body = JSON.parse body
-        recurse_symhash qs.merge! body
+        qs.merge! to_symhash JSON.parse body
       else
         qs
       end
     end
 
-    def recurse_symhash h
-      h.each do |k,v|
-        if Hash === v
-          h[k] = SymHash.new.merge! v
-          recurse_symhash h[k]
+    def to_symhash(hash)
+      SymHash.new.tap do |symhash|
+        symhash.merge!(hash)
+        symhash.each do |k,v|
+          # Replace values that are Hashes with SymHashes, recursively.
+          if v.kind_of?(Hash)
+            symhash[k] = to_symhash(v)
+          end
         end
       end
-      h
     end
 
     def form_encoded?
