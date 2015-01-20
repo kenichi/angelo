@@ -9,7 +9,7 @@ module Angelo
     EMPTY_JSON = '{}'
 
     def parse_formencoded str
-      str.split(AMPERSAND).reduce(Responder.symhash) do |p, kv|
+      str.split(AMPERSAND).reduce(SymHash.new) do |p, kv|
         key, value = kv.split(EQUALS).map {|s| CGI.unescape s}
         p[key] = value
         p
@@ -29,21 +29,10 @@ module Angelo
         qs.merge! body
       when json?
         body = EMPTY_JSON if body.empty?
-        body = JSON.parse body
-        recurse_symhash qs.merge! body
+        qs.merge! SymHash.new JSON.parse body
       else
         qs
       end
-    end
-
-    def recurse_symhash h
-      h.each do |k,v|
-        if Hash === v
-          h[k] = Responder.symhash.merge! v
-          recurse_symhash h[k]
-        end
-      end
-      h
     end
 
     def form_encoded?
@@ -59,6 +48,21 @@ module Angelo
         request.headers[CONTENT_TYPE_HEADER_KEY].split(SEMICOLON).include? type
       else
         nil
+      end
+    end
+
+  end
+
+  class SymHash < Hash
+
+    # Returns a Hash that allows values to be fetched with String or
+    # Symbol keys.
+    def initialize h = nil
+      super(){|hash,key| hash[key.to_s] if Symbol === key}
+      unless h.nil?
+        merge! h
+        # Replace values that are Hashes with SymHashes, recursively.
+        each {|k,v| self[k] = SymHash.new(v) if Hash === v}
       end
     end
 
