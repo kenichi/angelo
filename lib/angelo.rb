@@ -136,6 +136,7 @@ require 'angelo/responder/websocket'
 require 'angelo/tilt/erb'
 require 'angelo/base'
 require 'angelo/stash'
+require 'angelo/symhash'
 
 # trap "INT" do
 #   result = RubyProf.stop

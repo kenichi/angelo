@@ -1,5 +1,4 @@
 require 'cgi'
-require_relative 'symhash'
 
 module Angelo
 
@@ -30,21 +29,9 @@ module Angelo
         qs.merge! body
       when json?
         body = EMPTY_JSON if body.empty?
-        qs.merge! to_symhash JSON.parse body
+        qs.merge! SymHash.new JSON.parse body
       else
         qs
-      end
-    end
-
-    def to_symhash(hash)
-      SymHash.new.tap do |symhash|
-        symhash.merge!(hash)
-        symhash.each do |k,v|
-          # Replace values that are Hashes with SymHashes, recursively.
-          if v.kind_of?(Hash)
-            symhash[k] = to_symhash(v)
-          end
-        end
       end
     end
 
