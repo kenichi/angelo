@@ -3,6 +3,9 @@ changelog
 
 ### 0.4.0
 
+thanks: @tommay, @kyledrake
+
+* SimpleCov testing output support on MRI (#28)
 * Mustermann wholly integrated
 * include Angelo::Tilt::ERB by default
 * add Tilt ~> 2.0 and Mustermann ~> 0.4 to gemspec
