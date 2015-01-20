@@ -3,8 +3,11 @@ changelog
 
 ### 0.4.0
 
-thanks: @tommay, @kyledrake
+thanks: @tommay, @kyledrake, @katjae
 
+* Responder.symhash refactored to Angelo::SymHash (#33)
+* define_app now accepts a subclass of Angelo::Base (#32)
+* testing auxiliary classes moved to angelo/minitest/helpers (#32)
 * SimpleCov testing output support on MRI (#28)
 * Mustermann wholly integrated
 * include Angelo::Tilt::ERB by default
