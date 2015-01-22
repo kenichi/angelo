@@ -445,6 +445,7 @@ describe Angelo::Base do
   describe 'test Angelo::Base subclasses' do
 
     class MyWebApp < Angelo::Base
+      content_type :html
       get '/up_and_running' do
         'ok'
       end
