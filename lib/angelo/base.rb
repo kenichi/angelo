@@ -32,6 +32,12 @@ module Angelo
         subclass.ping_time DEFAULT_PING_TIME
         subclass.log_level DEFAULT_LOG_LEVEL
 
+        # Parse command line options if angelo/main has been required.
+        # They could also be parsed in run, but this makes them
+        # available to and overridable by the DSL.
+        #
+        subclass.parse_options(ARGV.dup) if @angelo_main
+
         class << subclass
 
           def root
@@ -347,6 +353,34 @@ module Angelo
           f[0].each {|filter| filter.bind(self).call}
           @params = @pre_filter_params
         end
+      end
+    end
+
+    # It seems more sensible to put this in main.rb since it's used
+    # only if angelo/main is required, but it's here so it can be
+    # tested, since requiring angelo/main doesn't play well with the
+    # test code.
+
+    def self.parse_options(argv)
+      require "optparse"
+
+      optparse = OptionParser.new do |op|
+        op.banner = "Usage: #{$0} [options]"
+
+        op.on('-p port', OptionParser::DecimalInteger, "set the port (default is #{port})") {|val| port val}
+        op.on('-o addr', "set the host (default is #{addr})") {|val| addr val}
+        op.on('-h', '--help', "Show this help") do
+          puts op
+          exit
+        end
+      end
+
+      begin
+        optparse.parse(argv)
+      rescue OptionParser::ParseError => ex
+        $stderr.puts ex
+        $stderr.puts optparse
+        exit 1
       end
     end
 
