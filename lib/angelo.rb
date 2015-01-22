@@ -33,9 +33,9 @@ module Angelo
   HTML_TYPE = 'text/html'
   JSON_TYPE = 'application/json'
   FORM_TYPE = 'application/x-www-form-urlencoded'
+  JS_TYPE = 'application/javascript'
+  XML_TYPE = 'application/xml'
   FILE_TYPE = 'application/octet-stream'
-  JS_TYPE =   'application/javascript'
-  XML_TYPE =  'application/xml'
 
   DEFAULT_ADDR = '127.0.0.1'
   DEFAULT_PORT = 4567
@@ -45,9 +45,10 @@ module Angelo
 
   DEFAULT_LOG_LEVEL = ::Logger::INFO
   DEFAULT_RESPONSE_LOG_LEVEL = :info
+  DEFAULT_CONTENT_TYPE = :html
+  
 
   DEFAULT_RESPONSE_HEADERS = {
-    CONTENT_TYPE_HEADER_KEY => HTML_TYPE
   }
 
   NOT_FOUND = 'Not Found'
@@ -130,6 +131,8 @@ end
 require 'angelo/version'
 require 'angelo/params_parser'
 require 'angelo/server'
+require 'angelo/content_type_handler'
+require 'angelo/content_type_handlers/json_handler'
 require 'angelo/responder'
 require 'angelo/responder/eventsource'
 require 'angelo/responder/websocket'
