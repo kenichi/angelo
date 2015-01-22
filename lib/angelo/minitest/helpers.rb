@@ -9,12 +9,13 @@ module Angelo
 
       attr_reader :last_response
 
-      def define_app app = nil
+      def define_app app = nil, &block
         before do
-          if app.nil? && block_given?
-            app = Class.new Angelo::Base
-            app.class_eval { content_type :html }    # reset
-            app.class_eval &Proc.new
+          if app.nil? && block
+            app = Class.new Angelo::Base do
+              content_type :html    # reset
+              class_eval &block
+            end
           end
           Celluloid.logger.level = ::Logger::ERROR # see spec_helper.rb:9
 
@@ -39,12 +40,8 @@ module Angelo
         url
       end
 
-      def hc_req method, path, params = {}, headers = {}
-        @last_response = if block_given?
-                           hc.__send__ method, url(path), params, headers, &Proc.new
-                         else
-                           hc.__send__ method, url(path), params, headers
-                         end
+      def hc_req method, path, params = {}, headers = {}, &block
+        @last_response = hc.__send__ method, url(path), params, headers, &block
       end
       private :hc_req
 
@@ -69,15 +66,8 @@ module Angelo
       private :http_req
 
       [:get, :post, :put, :delete, :options, :head].each do |m|
-        define_method m do |path, params = {}, headers = {}|
-
-          # http_req m, path, params, headers
-
-          if block_given?
-            hc_req m, path, params, headers, &Proc.new
-          else
-            hc_req m, path, params, headers
-          end
+        define_method m do |path, params = {}, headers = {}, &block|
+          hc_req m, path, params, headers, &block
         end
       end
 
