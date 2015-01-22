@@ -18,9 +18,15 @@ module Angelo
 
       def inherited subclass
 
-        # set app_file from caller stack
+        # Set app_file by groveling up the caller stack until we find
+        # the first caller from a directory different from __FILE__.
+        # This allows base.rb to be required from an arbitrarily deep
+        # nesting of require "angelo/<whatever>" and still set
+        # app_file correctly.
         #
-        subclass.app_file = caller(1).map {|l| l.split(/:(?=|in )/, 3)[0,1]}.flatten[0]
+        subclass.app_file = caller_locations.map(&:absolute_path).find do |f|
+          f !~ /^#{Regexp.quote(File.dirname(__FILE__) + File::SEPARATOR)}/
+        end
 
         # bring RequestError into this namespace
         #
