@@ -47,7 +47,12 @@ module Angelo
         end
 
       end
+    end
 
+    # Methods defined in module DSL will be available in the DSL both
+    # in Angelo::Base subclasses and in the top level DSL.
+
+    module DSL
       def addr a = nil
         @addr = a if a
         @addr
@@ -84,6 +89,34 @@ module Angelo
         @report_errors = true
       end
 
+      HTTPABLE.each do |m|
+        define_method m do |path, opts = {}, &block|
+          path = ::Mustermann.new path, opts
+          routes[m][path] = Responder.new &block
+        end
+      end
+
+      def websocket path, &block
+        path = ::Mustermann.new path
+        routes[:websocket][path] = Responder::Websocket.new &block
+      end
+
+      def eventsource path, headers = nil, &block
+        path = ::Mustermann.new path
+        routes[:get][path] = Responder::Eventsource.new headers, &block
+      end
+
+      def task name, &block
+        Angelo::Server.define_task name, &block
+      end
+    end
+
+    # Make the DSL methods available to subclass-level code.
+    # main.rb makes them available to the top level.
+
+    extend DSL
+
+    class << self
       def report_errors?
         !!@report_errors
       end
@@ -131,29 +164,8 @@ module Angelo
         filter :after, opts, &block
       end
 
-      HTTPABLE.each do |m|
-        define_method m do |path, opts = {}, &block|
-          path = ::Mustermann.new path, opts
-          routes[m][path] = Responder.new &block
-        end
-      end
-
-      def websocket path, &block
-        path = ::Mustermann.new path
-        routes[:websocket][path] = Responder::Websocket.new &block
-      end
-
-      def eventsource path, headers = nil, &block
-        path = ::Mustermann.new path
-        routes[:get][path] = Responder::Eventsource.new headers, &block
-      end
-
       def on_pong &block
         Responder::Websocket.on_pong = block
-      end
-
-      def task name, &block
-        Angelo::Server.define_task name, &block
       end
 
       def websockets reject = true
