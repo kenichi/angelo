@@ -60,6 +60,13 @@ describe Angelo::ParamsParser do
     parser.parse_post_body.must_equal post_params
   end
 
+  it "doesn't choke on empty JSON POST bodies" do
+    parser.form_encoded = false
+    parser.json = true
+    parser.body = ""
+    parser.parse_post_body.must_equal({})
+  end
+
   it 'recursively symhashes JSON POST bodies params' do
     nested = {
       foo: {
@@ -84,7 +91,7 @@ describe Angelo::ParamsParser do
     parser.json = true
     parser.query_string = get_params
     parser.body = json_params
-    parser.parse_post_body.must_equal post_params
+    parser.parse_query_string_and_post_body.must_equal post_params
   end
 
   it 'does not parse POST bodies if no Content-Type' do
@@ -92,8 +99,9 @@ describe Angelo::ParamsParser do
     parser.json = false
     parser.query_string = get_params
     parser.body = nil
-    parser.parse_post_body.must_equal params_s
     parser.parse_query_string.must_equal params_s
+    parser.parse_post_body.must_equal({})
+    parser.parse_query_string_and_post_body.must_equal params_s
   end
 
 end
