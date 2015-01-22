@@ -470,6 +470,13 @@ class Foo < Angelo::Base
 end
 ```
 
+### Documentation
+
+**I'm bad at documentation and I feel bad.**
+
+Others have helped, and there is a YaRD plugin for Angelo [here](https://github.com/artcom/yard-angelo)
+if you would like to document your apps built with Angelo. (thanks: @katjaeinsfeld, @artcom)
+
 ### WORK LEFT TO DO
 
 Lots of work left to do!

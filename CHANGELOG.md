@@ -3,8 +3,9 @@ changelog
 
 ### 0.4.0
 
-thanks: @tommay, @kyledrake, @katjae
+thanks: @tommay, @kyledrake, @katjaeinsfeld
 
+* refactor ParamsParser#parse_post_body (#34)
 * Responder.symhash refactored to Angelo::SymHash (#33)
 * define_app now accepts a subclass of Angelo::Base (#32)
 * testing auxiliary classes moved to angelo/minitest/helpers (#32)
