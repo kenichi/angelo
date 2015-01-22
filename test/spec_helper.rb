@@ -1,6 +1,6 @@
 $:.unshift File.expand_path '../../lib', __FILE__
 
-if defined?(RUBY_ENGINE) && RUBY_ENGINE == "ruby" && RUBY_VERSION >= "1.9"
+if RUBY_ENGINE == "ruby" && ENV['TRAVIS'] != 'true'
   require 'simplecov'
   SimpleCov.coverage_dir File.join('test', 'coverage')
   SimpleCov.start
