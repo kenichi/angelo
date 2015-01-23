@@ -18,6 +18,8 @@ module Angelo
 
       module ClassMethods
 
+        @reload_templates = false
+
         def view_glob *glob
           File.join views_dir, *glob
         end
@@ -35,22 +37,51 @@ module Angelo
 
         def templates type = DEFAULT_TYPE
           @templates ||= {}
-          @templates[type] ||= templatify('**', "*.#{type}.erb") do |v|
+          if reload_templates?
+            @templates[type] = load_templates(type)
+          else
+            @templates[type] ||= load_templates(type)
+          end
+        end
+
+        def load_templates type = DEFAULT_TYPE
+          templatify('**', "*.#{type}.erb") do |v|
             v =~ /^#{LAYOUTS_DIR}#{File::SEPARATOR}/
           end
         end
 
         def layout_templates type = DEFAULT_TYPE
-          @layout_templates ||= templatify LAYOUTS_DIR, "*.#{type}.erb"
+          if reload_templates?
+            @layout_templates = load_layout_templates(type)
+          else
+            @layout_templates ||= load_layout_templates(type)
+          end
+        end
+
+        def load_layout_templates type = DEFAULT_TYPE
+          templatify LAYOUTS_DIR, "*.#{type}.erb"
         end
 
         def default_layout type = DEFAULT_TYPE
           @default_layout ||= {}
-          if @default_layout[type].nil?
-            l = view_glob(DEFAULT_LAYOUT % type)
-            @default_layout[type] = ::Tilt::ERBTemplate.new l if File.exist? l
+          if reload_templates?
+            @default_layout[type] = load_default_layout(type)
+          else
+            @default_layout[type] ||= load_default_layout(type)
           end
-          @default_layout[type]
+        end
+
+        def load_default_layout type = DEFAULT_TYPE
+          l = view_glob(DEFAULT_LAYOUT % type)
+          ::Tilt::ERBTemplate.new l if File.exist? l
+        end
+
+        def reload_templates! on = true
+          @reload_templates = on
+        end
+
+        def reload_templates?
+          @reload_templates
         end
 
       end

@@ -215,6 +215,71 @@ HTML
       last_response.body.must_equal expected_json
       last_response.headers['Content-Type'].must_equal 'application/json'
     end
+  end
+
+  describe 'reload_templates!' do
+
+    expected_html = <<HTML
+<!doctype html>
+<html>
+  <head>
+    <title>test</title>
+  </head>
+  <body>
+    foo - asdf
+locals :bar - bat
+
+  </body>
+</html>
+HTML
+
+    reloaded_expected_html = <<HTML
+<!doctype html>
+<html>
+  <head>
+    <title>test</title>
+  </head>
+  <body>
+    foo - asdf
+locals :bar - bat
+hi
+
+  </body>
+</html>
+HTML
+
+    define_app do
+      @root = TEST_APP_ROOT
+
+      def set_vars
+        @title = 'test'
+        @foo = params[:foo]
+      end
+
+      reload_templates!
+
+      get '/' do
+        set_vars
+        erb :index, locals: {bar: 'bat'}
+      end
+    end
+
+    it 'reloads templates' do
+      original_index = File.read TEST_APP_ROOT + '/views/index.html.erb'
+      begin
+        get '/', foo: 'asdf'
+        last_response_must_be_html expected_html
+        File.open TEST_APP_ROOT + '/views/index.html.erb', 'a' do |f|
+          f.puts 'hi'
+        end
+        get '/', foo: 'asdf'
+        last_response_must_be_html reloaded_expected_html
+      ensure
+        File.open TEST_APP_ROOT + '/views/index.html.erb', 'w' do |f|
+          f.write original_index
+        end
+      end
+    end
 
   end
 end
