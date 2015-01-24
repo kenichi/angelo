@@ -127,9 +127,11 @@ module Angelo
       extend Stash::ClassMethods
       include Stash
 
-      def event data
-        raise ArgumentError.new 'use #message method for "messages"' if @context == :default
-        each {|s| s.write Angelo::Base.sse_event(@context, data)}
+      def event *args
+        name, data = args
+        raise ArgumentError if @context == :default and data.nil?
+        data, name = name, @context if data.nil?
+        each {|s| s.write Angelo::Base.sse_event(name, data)}
         nil
       end
 

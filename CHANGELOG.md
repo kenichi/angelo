@@ -5,6 +5,7 @@ changelog
 
 thanks: @tommay, @kyledrake, @katjaeinsfeld
 
+* remove event restriction to SSE stash contexts
 * add reload_templates! DSL method
 * refactor testing helpers (#35)
 * refactor ParamsParser#parse_post_body (#34)
