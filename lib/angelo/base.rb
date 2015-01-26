@@ -98,23 +98,22 @@ module Angelo
       end
 
       def filter which, opts = {}, &block
-        f = compile! :filter, &block
         case opts
         when String
-          filter_by which, opts, f
+          filter_by which, opts, block
         when Hash
           if opts[:path]
-            filter_by which, opts[:path], f
+            filter_by which, opts[:path], block
           else
-            filters[which][:default] << f
+            filters[which][:default] << block
           end
         end
       end
 
-      def filter_by which, path, meth
+      def filter_by which, path, block
         pattern = ::Mustermann.new path
         filters[which][pattern] ||= []
-        filters[which][pattern] << meth
+        filters[which][pattern] << block
       end
 
       def before opts = {}, &block
@@ -339,12 +338,12 @@ module Angelo
       end
       fs.each do |f|
         case f
-        when UnboundMethod
-          f.bind(self).call
+        when Proc
+          instance_eval(&f)
         when Array
           @pre_filter_params = params
           @params = @pre_filter_params.merge f[1].params(request.path)
-          f[0].each {|filter| filter.bind(self).call}
+          f[0].each {|filter| instance_eval(&filter)}
           @params = @pre_filter_params
         end
       end
