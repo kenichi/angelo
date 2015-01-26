@@ -82,13 +82,6 @@ module Angelo
         !!@report_errors
       end
 
-      def compile! name, &block
-        define_method name, &block
-        method = instance_method name
-        remove_method name
-        method
-      end
-
       def routes
         @routes ||= Hash.new{|h,k| h[k] = RouteMap.new}
       end
