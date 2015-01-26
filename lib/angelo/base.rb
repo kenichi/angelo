@@ -25,7 +25,7 @@ module Angelo
         # app_file correctly.
         #
         subclass.app_file = caller_locations.map(&:absolute_path).find do |f|
-          f !~ /^#{Regexp.quote(File.dirname(__FILE__) + File::SEPARATOR)}/
+          !f.start_with?(File.dirname(__FILE__) + File::SEPARATOR)
         end
 
         # bring RequestError into this namespace
