@@ -323,21 +323,17 @@ module Angelo
     end
 
     def filter which
-      fs = self.class.filters[which][:default].dup
-      self.class.filters[which].each do |pattern, f|
-        if ::Mustermann === pattern and pattern.match request.path
-          fs << [f, pattern]
-        end
-      end
-      fs.each do |f|
-        case f
-        when Proc
-          instance_eval(&f)
-        when Array
-          @pre_filter_params = params
-          @params = @pre_filter_params.merge f[1].params(request.path)
-          f[0].each {|filter| instance_eval(&filter)}
-          @params = @pre_filter_params
+      self.class.filters[which].each do |pattern, filters|
+        case pattern
+        when :default
+          filters.each {|filter| instance_eval &filter}
+        when ::Mustermann
+          if pattern.match request.path
+            @pre_filter_params = params
+            @params = @pre_filter_params.merge pattern.params(request.path)
+            filters.each {|filter| instance_eval &filter}
+            @params = @pre_filter_params
+          end
         end
       end
     end
