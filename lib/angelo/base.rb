@@ -354,11 +354,11 @@ module Angelo
         when :default
           filters.each {|filter| instance_eval &filter}
         when ::Mustermann
-          if pattern.match request.path
-            @pre_filter_params = params
-            @params = @pre_filter_params.merge pattern.params(request.path)
+          if mustermann_params = pattern.params(request.path)
+            pre_filter_params = params
+            @params = pre_filter_params.merge mustermann_params
             filters.each {|filter| instance_eval &filter}
-            @params = @pre_filter_params
+            @params = pre_filter_params
           end
         end
       end
