@@ -248,8 +248,8 @@ module Angelo
         if Symbol === key
           k = key.to_s.upcase
           k.gsub! UNDERSCORE, DASH
-          rhv = request.headers.select {|header_key,v| header_key.upcase == k}
-          hash[key] = rhv.values.first
+          _, value = request.headers.find {|header_key,v| header_key.upcase == k}
+          hash[key] = value
         end
       end
     end
@@ -403,11 +403,8 @@ module Angelo
       end
 
       def [] route
-        responder = nil
-        if mustermann = @hash.keys.select {|k| k.match(route)}.first
-          responder = @hash.fetch mustermann
-          responder.mustermann = mustermann
-        end
+        mustermann, responder = @hash.find {|k,v| k.match(route)}
+        responder.mustermann = mustermann if mustermann
         responder
       end
 
