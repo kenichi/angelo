@@ -5,6 +5,7 @@ changelog
 
 thanks: @tommay, @kyledrake, @katjaeinsfeld
 
+* return anything that respond_to? :to_json when content_type :json
 * remove event restriction to SSE stash contexts
 * add reload_templates! DSL method
 * refactor testing helpers (#35)

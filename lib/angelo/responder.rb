@@ -160,8 +160,13 @@ module Angelo
         @body = EMPTY_STRING
 
       else
-        unless @chunked and @body.respond_to? :each
-          raise RequestError.new "what is this? #{@body}"
+        if respond_with? :json and @body.respond_to? :to_json
+          @body = @body.to_json
+          raise "uhhh? #{@body}" unless String === @body
+        else
+          unless @chunked and @body.respond_to? :each
+            raise RequestError.new "what is this? #{@body}"
+          end
         end
       end
 
