@@ -5,6 +5,7 @@ changelog
 
 thanks: @tommay, @kyledrake, @katjaeinsfeld
 
+* remove 'layouts_' from view_dir/layouts/*
 * return anything that respond_to? :to_json when content_type :json
 * remove event restriction to SSE stash contexts
 * add reload_templates! DSL method
