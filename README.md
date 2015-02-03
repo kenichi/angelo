@@ -18,28 +18,29 @@ A [Sinatra](https://github.com/sinatra/sinatra)-like DSL for [Reel](https://gith
 ### What is Angelo?
 
 Just like Sinatra, Angelo gives you an expressive DSL for creating web applications. There are some
-notable differences, but the basics remain the same. It mostly follows the subclass style of Sinatra:
-you must define a subclass of `Angelo::Base` but also `.run` on that class for the service to start.
+notable differences, but the basics remain the same: you can either create a "classic" application
+by requiring 'angelo/main' and using the DSL at the top level of your script, or a "modular"
+application by requiring 'angelo', subclassing `Angelo::Base`, and calling `.run!` on that class for the
+service to start.
 In addition, and perhaps more importantly, **Angelo is built upon Reel, which is, in turn, built upon
 Celluloid::IO and gives you a reactor with evented IO in Ruby!**
 
-Note: There currently is no "standalone" capability where one can define route handlers at the top level.
+Things will feel very familiar to anyone experienced with Sinatra. You can define
+route handlers denoted by HTTP verb and path with parameters set from path matching (using
+[Mustermann](#mustermann)), the query string, and post body.
+A route bock may return:
 
-Things will feel very familiar to anyone experienced with Sinatra. Inside the subclass, you can define
-route handlers denoted by HTTP verb and path. One acceptable return value from a route block is the body
-of the response in full as a `String`. Another is a `Hash` if the content type is set to `:json`. Finally,
-you may return any object that responds to `#each(&block)` if the transfer encoding is set to `:chunked`.
+* The body of the response in full as a `String`.
+* A `Hash` if the content type is set to `:json`.
+* Any object that responds to `#each(&block)` if the transfer encoding is set to `:chunked`.
 There is also a `chunked_response` helper that will take a block, set the transfer encoding, and return
-an appropriate object for you.
+an appropriate object.
 
-There is also [Mustermann](#mustermann) support for full-on, Sinatra-like path
-matching and params.
-
-Angelo also features `before` and `after` blocks, just like Sinatra. Filters are ordered as defined,
+Angelo also features `before` and `after` filter blocks, just like Sinatra. Filters are ordered as defined,
 and called in that order. When defined without a path, they run for all matched requests. With a path,
-the path must match exactly for the block to be called. If `Angelo::Mustermann` is included, the paths
-are interpreted as a Mustermann pattern and params are merged. For more info on the difference in how
-after blocks are handled, see the Errors section below for more info.
+the path is interpreted as a Mustermann pattern and params are merged. `before` filters can set instance
+variables which can be used in the route block and the `after` filter.
+For more info on the difference in how after blocks are handled, see the Errors section below for more info.
 
 ### Websockets!
 
@@ -52,9 +53,8 @@ for you to build real-time web applications.
 The `websocket` route builder accepts a path and a block, and passes the actual websocket to the block
 as the only argument. This socket is an instance of Reel's
 [WebSocket](https://github.com/celluloid/reel/blob/master/lib/reel/websocket.rb) class, and, as such,
-responds to methods like `on_message` and `on_close`. A service-wide `on_pong` handler (defined at the
-
-a connected websocket client.
+responds to methods like `on_message` and `on_close`. A service-wide `on_pong` handler may be defined
+to customize the behavior when a pong frame comes back from a connected websocket client.
 
 ##### `websockets` helper
 
@@ -96,15 +96,15 @@ end
 Foo.run!
 ```
 
-In this case, any clients that connected to a websocket at the path '/' would be stashed in the
-default websockets array; clients that connected to '/bar' would be stashed into the `:bar` section.
+In this case, any clients that connect to a websocket at the path '/' will be stashed in the
+default websockets array; clients that connect to '/bar' will be stashed in the `:bar` section.
 
-Each "section" can accessed with a familiar, `Hash`-like syntax, and can be iterated over with
+Each "section" is accessed with a familiar, `Hash`-like syntax, and can be iterated over with
 a `.each` block.
 
-When a `POST /` with a 'foo' param is received, any value is messaged out to any '/' connected
+When a `POST /` with a 'foo' param is received, any value is messaged out to all '/' connected
 websockets. When a `POST /bar` with a 'bar' param is received, any value is messaged out to all
-websockets that connected to '/bar'.
+websockets connected to '/bar'.
 
 ### SSE - Server-Sent Events
 
@@ -176,12 +176,12 @@ end
 ##### `sses` helper
 
 Angelo also includes a "stash" helper for SSE connections. One can `<<` a socket into `sses` from
-inside an `eventsource` handler block. These can also be "later" be iterated over so one can do things
+inside an `eventsource` handler block. These can "later" be iterated over so one can do things
 like emit a message on every SSE connection when the service receives a POST request.
 
-The `sses` helper includes the same a context ability as the `websockets` helper. Also, by default,
+The `sses` helper includes the same context ability as the `websockets` helper. Also, by default,
 the helper will `reject!` any closed sockets before returning, just like `websockets`. You may
-optionally pass `false` to the helper to skip this step.In addition, the `sses` stash includes
+optionally pass `false` to the helper to skip this step. In addition, the `sses` stash includes
 methods for easily sending events or messages to all stashed connections. **Note that the
 `Stash::SSE#event` method only works on non-default contexts and uses the context name as the event
 name.**
@@ -227,7 +227,7 @@ do not support EventSource yet, since this will respond with a non-"text/event-s
 
 ##### `EventSource#on_close` helper
 
-When inside an eventsource block, you can use may want to do something specific when a client closes the
+When inside an eventsource block, you may want to do something specific when a client closes the
 connection. For this case, there are `on_close` and `on_close=` methods on the object passed to the block
 that will get called if the client closes the socket. The assignment method takes a proc object and the
 other one takes a block:
@@ -252,13 +252,13 @@ eventsource '/sse' do |es|
 end
 ```
 
-Note the use of the optional parameter the stashes here; by default, stash accessors (`websockets` and
+Note the use of the optional parameter of the stashes here; by default, stash accessors (`websockets` and
 `sses`) will `reject!` any closed sockets before letting you in. If you pass `false` to the stash
 accessors, they will skip the `reject!` step.
 
 ### Tasks + Async / Future
 
-Angelo is built on Reel and Celluloid::IO, giving your web application class the ability to define
+Angelo is built on Reel and Celluloid::IO, giving your web application the ability to define
 "tasks" and call them from route handler blocks in an `async` or `future` style.
 
 ##### `task` builder
@@ -268,7 +268,7 @@ block. The block can take arguments that you can pass later, with `async` or `fu
 
 ```ruby
 # defining a task on the reactor called `:in_sec` which will sleep for
-# given number of seconds, then return the given message.
+# the given number of seconds, then return the given message.
 #
 task :in_sec do |sec, msg|
   sleep sec.to_i
@@ -300,9 +300,9 @@ end
 ##### `future` helper
 
 Just like `async`, this comes from Celluloid as well. It behaves exactly like `async`, with the
-notable exception of returing a "future" object that you can call `#value` on later to retreive
-the return value of the task. Once `#value` is called, things will "block" until the task is
-finished.
+notable exception of returning a "future" object that you can call `#value` on later to retrieve
+the return value of the task. Calling `#value` will "block" until the task is finished, while the
+reactor continues to process requests.
 
 ```ruby
 get '/' do
@@ -324,8 +324,8 @@ Angelo gives you two ordained methods of stopping route processing:
 * raise an instance of `RequestError`
 * `halt` with a status code and message
 
-The main difference is that `halt` will still run an `after` block, and raising `RequestError`
-will bypass the `after` block.
+The main difference is that `halt` will still run `after` blocks, and raising `RequestError`
+will bypass `after` blocks.
 
 Any other exceptions or errors raised by your route handler will be handled with a 500 status
 code and the message will be the body of the response.
@@ -334,7 +334,7 @@ code and the message will be the body of the response.
 
 Raising an instance of `Angelo::RequestError` causes a 400 status code response, and the message
 in the instance is the body of the the response. If the route or class was set to respond with
-JSON, the body is converted to a JSON object with one key, `error`, that has a value of the message.
+JSON, the body is converted to a JSON object with one key, `error`, that has the value of the message.
 If the message is a `Hash`, the hash is converted to a JSON object, or to a string for other content
 types.
 
@@ -468,6 +468,61 @@ class Foo < Angelo::Base
   end
 
 end
+```
+
+### Classic vs. modular apps
+
+Like Sinatra, Angelo apps can be written in either "classic" style or
+so-called "modular" style.  Which style you use is more of a personal
+preference than anything else.
+
+A classic-style app requires "angelo/main" and defines the app
+directly at the top level using the DSL.  In addition, classic apps:
+
+* Can use a `helpers` block to define methods that can be called from
+filters and route handlers. The `helpers` method can also include methods
+from one or more modules passed as arguments instead of or in addition
+to taking a block.
+* Parse optional command-line options "-o addr" and "-p port" to set
+the bind address and listen port, respectively.
+* Are run automatically.
+
+*Note: unlike Sinatra, define a classic app by requiring "angelo/main"
+and a modular app by requiring "angelo".  Sinatra uses "sinatra" and
+"sinatra/base" to do the same things.*
+
+Here's a classic app:
+
+```ruby
+require 'angelo/main'
+
+helpers do
+  def say_hello
+    "Hello"
+  end
+end
+
+get "/hello" do
+  "#{say_hello} to you to."
+end
+```
+
+And the same app in modular style:
+
+```ruby
+require 'angelo'
+
+class HelloApp < Angelo::Base
+  def say_hello
+    "Hello"
+  end
+
+  get "/hello" do
+    "#{say_hello} to you to."
+  end
+end
+
+HelloApp.run!
 ```
 
 ### Documentation
