@@ -30,6 +30,7 @@ module Angelo
             return h if (block_given? && yield(v))
             sym.gsub! File::SEPARATOR, UNDERSCORE
             sym.gsub! /\.\w+?\.erb$/, EMPTY_STRING
+            sym.gsub! /^#{LAYOUTS_DIR}#{UNDERSCORE}/, EMPTY_STRING
             h[sym.to_sym] = ::Tilt::ERBTemplate.new v
             h
           end
