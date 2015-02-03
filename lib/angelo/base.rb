@@ -18,9 +18,15 @@ module Angelo
 
       def inherited subclass
 
-        # set app_file from caller stack
+        # Set app_file by groveling up the caller stack until we find
+        # the first caller from a directory different from __FILE__.
+        # This allows base.rb to be required from an arbitrarily deep
+        # nesting of require "angelo/<whatever>" and still set
+        # app_file correctly.
         #
-        subclass.app_file = caller(1).map {|l| l.split(/:(?=|in )/, 3)[0,1]}.flatten[0]
+        subclass.app_file = caller_locations.map(&:absolute_path).find do |f|
+          !f.start_with?(File.dirname(__FILE__) + File::SEPARATOR)
+        end
 
         # bring RequestError into this namespace
         #
@@ -32,6 +38,12 @@ module Angelo
         subclass.ping_time DEFAULT_PING_TIME
         subclass.log_level DEFAULT_LOG_LEVEL
 
+        # Parse command line options if angelo/main has been required.
+        # They could also be parsed in run, but this makes them
+        # available to and overridable by the DSL.
+        #
+        subclass.parse_options(ARGV.dup) if @angelo_main
+
         class << subclass
 
           def root
@@ -41,7 +53,12 @@ module Angelo
         end
 
       end
+    end
 
+    # Methods defined in module DSL will be available in the DSL both
+    # in Angelo::Base subclasses and in the top level DSL.
+
+    module DSL
       def addr a = nil
         @addr = a if a
         @addr
@@ -78,6 +95,47 @@ module Angelo
         @report_errors = true
       end
 
+      HTTPABLE.each do |m|
+        define_method m do |path, opts = {}, &block|
+          path = ::Mustermann.new path, opts
+          routes[m][path] = Responder.new &block
+        end
+      end
+
+      def websocket path, &block
+        path = ::Mustermann.new path
+        routes[:websocket][path] = Responder::Websocket.new &block
+      end
+
+      def eventsource path, headers = nil, &block
+        path = ::Mustermann.new path
+        routes[:get][path] = Responder::Eventsource.new headers, &block
+      end
+
+      def task name, &block
+        Angelo::Server.define_task name, &block
+      end
+
+      def before opts = {}, &block
+        filter :before, opts, &block
+      end
+
+      def after opts = {}, &block
+        filter :after, opts, &block
+      end
+
+      def on_pong &block
+        Responder::Websocket.on_pong = block
+      end
+
+    end
+
+    # Make the DSL methods available to subclass-level code.
+    # main.rb makes them available to the top level.
+
+    extend DSL
+
+    class << self
       def report_errors?
         !!@report_errors
       end
@@ -115,39 +173,6 @@ module Angelo
         pattern = ::Mustermann.new path
         filters[which][pattern] ||= []
         filters[which][pattern] << meth
-      end
-
-      def before opts = {}, &block
-        filter :before, opts, &block
-      end
-
-      def after opts = {}, &block
-        filter :after, opts, &block
-      end
-
-      HTTPABLE.each do |m|
-        define_method m do |path, opts = {}, &block|
-          path = ::Mustermann.new path, opts
-          routes[m][path] = Responder.new &block
-        end
-      end
-
-      def websocket path, &block
-        path = ::Mustermann.new path
-        routes[:websocket][path] = Responder::Websocket.new &block
-      end
-
-      def eventsource path, headers = nil, &block
-        path = ::Mustermann.new path
-        routes[:get][path] = Responder::Eventsource.new headers, &block
-      end
-
-      def on_pong &block
-        Responder::Websocket.on_pong = block
-      end
-
-      def task name, &block
-        Angelo::Server.define_task name, &block
       end
 
       def websockets reject = true
@@ -347,6 +372,34 @@ module Angelo
           f[0].each {|filter| filter.bind(self).call}
           @params = @pre_filter_params
         end
+      end
+    end
+
+    # It seems more sensible to put this in main.rb since it's used
+    # only if angelo/main is required, but it's here so it can be
+    # tested, since requiring angelo/main doesn't play well with the
+    # test code.
+
+    def self.parse_options(argv)
+      require "optparse"
+
+      optparse = OptionParser.new do |op|
+        op.banner = "Usage: #{$0} [options]"
+
+        op.on('-p port', OptionParser::DecimalInteger, "set the port (default is #{port})") {|val| port val}
+        op.on('-o addr', "set the host (default is #{addr})") {|val| addr val}
+        op.on('-h', '--help', "Show this help") do
+          puts op
+          exit
+        end
+      end
+
+      begin
+        optparse.parse(argv)
+      rescue OptionParser::ParseError => ex
+        $stderr.puts ex
+        $stderr.puts optparse
+        exit 1
       end
     end
 
