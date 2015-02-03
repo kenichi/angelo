@@ -115,6 +115,19 @@ module Angelo
       def task name, &block
         Angelo::Server.define_task name, &block
       end
+
+      def before opts = {}, &block
+        filter :before, opts, &block
+      end
+
+      def after opts = {}, &block
+        filter :after, opts, &block
+      end
+
+      def on_pong &block
+        Responder::Websocket.on_pong = block
+      end
+
     end
 
     # Make the DSL methods available to subclass-level code.
@@ -160,18 +173,6 @@ module Angelo
         pattern = ::Mustermann.new path
         filters[which][pattern] ||= []
         filters[which][pattern] << meth
-      end
-
-      def before opts = {}, &block
-        filter :before, opts, &block
-      end
-
-      def after opts = {}, &block
-        filter :after, opts, &block
-      end
-
-      def on_pong &block
-        Responder::Websocket.on_pong = block
       end
 
       def websockets reject = true
