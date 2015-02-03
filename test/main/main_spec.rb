@@ -41,7 +41,7 @@ class MainSpec < Minitest::Spec
   # have to jump through to do that.  Define this on the class because
   # we're going to need it in a bit to check that the server is alive.
 
-  class << self; self; end.class_eval do
+  self.singleton_class.class_eval do
     define_method :client_get do |url|
       client.get("http://#{address}:#{port}#{url}").body
     end
