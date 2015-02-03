@@ -11,7 +11,7 @@ class MainSpec < Minitest::Spec
   # Info for starting the server.
 
   app_file = File.expand_path("../app.rb", __FILE__)
-  address = "127.14.4.10"
+  address = "127.0.0.1"
   port = 14410
 
   server_command = "#{RbConfig.ruby} #{app_file} -o #{address} -p #{port}"
