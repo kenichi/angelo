@@ -140,13 +140,6 @@ module Angelo
         !!@report_errors
       end
 
-      def compile! name, &block
-        define_method name, &block
-        method = instance_method name
-        remove_method name
-        method
-      end
-
       def routes
         @routes ||= Hash.new{|h,k| h[k] = RouteMap.new}
       end
@@ -156,23 +149,22 @@ module Angelo
       end
 
       def filter which, opts = {}, &block
-        f = compile! :filter, &block
         case opts
         when String
-          filter_by which, opts, f
+          filter_by which, opts, block
         when Hash
           if opts[:path]
-            filter_by which, opts[:path], f
+            filter_by which, opts[:path], block
           else
-            filters[which][:default] << f
+            filters[which][:default] << block
           end
         end
       end
 
-      def filter_by which, path, meth
+      def filter_by which, path, block
         pattern = ::Mustermann.new path
         filters[which][pattern] ||= []
-        filters[which][pattern] << meth
+        filters[which][pattern] << block
       end
 
       def websockets reject = true
@@ -356,21 +348,17 @@ module Angelo
     end
 
     def filter which
-      fs = self.class.filters[which][:default].dup
-      self.class.filters[which].each do |pattern, f|
-        if ::Mustermann === pattern and pattern.match request.path
-          fs << [f, pattern]
-        end
-      end
-      fs.each do |f|
-        case f
-        when UnboundMethod
-          f.bind(self).call
-        when Array
-          @pre_filter_params = params
-          @params = @pre_filter_params.merge f[1].params(request.path)
-          f[0].each {|filter| filter.bind(self).call}
-          @params = @pre_filter_params
+      self.class.filters[which].each do |pattern, filters|
+        case pattern
+        when :default
+          filters.each {|filter| instance_eval &filter}
+        when ::Mustermann
+          if pattern.match request.path
+            @pre_filter_params = params
+            @params = @pre_filter_params.merge pattern.params(request.path)
+            filters.each {|filter| instance_eval &filter}
+            @params = @pre_filter_params
+          end
         end
       end
     end

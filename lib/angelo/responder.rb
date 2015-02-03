@@ -31,7 +31,7 @@ module Angelo
     attr_writer :base
 
     def initialize &block
-      @response_handler = Base.compile! :request_handler, &block
+      @response_handler = block
     end
 
     def reset!
@@ -44,7 +44,7 @@ module Angelo
     def handle_request
       if @response_handler
         @base.filter :before
-        @body = catch(:halt) { @response_handler.bind(@base).call || EMPTY_STRING }
+        @body = catch(:halt) { @base.instance_exec(&@response_handler) || EMPTY_STRING }
 
         # TODO any real reason not to run afters with SSE?
         case @body
