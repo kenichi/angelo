@@ -503,7 +503,7 @@ helpers do
 end
 
 get "/hello" do
-  "#{say_hello} to you to."
+  "#{say_hello} to you, too."
 end
 ```
 
@@ -518,7 +518,7 @@ class HelloApp < Angelo::Base
   end
 
   get "/hello" do
-    "#{say_hello} to you to."
+    "#{say_hello} to you, too."
   end
 end
 
