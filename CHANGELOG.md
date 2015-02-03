@@ -5,6 +5,8 @@ changelog
 
 thanks: @tommay, @kyledrake, @katjaeinsfeld
 
+* refactor UnboundMethod -> instance_exec (#38)
+* add angelo/main for sinatra-like top-level DSL (#37)
 * make SymHash.new recurse array values
 * remove 'layouts_' from view_dir/layouts/*
 * return anything that respond_to? :to_json when content_type :json
