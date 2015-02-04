@@ -31,7 +31,7 @@ route handlers denoted by HTTP verb and path with parameters set from path match
 A route bock may return:
 
 * The body of the response in full as a `String`.
-* A `Hash` if the content type is set to `:json`.
+* A `Hash` (or anything that `respond_to? :to_json`) if the content type is set to `:json`.
 * Any object that responds to `#each(&block)` if the transfer encoding is set to `:chunked`.
 There is also a `chunked_response` helper that will take a block, set the transfer encoding, and return
 an appropriate object.
