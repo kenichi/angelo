@@ -28,7 +28,7 @@ Celluloid::IO and gives you a reactor with evented IO in Ruby!**
 Things will feel very familiar to anyone experienced with Sinatra. You can define
 route handlers denoted by HTTP verb and path with parameters set from path matching (using
 [Mustermann](#mustermann)), the query string, and post body.
-A route bock may return:
+A route block may return:
 
 * The body of the response in full as a `String`.
 * A `Hash` (or anything that `respond_to? :to_json`) if the content type is set to `:json`.
