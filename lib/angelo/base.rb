@@ -4,6 +4,7 @@ module Angelo
     extend Forwardable
     include ParamsParser
     include Celluloid::Logger
+    include Templates
     include Tilt::ERB
     include Mustermann
 

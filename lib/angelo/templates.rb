@@ -15,10 +15,19 @@ module Angelo
     # directory, with an extension that Tilt maps to the
     # template_type.
 
-    [:haml, :markdown, :erb].each do |template_type|
+    # Angelo::Tilt::ERB includes an erb method built on top of _erb
+    # (below) which provides slightly differnet semantics.  For
+    # compatibilty, we don't overwrite that method here and instead
+    # define _erb.  At least for now.
+
+    [:haml, :markdown].each do |template_type|
       define_method(template_type) do |view, opts = {}|
         render(template_type, view, opts)
       end
+    end
+
+    def _erb(view, opts = {})
+      render(:erb, view, opts)
     end
 
     private
