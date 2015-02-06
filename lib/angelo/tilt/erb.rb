@@ -23,9 +23,9 @@ module Angelo
           when false
             false
           when Symbol
-            layout = :"#{LAYOUTS_DIR}/#{layout}"
+            :"#{LAYOUTS_DIR}/#{layout}"
           else
-            layout = :"#{DEFAULT_LAYOUT % type}"
+            :"#{DEFAULT_LAYOUT % type}"
           end
 
         _erb view, layout: layout, locals: opts[:locals]
