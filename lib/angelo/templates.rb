@@ -40,15 +40,14 @@ module Angelo
       layout_engine = opts.delete(:layout_engine) || template_type
       layout = 
         if opts.has_key?(:layout)
-          opts.delete(:layout).tap do |layout|
-            case layout
-            when true
-              :layout
-            when nil
-              false
-            else
-              layout
-            end
+          layout = opts.delete(:layout)
+          case layout
+          when true
+            :layout
+          when nil
+            false
+          else
+            layout
           end
         else
           # Use the default layout.
