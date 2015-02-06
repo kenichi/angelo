@@ -76,32 +76,49 @@ module Angelo
     end
 
     module TemplateCaching
-      # Create a template cache that all subclasses of Angelo::Base
-      # will share.  reload_templates is per-subclass.
+      # A Cache which, unlike Tilt::Cache, will cache nil so when a
+      # template isn't found we'll remmeber that and won't try/fail to
+      # load it again.  This happens most commonly when there is no
+      # default layout file.
 
-      @@template_cache = Tilt::Cache.new
+      class Cache
+        def initialize
+          @cache = {}
+        end
+
+        def fetch(*key)
+          @cache.fetch(key) do
+            @cache[key] = yield
+          end
+        end
+      end
+
+      # Create a template cache that all subclasses of Angelo::Base
+      # will share.  And a non_cache object that will stand in for the cache
+      # when reloading templates, which is set per-class.
+
+      @@template_cache = Cache.new
+      @@non_cache = Object.new.tap do |o|
+        def o.fetch(*args)
+          yield
+        end
+      end
 
       def reload_templates!(on = true)
         @reload_templates = on
       end
 
-      def reload_templates?
-        @reload_templates
-      end
-
       def get_template(*args)
-        if reload_templates?
+        template_cache.fetch(*args) do
           instantiate_template(*args)
-        else
-          # Use :not_found as a cachable marker that the file isn't found.
-          template = @@template_cache.fetch(*args) do
-            instantiate_template(*args) || :not_found
-          end
-          template == :not_found ? nil : template
         end
       end
 
       private
+
+      def template_cache
+        @reload_templates ? @@non_cache : @@template_cache
+      end
 
       def instantiate_template(template_type, view, views_dir, opts)
         case view
