@@ -23,7 +23,7 @@ module Angelo
           when false
             false
           when Symbol
-            :"#{LAYOUTS_DIR}/#{layout}"
+            :"#{LAYOUTS_DIR}/#{layout}.#{type}"
           else
             :"#{DEFAULT_LAYOUT % type}"
           end
