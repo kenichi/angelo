@@ -128,6 +128,10 @@ module Angelo
         Responder::Websocket.on_pong = block
       end
 
+      def content_type type
+        Responder.content_type type
+      end
+
     end
 
     # Make the DSL methods available to subclass-level code.
@@ -177,10 +181,6 @@ module Angelo
         @sses ||= Stash::SSE.new server
         @sses.reject! &:closed? if reject
         @sses
-      end
-
-      def content_type type
-        Responder.content_type type
       end
 
       def run! _addr = addr, _port = port, options = {}
