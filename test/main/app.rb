@@ -20,6 +20,8 @@ helpers do
   end
 end
 
+content_type :html
+
 get "/app_file" do
   self.class.app_file
 end

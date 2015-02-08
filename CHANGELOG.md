@@ -1,6 +1,12 @@
 changelog
 =========
 
+### 0.4.1
+
+thanks: @tommay
+
+* Base.content_type -> DSL#content_type (for top-level apps)
+
 ### 0.4.0 5 feb 2015
 
 thanks: @tommay, @kyledrake, @katjaeinsfeld
