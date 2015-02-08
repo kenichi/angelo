@@ -672,4 +672,4 @@ YES, HAVE SOME
 
 ### License
 
-see LICENSE
+[Apache 2.0](LICENSE)
