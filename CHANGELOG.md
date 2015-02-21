@@ -1,7 +1,14 @@
 changelog
 =========
 
-### 0.4.1
+### 0.5.0
+
+thanks: @tommay
+
+* add Angelo::Templates as a better interface to Tilt
+    * haml / markdown support
+
+### 0.4.1 8 feb 2015
 
 thanks: @tommay
 
