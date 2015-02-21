@@ -665,10 +665,7 @@ Foo.run!
 
 ### Contributing
 
-YES, HAVE SOME
-
-* :fork_and_knife: Fork this repo, make changes, send PR!
-* :shipit: if Good stuff?
+YES, HAVE SOME - Fork this repo, make changes, send PR!
 
 ### License
 
