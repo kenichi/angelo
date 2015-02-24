@@ -150,7 +150,10 @@ module Angelo
       end
 
       def filters
-        @filters ||= {before: {default: []}, after: {default: []}}
+        @filters ||= {
+          before: Hash.new{|h,k| h[k] = []},
+          after: Hash.new{|h,k| h[k] = []},
+        }
       end
 
       def filter which, opts = {}, &block
@@ -168,7 +171,6 @@ module Angelo
 
       def filter_by which, path, block
         pattern = ::Mustermann.new path
-        filters[which][pattern] ||= []
         filters[which][pattern] << block
       end
 
