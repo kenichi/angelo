@@ -81,16 +81,15 @@ module Angelo
 
   def self.log connection, request, socket, status, body_size = '-'
 
-    remote_ip = ->{
-      if socket.nil?
-        connection.remote_ip rescue 'unknown'
-      else
+    remote_ip =
+      if socket
         socket.peeraddr(false)[3]
+      else
+        connection.remote_ip rescue 'unknown'
       end
-    }
 
     Celluloid::Logger.__send__ Angelo.response_log_level, LOG_FORMAT % [
-      remote_ip[],
+      remote_ip,
       request.method,
       request.url,
       request.version,
