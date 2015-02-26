@@ -81,6 +81,11 @@ module Angelo
       # load it again.  This happens most commonly when there is no
       # default layout file.
 
+      # A pull request has been accepted for Tilt which makes
+      # Tilt::Cache work like our Cache so we can remove this when a
+      # new Tilt gem is released (currently 2.0.1), but Tilt doesn't
+      # seem to be getting much love these days.
+
       class Cache
         def initialize
           @cache = {}
