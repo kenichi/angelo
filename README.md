@@ -12,7 +12,7 @@ A [Sinatra](https://github.com/sinatra/sinatra)-like DSL for [Reel](https://gith
 * contextual websocket/sse stashing via `websockets` and `sses` helpers
 * `task` handling via `async` and `future` helpers
 * no rack
-* tilt/erb support
+* erb, haml, and markdown support
 * mustermann support
 
 ### What is Angelo?
