@@ -17,6 +17,10 @@ module Angelo
 
       attr_accessor :app_file, :server
 
+      def root
+        @root ||= File.expand_path '..', app_file
+      end
+
       def inherited subclass
 
         # Set app_file by groveling up the caller stack until we find
@@ -44,14 +48,6 @@ module Angelo
         # available to and overridable by the DSL.
         #
         subclass.parse_options(ARGV.dup) if @angelo_main
-
-        class << subclass
-
-          def root
-            @root ||= File.expand_path '..', app_file
-          end
-
-        end
 
       end
     end
