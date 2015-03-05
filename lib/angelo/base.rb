@@ -25,6 +25,11 @@ module Angelo
         @addr
       end
 
+      def port p = nil
+        @port = p if p
+        @port
+      end
+
       def log_level ll = nil
         @log_level = ll if ll
         @log_level
@@ -35,14 +40,8 @@ module Angelo
         @ping_time
       end
 
-      def port p = nil
-        @port = p if p
-        @port
-      end
-
       def views_dir d = nil
         @views_dir = d if d
-        @views_dir ||= DEFAULT_VIEWS_DIR
         File.join root, @views_dir
       end
 
@@ -52,7 +51,6 @@ module Angelo
 
       def public_dir d = nil
         @public_dir = d if d
-        @public_dir ||= DEFAULT_PUBLIC_DIR
         File.join root, @public_dir
       end
 
@@ -124,6 +122,9 @@ module Angelo
 
         subclass.ping_time DEFAULT_PING_TIME
         subclass.log_level DEFAULT_LOG_LEVEL
+
+        subclass.views_dir DEFAULT_VIEWS_DIR
+        subclass.public_dir DEFAULT_PUBLIC_DIR
 
         # Parse command line options if angelo/main has been required.
         # They could also be parsed in run, but this makes them
