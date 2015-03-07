@@ -9,6 +9,7 @@ thanks: @tommay, @gunnarmarten
     * haml / markdown support
 * JSON array post body support (#48)
 * add `request_body` helper for access to JSON array post bodies or `request.body.to_s`
+* move `reload_templates!` to `Angelo::Base::DSL`
 
 ### 0.4.1 8 feb 2015
 

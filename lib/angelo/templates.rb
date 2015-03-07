@@ -109,10 +109,6 @@ module Angelo
         end
       end
 
-      def reload_templates!(on = true)
-        @reload_templates = on
-      end
-
       def get_template(*args)
         template_cache.fetch(*args) do
           instantiate_template(*args)

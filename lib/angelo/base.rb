@@ -46,6 +46,10 @@ module Angelo
         File.join root, @views_dir
       end
 
+      def reload_templates!(on = true)
+        @reload_templates = on
+      end
+
       def public_dir d = nil
         @public_dir = d if d
         @public_dir ||= DEFAULT_PUBLIC_DIR
