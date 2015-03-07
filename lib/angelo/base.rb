@@ -14,47 +14,10 @@ module Angelo
     attr_accessor :responder
     attr_writer :request_body
 
-    class << self
-
-      attr_accessor :app_file, :server
-
-      def root
-        @root ||= File.expand_path '..', app_file
-      end
-
-      def inherited subclass
-
-        # Set app_file by groveling up the caller stack until we find
-        # the first caller from a directory different from __FILE__.
-        # This allows base.rb to be required from an arbitrarily deep
-        # nesting of require "angelo/<whatever>" and still set
-        # app_file correctly.
-        #
-        subclass.app_file = caller_locations.map(&:absolute_path).find do |f|
-          !f.start_with?(File.dirname(__FILE__) + File::SEPARATOR)
-        end
-
-        # bring RequestError into this namespace
-        #
-        subclass.class_eval 'class RequestError < Angelo::RequestError; end'
-
-        subclass.addr DEFAULT_ADDR
-        subclass.port DEFAULT_PORT
-
-        subclass.ping_time DEFAULT_PING_TIME
-        subclass.log_level DEFAULT_LOG_LEVEL
-
-        # Parse command line options if angelo/main has been required.
-        # They could also be parsed in run, but this makes them
-        # available to and overridable by the DSL.
-        #
-        subclass.parse_options(ARGV.dup) if @angelo_main
-
-      end
-    end
-
     # Methods defined in module DSL will be available in the DSL both
-    # in Angelo::Base subclasses and in the top level DSL.
+    # in Angelo::Base subclasses as class methods and, if angelo/main
+    # is required, in the top level DSL by forwarding to an anonymous
+    # Angelo::Base subclass.
 
     module DSL
       def addr a = nil
@@ -129,15 +92,47 @@ module Angelo
       def content_type type
         Responder.content_type type
       end
-
     end
 
-    # Make the DSL methods available to subclass-level code.
-    # main.rb makes them available to the top level.
-
-    extend DSL
-
     class << self
+      include DSL
+
+      attr_accessor :app_file, :server
+
+      def root
+        @root ||= File.expand_path '..', app_file
+      end
+
+      def inherited subclass
+
+        # Set app_file by groveling up the caller stack until we find
+        # the first caller from a directory different from __FILE__.
+        # This allows base.rb to be required from an arbitrarily deep
+        # nesting of require "angelo/<whatever>" and still set
+        # app_file correctly.
+        #
+        subclass.app_file = caller_locations.map(&:absolute_path).find do |f|
+          !f.start_with?(File.dirname(__FILE__) + File::SEPARATOR)
+        end
+
+        # bring RequestError into this namespace
+        #
+        subclass.class_eval 'class RequestError < Angelo::RequestError; end'
+
+        subclass.addr DEFAULT_ADDR
+        subclass.port DEFAULT_PORT
+
+        subclass.ping_time DEFAULT_PING_TIME
+        subclass.log_level DEFAULT_LOG_LEVEL
+
+        # Parse command line options if angelo/main has been required.
+        # They could also be parsed in run, but this makes them
+        # available to and overridable by the DSL.
+        #
+        subclass.parse_options(ARGV.dup) if @angelo_main
+
+      end
+
       def report_errors?
         !!@report_errors
       end
