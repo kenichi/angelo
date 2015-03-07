@@ -318,6 +318,11 @@ describe Angelo::Base do
         end
       end
 
+      post '/json_array' do
+        content_type :json
+        {params: params, body: request_body}
+      end
+
     end
 
     it 'parses formencoded body when content-type is formencoded' do
@@ -347,6 +352,14 @@ describe Angelo::Base do
         send m, '/json?foo'
         last_response_must_be_json('foo' => nil)
       end
+    end
+
+    it 'parses JSON array bodies but does not merge into params' do
+      post '/json_array?foo=bar', [123,234].to_json, {'Content-Type' => Angelo::JSON_TYPE}
+      last_response_must_be_json({
+        "params" => {"foo" => "bar"},
+        "body" => [123,234]
+      })
     end
 
   end

@@ -21,19 +21,28 @@ module Angelo
     end
 
     def parse_post_body
-      body = request.body.to_s
+      body = request_body rescue request.body.to_s
       case
       when form_encoded?
         parse_formencoded body
       when json? && !body.empty?
-        SymHash.new JSON.parse body
+        parsed_body = JSON.parse body
+        parsed_body = SymHash.new parsed_body if Hash === parsed_body
+        parsed_body
       else
         {}
       end
     end
 
     def parse_query_string_and_post_body
-      parse_query_string.merge! parse_post_body
+      parsed_body = parse_post_body
+      case parsed_body
+      when Hash
+        parse_query_string.merge! parse_post_body
+      when Array
+        self.request_body = parsed_body
+        parse_query_string
+      end
     end
 
     def form_encoded?
