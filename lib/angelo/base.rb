@@ -99,10 +99,6 @@ module Angelo
 
       attr_accessor :app_file, :server
 
-      def root
-        @root ||= File.expand_path '..', app_file
-      end
-
       def inherited subclass
 
         # Set app_file by groveling up the caller stack until we find
@@ -131,6 +127,10 @@ module Angelo
         #
         subclass.parse_options(ARGV.dup) if @angelo_main
 
+      end
+
+      def root
+        @root ||= File.expand_path '..', app_file
       end
 
       def report_errors?
