@@ -3,10 +3,12 @@ changelog
 
 ### 0.5.0
 
-thanks: @tommay
+thanks: @tommay, @gunnarmarten
 
 * add Angelo::Templates as a better interface to Tilt
     * haml / markdown support
+* JSON array post body support (#48)
+* add `request_body` helper for access to JSON array post bodies or `request.body.to_s`
 
 ### 0.4.1 8 feb 2015
 
