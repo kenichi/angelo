@@ -525,6 +525,21 @@ end
 HelloApp.run!
 ```
 
+### JSON HTTP API
+
+If you post JSON data with a JSON Content-Type, angelo will:
+
+* merge objects into the `params` SymHash
+* parse arrays and make them available via `request_body`
+
+N.B. `request_body` is functionally equivalent to `request.body.to_s` otherwise.
+
+If your `content_type` is set to `:json`, angelo will convert:
+
+* anything returned from a route block that `respond_to? :to_json`
+* `RequestError` message data
+* `halt` data
+
 ### Documentation
 
 **I'm bad at documentation and I feel bad.**

@@ -69,7 +69,7 @@ describe Angelo::Responder::Websocket do
     it 'responds on multiple websockets properly' do
       latch = CountDownLatch.new CONCURRENCY * 500
 
-      Reactor.testers[:wshs] = Array.new(CONCURRENCY).map do
+      Reactor.testers[:wshs] = Array.new CONCURRENCY do
         wsh = websocket_helper '/'
         wsh.on_message = ->(e) {
           assert_match /hi there \d/, e.data
@@ -286,7 +286,7 @@ describe Angelo::Responder::Websocket do
 
       latch = CountDownLatch.new CONCURRENCY
 
-      Reactor.testers[:hmc] = Array.new(CONCURRENCY).map do
+      Reactor.testers[:hmc] = Array.new CONCURRENCY do
         wsh = websocket_helper '/'
         wsh.on_message = ->(e) {
           wait_for_block[e]
@@ -298,7 +298,7 @@ describe Angelo::Responder::Websocket do
 
       one_latch = CountDownLatch.new CONCURRENCY
 
-      Reactor.testers[:hmc_one] = Array.new(CONCURRENCY).map do
+      Reactor.testers[:hmc_one] = Array.new CONCURRENCY do
         wsh = websocket_helper '/one'
         wsh.on_message = ->(e) {
           wait_for_block[e]
@@ -310,7 +310,7 @@ describe Angelo::Responder::Websocket do
 
       other_latch = CountDownLatch.new CONCURRENCY
 
-      Reactor.testers[:hmc_other] = Array.new(CONCURRENCY).map do
+      Reactor.testers[:hmc_other] = Array.new CONCURRENCY do
         wsh = websocket_helper '/other'
         wsh.on_message = ->(e) {
           wait_for_block[e]

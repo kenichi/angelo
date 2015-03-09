@@ -12,6 +12,7 @@ module Angelo
     def_delegators :@klass, :public_dir, :report_errors?, :sse_event, :sse_message, :sses, :websockets
 
     attr_accessor :responder
+    attr_writer :request_body
 
     class << self
 
@@ -250,6 +251,10 @@ module Angelo
           hash[key] = value
         end
       end
+    end
+
+    def request_body
+      @request_body ||= request.body.to_s
     end
 
     task :handle_websocket do |ws|
