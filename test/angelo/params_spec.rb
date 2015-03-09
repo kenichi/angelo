@@ -74,6 +74,13 @@ describe Angelo::ParamsParser do
     ->{ parser.parse_post_body }.must_be_silent
   end
 
+  it 'raises properly on malformed JSON' do
+    parser.form_encoded = false
+    parser.json = true
+    parser.body = "{F(34nfnlv,-935;:fho2fhlj}}}function(){console.log('hi');}"
+    ->{ parser.parse_post_body }.must_raise JSON::ParserError
+  end
+
   it 'parses JSON array POST bodies' do
     parser.form_encoded = false
     parser.json = true

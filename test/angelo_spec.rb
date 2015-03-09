@@ -362,6 +362,11 @@ describe Angelo::Base do
       })
     end
 
+    it 'does not die on malformed JSON' do
+      post '/json_array?foo=bar', '{]sdfj2if08yth4j]j,:jsd;f; function()', {'Content-Type' => Angelo::JSON_TYPE}
+      last_response.status.must_equal 400
+    end
+
   end
 
   describe 'request_headers helper' do
