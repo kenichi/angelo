@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'reel', github: 'd-snp/reel', branch: 'master'
+gem 'reel', github: 'celluloid/reel', branch: 'master'
 gem 'tilt', '~>2.0'
 gem 'mime-types', '~>2.4'
 gem 'websocket-driver', '~>0.5'
