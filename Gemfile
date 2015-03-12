@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
 
-gem 'reel', '~>0.5'
+gem 'reel', github: 'celluloid/reel', branch: 'master'
 gem 'tilt', '~>2.0'
 gem 'mime-types', '~>2.4'
-gem 'websocket-driver', '~>0.3'
+gem 'websocket-driver', '~>0.5'
 gem 'mustermann', '~>0.4'
 
 group :development do

@@ -50,8 +50,7 @@ class CountDownLatch
 end
 
 $reactor = Reactor.new
-
-$pool = ActorPool.pool size: CONCURRENCY
+$pool = Array.new(CONCURRENCY){|n| Actor.new}
 
 def obj
   {'foo' => 'bar', 'bar' => 123.4567890123456, 'bat' => true}

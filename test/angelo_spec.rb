@@ -58,29 +58,29 @@ describe Angelo::Base do
       get_end = nil
       latch = CountDownLatch.new 2
 
-      ActorPool.define_action :do_wait do
+      Actor.define_action :do_wait do
         get '/wait'
         wait_end = Time.now
         latch.count_down
       end
 
-      ActorPool.define_action :do_get do
+      Actor.define_action :do_get do
         sleep 1
         get '/'
         get_end = Time.now
         latch.count_down
       end
 
-      ActorPool.unstop!
-      $pool.async :do_wait
-      $pool.async :do_get
+      Actor.unstop!
+      $pool[0].async :do_wait
+      $pool[1].async :do_get
 
       latch.wait
       get_end.must_be :<, wait_end
 
-      ActorPool.stop!
-      ActorPool.remove_action :do_wait
-      ActorPool.remove_action :do_get
+      Actor.stop!
+      Actor.remove_action :do_wait
+      Actor.remove_action :do_get
     end
 
     it 'does not crash when receiving unknown http request type' do

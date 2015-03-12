@@ -14,10 +14,10 @@ describe Angelo::Responder::Websocket do
     end
     action = (key.to_s + '_go').to_sym
     Reactor.define_action action do |n|
-      every(0.01){ terminate if Reactor.stop? }
       Reactor.testers[key][n].go
     end
     Reactor.unstop!
+    $reactor.async.wait_for_stop
     CONCURRENCY.times {|n| $reactor.async.__send__(action, n)}
 
     sleep 0.01 * CONCURRENCY
@@ -51,10 +51,10 @@ describe Angelo::Responder::Websocket do
         wsh.init
         Reactor.testers[:tester] = wsh
         Reactor.define_action :go do
-          every(0.01){ terminate if Reactor.stop? }
           Reactor.testers[:tester].go
         end
         Reactor.unstop!
+        $reactor.async.wait_for_stop
         $reactor.async.go
 
         500.times {|n| wsh.text "hi there #{n}"}
@@ -80,18 +80,18 @@ describe Angelo::Responder::Websocket do
       end
 
       Reactor.define_action :go do |n|
-        every(0.01){ terminate if Reactor.stop? }
         Reactor.testers[:wshs][n].go
       end
       Reactor.unstop!
+      $reactor.async.wait_for_stop
       CONCURRENCY.times {|n| $reactor.async.go n}
 
       sleep 0.01 * CONCURRENCY
 
-      ActorPool.define_action :go do |n|
+      Actor.define_action :go do |n|
         500.times {|x| Reactor.testers[:wshs][n].text "hi there #{x}"}
       end
-      CONCURRENCY.times {|n| $pool.async.go n}
+      CONCURRENCY.times {|n| $pool[n].async.go n}
       latch.wait
 
       Reactor.testers[:wshs].map &:close
@@ -99,7 +99,7 @@ describe Angelo::Responder::Websocket do
       Reactor.testers.delete :wshs
       Reactor.remove_action :go
 
-      ActorPool.remove_action :go
+      Actor.remove_action :go
     end
 
   end
@@ -127,10 +127,10 @@ describe Angelo::Responder::Websocket do
         wsh.init
         Reactor.testers[:tester] = wsh
         Reactor.define_action :go do
-          every(0.01){ terminate if Reactor.stop? }
           Reactor.testers[:tester].go
         end
         Reactor.unstop!
+        $reactor.async.wait_for_stop
         $reactor.async.go
 
         latch.wait
@@ -168,10 +168,10 @@ describe Angelo::Responder::Websocket do
         wsh.init
         Reactor.testers[:tester] = wsh
         Reactor.define_action :go do
-          every(0.01){ terminate if Reactor.stop? }
           Reactor.testers[:tester].go
         end
         Reactor.unstop!
+        $reactor.async.wait_for_stop
         $reactor.async.go
 
         latch.wait

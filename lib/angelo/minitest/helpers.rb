@@ -134,9 +134,12 @@ module Angelo
       class Reactor
         include Celluloid::IO
         extend Cellper
+        def wait_for_stop
+          every(0.01){ terminate if Reactor.stop? }
+        end
       end
 
-      class ActorPool
+      class Actor
         include Celluloid
         extend Cellper
       end
@@ -192,8 +195,11 @@ module Angelo
 
       def go
         @driver.start
-        while msg = @socket.readpartial(4096)
-          @driver.parse msg
+        begin
+          while msg = @socket.readpartial(4096)
+            @driver.parse msg
+          end
+        rescue SystemCallError => sce
         end
       end
 

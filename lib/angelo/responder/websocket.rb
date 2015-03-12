@@ -45,6 +45,8 @@ module Angelo
 
       def close_websocket
         @websocket.close
+      rescue IOError
+      ensure
         @base.websockets.remove_socket @websocket
       end
 
