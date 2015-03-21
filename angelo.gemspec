@@ -15,6 +15,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = '>= 2.1.0'
   gem.add_runtime_dependency 'reel', '~>0.5'
   gem.add_runtime_dependency 'tilt', '~>2.0'
+  gem.add_runtime_dependency 'tilt-preload'
   gem.add_runtime_dependency 'mustermann', '~>0.4'
   gem.add_runtime_dependency 'mime-types', '~>2.4'
 end
