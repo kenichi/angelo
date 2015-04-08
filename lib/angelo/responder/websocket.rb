@@ -2,16 +2,6 @@ module Angelo
   class Responder
     class Websocket < Responder
 
-      class << self
-
-        attr_writer :on_pong
-
-        def on_pong
-          @on_pong ||= ->(e){}
-        end
-
-      end
-
       def request= request
         @params = nil
         @request = request
@@ -22,7 +12,6 @@ module Angelo
         begin
           if @response_handler
             Angelo.log @connection, @request, @websocket, :switching_protocols
-            @websocket.on_pong &Responder::Websocket.on_pong
             @base.filter :before
             @base.instance_exec(@websocket, &@response_handler)
             @base.filter :after

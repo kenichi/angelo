@@ -88,7 +88,8 @@ module Angelo
       end
 
       def on_pong &block
-        Responder::Websocket.on_pong = block
+        @on_pong = block if block
+        @on_pong
       end
 
       def content_type type
@@ -270,9 +271,7 @@ module Angelo
 
     task :ping_websockets do
       every(@base.ping_time) do
-        websockets.all_each do |ws|
-          ws.socket << ::WebSocket::Message.ping.to_data
-        end
+        websockets.all_each {|ws| ws.ping &@base.on_pong }
       end
     end
 
