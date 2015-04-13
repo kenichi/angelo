@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'reel', github: 'kenichi/reel', branch: 'no_rack'
+gem 'reel', github: 'celluloid/reel', branch: '0.6.0-milestone'
 gem 'tilt', '~>2.0'
 gem 'mime-types', '~>2.4'
 gem 'websocket-driver', '~>0.5'
