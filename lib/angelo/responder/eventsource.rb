@@ -4,7 +4,7 @@ module Angelo
 
       def initialize _headers = nil, &block
         headers _headers if _headers
-        super &block
+        super :get, &block
       end
 
       def request= request
@@ -40,7 +40,7 @@ module Angelo
       end
 
       def respond
-        Angelo.log @connection, @request, nil, :ok
+        Angelo.log :sse, @connection, @request, nil, :ok
         @request.respond 200, headers, nil
       end
 

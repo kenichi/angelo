@@ -11,7 +11,7 @@ module Angelo
       def handle_request
         begin
           if @response_handler
-            Angelo.log @connection, @request, @websocket, :switching_protocols
+            Angelo.log :ws, @connection, @request, @websocket, :switching_protocols
             @base.filter :before
             @base.instance_exec(@websocket, &@response_handler)
             @base.filter :after

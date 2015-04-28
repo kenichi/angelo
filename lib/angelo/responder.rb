@@ -30,8 +30,8 @@ module Angelo
     attr_accessor :connection, :mustermann, :request
     attr_writer :base
 
-    def initialize &block
-      @response_handler = block
+    def initialize method, &block
+      @method, @response_handler = method, block
     end
 
     def reset!
@@ -70,7 +70,7 @@ module Angelo
 
     def handle_error _error, type = :internal_server_error, report = @base.report_errors?
       err_msg = error_message _error
-      Angelo.log @connection, @request, nil, type, err_msg.size
+      Angelo.log @method, @connection, @request, nil, type, err_msg.size
       @connection.respond type, headers, err_msg
       @connection.close
       if report
@@ -174,7 +174,7 @@ module Angelo
       headers LOCATION_HEADER_KEY => @redirect if @redirect
 
       if @chunked
-        Angelo.log @connection, @request, nil, status
+        Angelo.log @method, @connection, @request, nil, status
         @request.respond status, headers
         err = nil
         begin
@@ -190,7 +190,7 @@ module Angelo
         end
       else
         size = @body.nil? ? 0 : @body.size
-        Angelo.log @connection, @request, nil, status, size
+        Angelo.log @method, @connection, @request, nil, status, size
         @request.respond status, headers, @body
       end
 
