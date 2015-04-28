@@ -13,7 +13,7 @@ Gem::Specification.new do |gem|
   gem.version          = Angelo::VERSION
   gem.license          = 'apache'
   gem.required_ruby_version = '>= 2.1.0'
-  gem.add_runtime_dependency 'reel', '~>0.6'
+  gem.add_runtime_dependency 'reel', '0.6.0.pre2'
   gem.add_runtime_dependency 'tilt', '~>2.0'
   gem.add_runtime_dependency 'mustermann', '~>0.4'
   gem.add_runtime_dependency 'mime-types', '~>2.4'
