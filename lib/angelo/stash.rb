@@ -29,6 +29,7 @@ module Angelo
     def initialize server, context = :default
       raise ArgumentError.new "symbol required" unless Symbol === context
       @context, @server = context, server
+      @mutex = Mutex.new
       stashes[@context] ||= []
     end
 
@@ -51,7 +52,8 @@ module Angelo
     # as needed
     #
     def each &block
-      stash.dup.each do |s|
+      stash_dup = @mutex.synchronize { stash.dup }
+      stash_dup.each do |s|
         begin
           yield s
         rescue Reel::SocketError, IOError, SystemCallError => e
@@ -69,6 +71,7 @@ module Angelo
       if stash.include? s
         warn "removing socket from context ':#{@context}' (#{peeraddrs[s][2]})"
         stash.delete s
+
         peeraddrs.delete s
       end
     end
@@ -83,12 +86,14 @@ module Angelo
     # ping_websockets task
     #
     def all_each
-      stashes.values.flatten.each do |s|
+      all_stashed = @mutex.synchronize { stashes.values.flatten }
+      all_stashed.each do |s|
         begin
           yield s
         rescue Reel::SocketError, IOError, SystemCallError => e
           debug "all - #{e.message}"
           remove_socket s
+          stashes.values.each {|_s| _s.delete s}
         end
       end
     end
