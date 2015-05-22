@@ -189,7 +189,14 @@ module Angelo
 
       def run _addr = addr, _port = port, options = {}, blocking = false
         Celluloid.logger.level = log_level
-        @server = Angelo::Server.new self, _addr, _port, options
+        case
+        when options[:supervise_as]
+          key = options.delete :supervise_as
+          Angelo::Server.supervise_as key, self, _addr, _port, options
+          @server = Celluloid::Actor[key]
+        else
+          @server = Angelo::Server.new self, _addr, _port, options
+        end
         @server.async.ping_websockets
         if blocking
           trap "INT" do
