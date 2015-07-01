@@ -156,7 +156,7 @@ module Angelo
 
       def filter which, opts = {}, &block
         case opts
-        when String
+        when String, Regexp
           filter_by which, opts, block
         when Hash
           if opts[:path]
