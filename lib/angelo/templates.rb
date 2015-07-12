@@ -76,25 +76,51 @@ module Angelo
     end
 
     module TemplateCaching
-      # A Cache which, unlike Tilt::Cache, will cache nil so when a
-      # template isn't found we'll remmeber that and won't try/fail to
-      # load it again.  This happens most commonly when there is no
-      # default layout file.
-
-      # A pull request has been accepted for Tilt which makes
-      # Tilt::Cache work like our Cache so we can remove this when a
-      # new Tilt gem is released (currently 2.0.1), but Tilt doesn't
-      # seem to be getting much love these days.
+      # A thread-safe cache.  These pains are taken:
+      # - fetch doesn't block other threads when yielding to its
+      #   (possibly long-running) block to compute a value to cache.
+      # - caching nil is supported.
+      # - if a thread computes a value for a key but another thread
+      #   caches a different value in a race, the first value to be
+      #   cached is returned so that the cache returns a consistent
+      #   value for a given key.
+      # - @not_found is local to the Cache and so can't be stored in
+      #   the cache by external code.
+      # - comparisons are done with "@not_found == value" instead of
+      #   "value == @not_found" so that comparisons won't be broken if
+      #   value.== is overwritten.
+      # Cache would be a bitch to test the thread-safety of, and the
+      # tests would be more likely to be broken, untrustworthy, or
+      # hard to follow than the Cache code itself, so just review it
+      # manually and decide that it's good :-).
 
       class Cache
         def initialize
-          @cache = {}
+          @mutex = Mutex.new
+          @not_found = Object.new
+          @cache = Hash.new(@not_found)
         end
 
         def fetch(*key)
-          @cache.fetch(key) do
-            @cache[key] = yield
+          value = @mutex.synchronize do
+            @cache[key]
           end
+          if @not_found == value
+            # @mutex is not held while yielding.
+            value = yield
+            @mutex.synchronize do
+              current_value = @cache[key]
+              # Did another thread cache a value in a race?
+              if @not_found == current_value
+                # No, cache and return our value.
+                @cache[key] = value
+              else
+                # Yes, return the other thread's cached value.
+                value = current_value
+              end
+            end
+          end
+          value
         end
       end
 
