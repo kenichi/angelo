@@ -51,11 +51,22 @@ module Angelo
         route! meth, connection, request
       end
     rescue URI::InvalidURIError => e
-      Angelo.log connection, request, nil, :bad_request
+      Angelo.log meth, connection, request, nil, :bad_request
       connection.respond :bad_request, DEFAULT_RESPONSE_HEADERS, e.message
     end
 
+    def post_override! meth, request
+      if meth == :post and request.headers.has_key? POST_OVERRIDE_REQUEST_HEADER_KEY
+        new_meth = request.headers[POST_OVERRIDE_REQUEST_HEADER_KEY].downcase.to_sym
+        meth = new_meth if POST_OVERRIDABLE.include? new_meth
+      end
+      meth
+    rescue
+      meth
+    end
+
     def route! meth, connection, request
+      meth = post_override! meth, request
       if rs = @base.routes[meth][request.path]
         responder = rs.dup
         responder.reset!
@@ -65,7 +76,7 @@ module Angelo
         responder.handle_request
         responder
       else
-        Angelo.log connection, request, nil, :not_found
+        Angelo.log meth, connection, request, nil, :not_found
         connection.respond :not_found, DEFAULT_RESPONSE_HEADERS, NOT_FOUND
       end
     end
@@ -77,7 +88,7 @@ module Angelo
     def static! meth, connection, request, local_path
       etag = etag_for local_path
       if request.headers[IF_NONE_MATCH_HEADER_KEY] == etag
-        Angelo.log connection, request, nil, :not_modified, 0
+        Angelo.log meth, connection, request, nil, :not_modified, 0
         connection.respond :not_modified
       else
         headers = {
@@ -96,7 +107,7 @@ module Angelo
           ETAG_HEADER_KEY => etag
 
         }
-        Angelo.log connection, request, nil, :ok, headers[CONTENT_LENGTH_HEADER_KEY]
+        Angelo.log meth, connection, request, nil, :ok, headers[CONTENT_LENGTH_HEADER_KEY]
         connection.respond :ok, headers, (meth == :head ? nil : File.read(local_path))
       end
     end

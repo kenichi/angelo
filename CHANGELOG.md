@@ -11,6 +11,7 @@ thanks: @tommay, @gunnarmarten
 * add `request_body` helper for access to JSON array post bodies or `request.body.to_s`
 * move `reload_templates!` to `Angelo::Base::DSL`
 * support `Regexp` as only arg to `before` and `after` filters
+* add post override support via `X-Angelo-PostOverride` header
 
 ### 0.4.1 8 feb 2015
 

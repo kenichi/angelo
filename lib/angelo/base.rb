@@ -61,13 +61,13 @@ module Angelo
       HTTPABLE.each do |m|
         define_method m do |path, opts = {}, &block|
           path = ::Mustermann.new path, opts
-          routes[m][path] = Responder.new &block
+          routes[m][path] = Responder.new m, &block
         end
       end
 
       def websocket path, &block
         path = ::Mustermann.new path
-        routes[:websocket][path] = Responder::Websocket.new &block
+        routes[:websocket][path] = Responder::Websocket.new nil, &block
       end
 
       def eventsource path, headers = nil, &block
