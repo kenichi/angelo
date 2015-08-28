@@ -23,6 +23,10 @@ describe Angelo::Base do
         redirect '/'
       end
 
+      get '/redirect_forever' do
+        redirect! '/'
+      end
+
       get '/wait' do
         sleep 3
         nil
@@ -49,6 +53,12 @@ describe Angelo::Base do
 
     it 'redirects' do
       get '/redirect'
+      last_response.status.must_equal 302
+      last_response.headers['Location'].must_equal '/'
+    end
+
+    it 'redirects permanently' do
+      get '/redirect_forever'
       last_response.status.must_equal 301
       last_response.headers['Location'].must_equal '/'
     end

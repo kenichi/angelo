@@ -170,8 +170,8 @@ module Angelo
         end
       end
 
-      status ||= @redirect.nil? ? :ok : :moved_permanently
-      headers LOCATION_HEADER_KEY => @redirect if @redirect
+      status ||= @redirect.nil? ? :ok : @redirect[1]
+      headers LOCATION_HEADER_KEY => @redirect[0] if @redirect
 
       if @chunked
         Angelo.log @connection, @request, nil, status
@@ -198,9 +198,13 @@ module Angelo
       handle_error e, :internal_server_error
     end
 
-    def redirect url
-      @redirect = url
+    def redirect url, permanent = false
+      @redirect = [url, permanent ? :moved_permanently : :found]
       nil
+    end
+
+    def redirect! url
+      redirect url, true
     end
 
     def on_close= on_close

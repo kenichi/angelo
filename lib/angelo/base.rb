@@ -8,7 +8,7 @@ module Angelo
     include Tilt::ERB
     include Mustermann
 
-    def_delegators :@responder, :content_type, :headers, :mustermann, :redirect, :request, :transfer_encoding
+    def_delegators :@responder, :content_type, :headers, :mustermann, :redirect, :redirect!, :request, :transfer_encoding
     def_delegators :@klass, :public_dir, :report_errors?, :sse_event, :sse_message, :sses, :websockets
 
     attr_accessor :responder
