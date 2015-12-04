@@ -147,7 +147,7 @@ module Angelo
     end
 
     class WebsocketHelper
-      include Celluloid::Logger
+      include Celluloid::Internals::Logger
 
       extend Forwardable
       def_delegator :@socket, :write

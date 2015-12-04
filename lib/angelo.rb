@@ -88,7 +88,7 @@ module Angelo
         connection.remote_ip rescue 'unknown'
       end
 
-    Celluloid::Logger.__send__ Angelo.response_log_level, LOG_FORMAT % [
+    Celluloid::Internals::Logger.__send__ Angelo.response_log_level, LOG_FORMAT % [
       remote_ip,
       request.method,
       request.url,
