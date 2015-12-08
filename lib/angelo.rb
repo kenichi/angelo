@@ -99,7 +99,7 @@ module Angelo
       (meth && meth.upcase) || request.method,
       request.url,
       request.version,
-      Symbol === status ? HTTP::Response::SYMBOL_TO_STATUS_CODE[status] : status,
+      Symbol === status ? HTTP::Response::Status::SYMBOL_CODES[status] : status,
       body_size
     ]
 
