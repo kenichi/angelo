@@ -5,7 +5,7 @@ module Angelo
 
   class Server < Reel::Server::HTTP
     extend Forwardable
-    include Celluloid::Logger
+    include Celluloid::Internals::Logger
 
     def_delegators :@base, :websockets, :sses
 
