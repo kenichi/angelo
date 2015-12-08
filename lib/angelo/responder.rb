@@ -1,7 +1,7 @@
 module Angelo
 
   class Responder
-    include Celluloid::Logger
+    include Celluloid::Internals::Logger
 
     class << self
 

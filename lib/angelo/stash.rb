@@ -3,7 +3,7 @@ module Angelo
   # utility class for stashing connected websockets in arbitrary contexts
   #
   module Stash
-    include Celluloid::Logger
+    include Celluloid::Internals::Logger
 
     module ClassMethods
 

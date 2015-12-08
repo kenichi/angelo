@@ -3,7 +3,7 @@ module Angelo
   class Base
     extend Forwardable
     include ParamsParser
-    include Celluloid::Logger
+    include Celluloid::Internals::Logger
     include Templates
     include Tilt::ERB
     include Mustermann
