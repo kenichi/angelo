@@ -20,6 +20,10 @@ module Angelo
     # Angelo::Base subclass.
 
     module DSL
+      def add_content_type(type, mime, handler=nil, &block)
+        ContentTypeHandler.new(type, mime, handler, &block)
+      end
+
       def addr a = nil
         @addr = a if a
         @addr
@@ -219,7 +223,7 @@ module Angelo
       end
 
     end
-
+    
     def initialize responder
       @responder = responder
       @klass = self.class
@@ -252,6 +256,18 @@ module Angelo
         end
       end
     end
+    
+    add_content_type :json, JSON_TYPE, JSONHandler
+    add_content_type :html, HTML_TYPE do |body|
+      case body
+      when String
+        body
+      else
+        raise 'html response requires a string'
+      end
+    end
+    add_content_type :xml, XML_TYPE
+    add_content_type :js, JS_TYPE
 
     def request_body
       @request_body ||= request.body.to_s

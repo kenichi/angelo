@@ -5,26 +5,30 @@ module Angelo
 
     class << self
 
-      attr_writer :default_headers
+      attr_writer :default_headers, :default_content_type
 
       # top-level setter
-      def content_type type
-        dhs = self.default_headers
-        case type
-        when :json
-          self.default_headers = dhs.merge CONTENT_TYPE_HEADER_KEY => JSON_TYPE
-        when :html
-          self.default_headers = dhs.merge CONTENT_TYPE_HEADER_KEY => HTML_TYPE
-        else
-          raise ArgumentError.new "invalid content_type: #{type}"
-        end
+      def content_type type_or_mime, handler_class=nil, &block
+        @default_content_type = ContentTypeHandler.fetch_or_create(type_or_mime,
+                                                                   handler_class,
+                                                                   &block)
+        set_default
       end
 
       def default_headers
-        @default_headers ||= DEFAULT_RESPONSE_HEADERS
+        @default_headers ||= set_default(DEFAULT_RESPONSE_HEADERS)
         @default_headers
       end
 
+      def set_default(defaults=default_headers)
+        @default_headers = defaults.merge(CONTENT_TYPE_HEADER_KEY =>
+                                          default_content_type.mime)
+      end
+
+      def default_content_type
+        @default_content_type ||= ContentTypeHandler[DEFAULT_CONTENT_TYPE]
+        @default_content_type 
+      end
     end
 
     attr_accessor :connection, :mustermann, :request
@@ -80,17 +84,7 @@ module Angelo
     end
 
     def error_message _error
-      case
-      when respond_with?(:json)
-        { error: _error.message }.to_json
-      else
-        case _error.message
-        when Hash
-          _error.message.to_s
-        else
-          _error.message
-        end
-      end
+      content_type_handler.handle_error(_error)
     end
 
     def headers hs = nil
@@ -100,19 +94,15 @@ module Angelo
     end
 
     # route handler helper
-    def content_type type
-      case type
-      when :json
-        headers CONTENT_TYPE_HEADER_KEY => JSON_TYPE
-      when :html
-        headers CONTENT_TYPE_HEADER_KEY => HTML_TYPE
-      when :js
-        headers CONTENT_TYPE_HEADER_KEY => JS_TYPE
-      when :xml
-        headers CONTENT_TYPE_HEADER_KEY => XML_TYPE
-      else
-        raise ArgumentError.new "invalid content_type: #{type}"
-      end
+    def content_type type_or_mime, handler_class=nil, &block
+      @content_type_handler = ContentTypeHandler.fetch_or_create(type_or_mime,
+                                                                 handler_class,
+                                                                 &block)
+      headers CONTENT_TYPE_HEADER_KEY => content_type_handler.mime
+    end
+
+    def content_type_handler
+      @content_type_handler ||= self.class.default_content_type
     end
 
     def transfer_encoding *encodings
@@ -128,15 +118,6 @@ module Angelo
       end
     end
 
-    def respond_with? type
-      case headers[CONTENT_TYPE_HEADER_KEY]
-      when JSON_TYPE
-        type == :json
-      else
-        type == :html
-      end
-    end
-
     def respond
       status = nil
       case @body
@@ -144,29 +125,14 @@ module Angelo
         status = @body.status
         @body = @body.body
         @body = nil if @body == :sse
-        if Hash === @body
-          @body = {error: @body} if status != :ok or status < 200 && status >= 300
-          @body = @body.to_json if respond_with? :json
+        if status != :ok || status < 200 && status >= 300
+          @body = content_type_handler.handle_error(@body)
         end
-
-      when String
-        JSON.parse @body if respond_with? :json # for the raises
-
-      when Hash
-        raise 'html response requires String' if respond_with? :html
-        @body = @body.to_json if respond_with? :json
-
       when NilClass
         @body = EMPTY_STRING
-
       else
-        if respond_with? :json and @body.respond_to? :to_json
-          @body = @body.to_json
-          raise "uhhh? #{@body}" unless String === @body
-        else
-          unless @chunked and @body.respond_to? :each
-            raise RequestError.new "what is this? #{@body}"
-          end
+        if @chunked and !@body.respond_to? :each
+          raise RequestError.new "what is this? #{@body}"
         end
       end
 
@@ -179,8 +145,7 @@ module Angelo
         err = nil
         begin
           @body.each do |r|
-            r = r.to_json + NEWLINE if respond_with? :json
-            @request << r
+            @request << content_type_handler.handle(r)
           end
         rescue => e
           err = e
@@ -188,11 +153,14 @@ module Angelo
           @request.finish_response
           raise err if err
         end
+        return
       else
-        size = @body.nil? ? 0 : @body.size
-        Angelo.log @connection, @request, nil, status, size
-        @request.respond status, headers, @body
+        @body = content_type_handler.handle(@body)
       end
+      
+      size = @body.nil? ? 0 : @body.size
+      Angelo.log @connection, @request, nil, status, size
+      @request.respond status, headers, @body
 
     rescue => e
       handle_error e, :internal_server_error
@@ -211,7 +179,5 @@ module Angelo
     def on_close
       @on_close[] if @on_close
     end
-
   end
-
 end
