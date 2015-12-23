@@ -1,6 +1,6 @@
 require 'reel'
 require 'json'
-require 'tilt'
+require 'tilt-preload'
 require 'mustermann'
 
 # require 'ruby-prof'
