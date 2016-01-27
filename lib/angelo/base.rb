@@ -3,12 +3,12 @@ module Angelo
   class Base
     extend Forwardable
     include ParamsParser
-    include Celluloid::Logger
+    include Celluloid::Internals::Logger
     include Templates
     include Tilt::ERB
     include Mustermann
 
-    def_delegators :@responder, :content_type, :headers, :mustermann, :redirect, :request, :transfer_encoding
+    def_delegators :@responder, :content_type, :headers, :mustermann, :redirect, :redirect!, :request, :transfer_encoding
     def_delegators :@klass, :public_dir, :report_errors?, :sse_event, :sse_message, :sses, :websockets
 
     attr_accessor :responder
@@ -61,13 +61,13 @@ module Angelo
       HTTPABLE.each do |m|
         define_method m do |path, opts = {}, &block|
           path = ::Mustermann.new path, opts
-          routes[m][path] = Responder.new &block
+          routes[m][path] = Responder.new m, &block
         end
       end
 
       def websocket path, &block
         path = ::Mustermann.new path
-        routes[:websocket][path] = Responder::Websocket.new &block
+        routes[:websocket][path] = Responder::Websocket.new nil, &block
       end
 
       def eventsource path, headers = nil, &block
@@ -88,7 +88,8 @@ module Angelo
       end
 
       def on_pong &block
-        Responder::Websocket.on_pong = block
+        @on_pong = block if block
+        @on_pong
       end
 
       def content_type type
@@ -155,7 +156,7 @@ module Angelo
 
       def filter which, opts = {}, &block
         case opts
-        when String
+        when String, Regexp
           filter_by which, opts, block
         when Hash
           if opts[:path]
@@ -270,9 +271,7 @@ module Angelo
 
     task :ping_websockets do
       every(@base.ping_time) do
-        websockets.all_each do |ws|
-          ws.socket << ::WebSocket::Message.ping.to_data
-        end
+        websockets.all_each {|ws| ws.ping &@base.on_pong }
       end
     end
 

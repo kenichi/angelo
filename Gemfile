@@ -1,14 +1,10 @@
 source 'https://rubygems.org'
 
-gem 'reel', github: 'celluloid/reel', branch: 'master'
-gem 'tilt', '~>2.0'
-gem 'mime-types', '~>2.4'
-gem 'websocket-driver', '~>0.5'
-gem 'mustermann', '~>0.4'
+gem 'reel', github: 'celluloid/reel', branch: '0.6.0-milestone', submodules: true
+gemspec
 
 group :development do
   gem 'pry', '~>0.10'
-  gem 'pry-nav', '~>0.2'
 end
 
 group :profile do
@@ -22,6 +18,6 @@ group :test do
   gem 'minitest', '~>5.4'
 
   platform :mri do
-    gem 'simplecov', '~>0.9.1'
+    gem 'simplecov', '~>0.10.0'
   end
 end

@@ -8,6 +8,7 @@ if RUBY_ENGINE == "ruby" && ENV['TRAVIS'] != 'true'
 end
 
 require 'bundler'
+require 'celluloid/current'
 Bundler.require :default, :development, :test
 require 'minitest/pride'
 require 'minitest/autorun'

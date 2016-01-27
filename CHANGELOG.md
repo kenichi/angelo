@@ -3,13 +3,16 @@ changelog
 
 ### 0.5.0
 
-thanks: @tommay, @gunnarmarten
+thanks: @tommay, @gunnarmarten, @nagius
 
 * add Angelo::Templates as a better interface to Tilt
     * haml / markdown support
 * JSON array post body support (#48)
 * add `request_body` helper for access to JSON array post bodies or `request.body.to_s`
 * move `reload_templates!` to `Angelo::Base::DSL`
+* support `Regexp` as only arg to `before` and `after` filters
+* add post override support via `X-Angelo-PostOverride` header
+* update celluloid API usage (#58)
 
 ### 0.4.1 8 feb 2015
 

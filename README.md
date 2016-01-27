@@ -682,6 +682,15 @@ Foo.run!
 
 YES, HAVE SOME - Fork this repo, make changes, send PR!
 
+### Testing
+
+Unit tests are done with Minitest. Run them with :
+
+```
+bundle install
+rake test
+```
+
 ### License
 
 [Apache 2.0](LICENSE)

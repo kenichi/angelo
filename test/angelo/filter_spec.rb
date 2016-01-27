@@ -90,6 +90,10 @@ describe Angelo::Base do
           @bat = params[:bat] if @foo
         end
 
+        before %r{/before/(\d+)} do
+          @id = params[:id].to_i
+        end
+
         [:get, :post, :put].each do |m|
 
           __send__ m, '/before' do
@@ -105,6 +109,11 @@ describe Angelo::Base do
           __send__ m, '/before_bat' do
             content_type :json
             { foo: @foo, bar: @bar, bat: @bat }.select! {|k,v| !v.nil?}
+          end
+
+          __send__ m, '/before/:id' do
+            content_type :json
+            { id: @id }
           end
         end
 
@@ -140,6 +149,14 @@ describe Angelo::Base do
           last_response_must_be_json obj.select {|k,v| ['foo','bat'].include? k}
         end
 
+      end
+
+      it 'matches regexes' do
+        [:get, :post, :put].each do |m|
+          id = rand 1000
+          __send__ m, "/before/#{id}"
+          last_response_must_be_json({'id' => id})
+        end
       end
 
     end

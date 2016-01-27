@@ -18,8 +18,12 @@ module Angelo
 
   HTTPABLE = [:get, :post, :put, :delete, :options]
   STATICABLE = [:get, :head]
+  POST_OVERRIDABLE = [:put, :delete]
 
   ACCEPT_REQUEST_HEADER_KEY = 'Accept'
+
+  POST_OVERRIDE_REQUEST_HEADER_KEY = 'X-Angelo-PostOverride'
+  REAL_IP_REQUEST_HEADER_KEY = 'X-Real-IP'
 
   CONTENT_TYPE_HEADER_KEY = 'Content-Type'
   CONTENT_DISPOSITION_HEADER_KEY = 'Content-Disposition'
@@ -79,21 +83,23 @@ module Angelo
 
   end
 
-  def self.log connection, request, socket, status, body_size = '-'
+  def self.log meth, connection, request, socket, status, body_size = '-'
 
-    remote_ip =
-      if socket
-        socket.peeraddr(false)[3]
-      else
-        connection.remote_ip rescue 'unknown'
-      end
+    remote_ip = case
+                when request.headers[REAL_IP_REQUEST_HEADER_KEY]
+                  request.headers[REAL_IP_REQUEST_HEADER_KEY]
+                when socket
+                  socket.peeraddr(false)[3]
+                else
+                  connection.remote_ip rescue 'unknown'
+                end
 
-    Celluloid::Logger.__send__ Angelo.response_log_level, LOG_FORMAT % [
+    Celluloid::Internals::Logger.__send__ Angelo.response_log_level, LOG_FORMAT % [
       remote_ip,
-      request.method,
+      (meth && meth.upcase) || request.method,
       request.url,
       request.version,
-      Symbol === status ? HTTP::Response::SYMBOL_TO_STATUS_CODE[status] : status,
+      Symbol === status ? HTTP::Response::Status::SYMBOL_CODES[status] : status,
       body_size
     ]
 
