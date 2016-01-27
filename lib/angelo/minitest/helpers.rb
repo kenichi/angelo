@@ -199,7 +199,7 @@ module Angelo
           while msg = @socket.readpartial(4096)
             @driver.parse msg
           end
-        rescue SystemCallError => sce
+        rescue EOFError, SystemCallError => e
         end
       end
 
