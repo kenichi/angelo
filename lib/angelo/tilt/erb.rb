@@ -1,5 +1,4 @@
-require 'erb'
-require 'tilt'
+require 'tilt/erb'
 
 module Angelo
   module Tilt
