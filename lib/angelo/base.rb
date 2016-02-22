@@ -95,6 +95,10 @@ module Angelo
       def content_type type
         Responder.content_type type
       end
+
+      def default_headers hs
+        Responder.default_headers = Responder.default_headers.merge hs
+      end
     end
 
     class << self
