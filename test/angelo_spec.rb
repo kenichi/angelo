@@ -583,6 +583,20 @@ describe Angelo::Base do
 
     end
 
+    describe 'default_headers' do
+
+      define_app do
+        default_headers "Access-Control-Allow-Origin" => "*"
+        get('/'){ 'hi' }
+      end
+
+      it 'adds a default headers' do
+        get '/'
+	last_response.headers['Access-Control-Allow-Origin'].must_equal "*"
+      end
+
+    end
+
   end
 
 end
