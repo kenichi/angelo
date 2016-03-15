@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'reel', github: 'celluloid/reel', branch: '0.6.0-milestone', submodules: true
+gem 'reel', '~>0.6.1'
 gemspec
 
 group :development do
@@ -18,6 +18,6 @@ group :test do
   gem 'minitest', '~>5.4'
 
   platform :mri do
-    gem 'simplecov', '~>0.10.0'
+    gem 'simplecov', '~>0.11'
   end
 end

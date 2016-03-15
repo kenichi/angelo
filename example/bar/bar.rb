@@ -8,7 +8,7 @@ require 'angelo'
 
 class Bar < Angelo::Base
 
-  HEART = '❤️'
+  HEART = '<3'
   CORS = { 'Access-Control-Allow-Origin' => '*',
            'Access-Control-Allow-Methods' => 'GET, POST',
            'Access-Control-Allow-Headers' => 'Accept, Authorization, Content-Type, Origin' }
