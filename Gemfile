@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'reel', github: 'kenichi/reel', branch: 'no_rack_again', require: ['celluloid/current', 'reel']
+gem 'reel', '~>0.6.1'
 gemspec
 
 group :development do
