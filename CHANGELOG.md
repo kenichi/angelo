@@ -1,7 +1,7 @@
 changelog
 =========
 
-### 0.5.0
+### 0.5.0 mar 2016
 
 thanks: @tommay, @gunnarmarten, @nagius
 
@@ -13,6 +13,7 @@ thanks: @tommay, @gunnarmarten, @nagius
 * support `Regexp` as only arg to `before` and `after` filters
 * add post override support via `X-Angelo-PostOverride` header
 * update celluloid API usage (#58)
+* add `default_headers` DSL method (#61)
 
 ### 0.4.1 8 feb 2015
 

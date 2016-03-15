@@ -22,7 +22,7 @@ notable differences, but the basics remain the same: you can either create a "cl
 by requiring 'angelo/main' and using the DSL at the top level of your script, or a "modular"
 application by requiring 'angelo', subclassing `Angelo::Base`, and calling `.run!` on that class for the
 service to start.
-In addition, and perhaps more importantly, **Angelo is built upon Reel, which is, in turn, built upon
+In addition, and perhaps more importantly, **Angelo is built on Reel, which is built on
 Celluloid::IO and gives you a reactor with evented IO in Ruby!**
 
 Things will feel very familiar to anyone experienced with Sinatra. You can define
@@ -680,7 +680,17 @@ Foo.run!
 
 ### Contributing
 
-YES, HAVE SOME - Fork this repo, make changes, send PR!
+Anyone is welcome to contribute. Conduct is guided by the [Contributor Covenant](http://contributor-covenant.org).
+See `code_of_conduct.md`.
+
+To contribute to Angelo, please:
+
+* fork the repository to your GitHub account
+* create a branch for the feature or fix
+* commit your changes to that branch, please include tests if applicable
+* submit a Pull Request back to the main repository's `master` branch
+
+After review and acceptance, your changes will be merged and noted in `CHANGLOG.md`.
 
 ### Testing
 
@@ -694,3 +704,9 @@ rake test
 ### License
 
 [Apache 2.0](LICENSE)
+
+### Name
+
+Why the name "Angelo"? Since the project mimics Sinatra's DSL, I thought it best to keep a reference to
+The Chairman in the name. It turns out that Frank Sinatra won an Academy Award for his role 'Angelo
+Maggio' in 'From Here to Eternity'. I appropriated the name since this is like Sinatra on Reel (film).
