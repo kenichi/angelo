@@ -1,6 +1,6 @@
 # Having to require this sucks because tilt is an implementation
 # detail we shouldn't have to know about.  But this avoids a "tilt
-# autoloading 'tilt/erb' in a non thread-safe way" wanring.
+# autoloading 'tilt/erb' in a non thread-safe way" warning.
 #
 require 'tilt/erb'
 
