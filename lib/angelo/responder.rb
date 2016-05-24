@@ -73,10 +73,7 @@ module Angelo
       Angelo.log @method, @connection, @request, nil, type, err_msg.size
       @connection.respond type, headers, err_msg
       @connection.close
-      if report
-        error "#{_error.class} - #{_error.message}"
-        ::STDERR.puts _error.backtrace
-      end
+      error _error if report
     end
 
     def error_message _error
