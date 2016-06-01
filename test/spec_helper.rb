@@ -7,6 +7,8 @@ if RUBY_ENGINE == "ruby" && ENV['TRAVIS'] != 'true'
   SimpleCov.command_name 'minitest'
 end
 
+$VERBOSE=nil # disable warnings turned on by default in rake 11.x
+
 require 'bundler'
 require 'celluloid/current'
 Bundler.require :default, :development, :test

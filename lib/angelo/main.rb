@@ -31,10 +31,13 @@ end
 if self.to_s == "main"
   # We are probably at the top level.
 
-  require "forwardable"
-  self.extend Forwardable
   @angelo_app = Class.new(Angelo::Base)
-  self.def_delegators :@angelo_app, *Angelo::Base::DSL.instance_methods
+
+  Angelo::Base::DSL.instance_methods.each do |bim|
+    define_singleton_method bim do |*a, &block|
+      @angelo_app.__send__ bim, *a, &block
+    end
+  end
 
   at_exit do
     # Don't run @angelo_app on uncaught exceptions including exit
