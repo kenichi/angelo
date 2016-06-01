@@ -1,6 +1,13 @@
 changelog
 =========
 
+### 0.5.1
+
+thanks: @Mask
+
+* dumps backtraces to configured logger (#66)
+* remove Forwardable/def_delegators from main.rb, replace with define_singleton_method (#67)
+
 ### 0.5.0 mar 2016
 
 thanks: @tommay, @gunnarmarten, @nagius
