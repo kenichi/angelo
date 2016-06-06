@@ -33,10 +33,10 @@ if self.to_s == "main"
 
   @angelo_app = Class.new(Angelo::Base)
 
-  Angelo::Base::DSL.instance_methods.each do |bim|
-    define_singleton_method bim do |*a, &block|
-      @angelo_app.__send__ bim, *a, &block
-    end
+  class << self
+    require "forwardable"
+    extend Forwardable
+    def_delegators :@angelo_app, *Angelo::Base::DSL.instance_methods
   end
 
   at_exit do
