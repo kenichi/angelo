@@ -22,15 +22,18 @@ module Angelo
 
     def on_connection connection
       # RubyProf.resume
-      responders = []
+      on_close_callbacks = []
 
       connection.each_request do |request|
         meth = request.websocket? ? :websocket : request.method.downcase.to_sym
         responder = dispatch! meth, connection, request
-        responders << responder if responder and responder.respond_to? :on_close
+
+        if responder && responder.respond_to?(:on_close) && responder.on_close
+          on_close_callbacks << responder.on_close
+        end
       end
 
-      responders.each &:on_close
+      on_close_callbacks.each &:call
       # RubyProf.pause
     end
 

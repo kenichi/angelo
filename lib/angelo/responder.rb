@@ -28,6 +28,7 @@ module Angelo
     end
 
     attr_accessor :connection, :mustermann, :request
+    attr_reader :on_close
     attr_writer :base
 
     def initialize method, &block
@@ -207,10 +208,6 @@ module Angelo
     def on_close= on_close
       raise ArgumentError.new unless Proc === on_close
       @on_close = on_close
-    end
-
-    def on_close
-      @on_close[] if @on_close
     end
 
   end
