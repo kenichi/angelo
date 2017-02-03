@@ -22,15 +22,14 @@ module Angelo
 
     def on_connection connection
       # RubyProf.resume
-      responders = []
-
       connection.each_request do |request|
         meth = request.websocket? ? :websocket : request.method.downcase.to_sym
         responder = dispatch! meth, connection, request
-        responders << responder if responder and responder.respond_to? :on_close
-      end
 
-      responders.each &:on_close
+        if responder.is_a?(Angelo::Responder) && responder.respond_with?(:event_stream)
+          break # SSE keeps connection open, so we cannot handle more requests
+        end
+      end
       # RubyProf.pause
     end
 

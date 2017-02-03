@@ -116,6 +116,15 @@ describe 'eventsource helper' do
       end
     end
 
+    get '/with_on_close' do
+      eventsource do |es|
+        es.on_close = ->{ sses(false).remove_socket es }
+        sses << es
+        es.message 'subscribed'
+        es.close
+      end
+    end
+
   end
 
   it 'sends messages' do
@@ -135,6 +144,13 @@ describe 'eventsource helper' do
       msg.must_equal "event: sse\ndata: headers\n\n"
     end
     last_response.headers['Foo'].must_equal 'bar'
+  end
+
+  it 'will run on_close callback when connection is closed' do
+    get_sse '/with_on_close' do |msg|
+      msg.must_equal "data: subscribed\n\n"
+    end
+    @server.sses(false).length.must_equal 0
   end
 
 end

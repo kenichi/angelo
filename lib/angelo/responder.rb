@@ -129,6 +129,8 @@ module Angelo
       case headers[CONTENT_TYPE_HEADER_KEY]
       when JSON_TYPE
         type == :json
+      when EVENT_STREAM_TYPE
+        type == :event_stream
       else
         type == :html
       end

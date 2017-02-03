@@ -419,7 +419,7 @@ module Angelo
     class EventSource
       extend Forwardable
 
-      def_delegators :@socket, :close, :closed?, :<<, :write, :peeraddr
+      def_delegators :@socket, :closed?, :<<, :write, :peeraddr
       attr_reader :responder, :socket
 
       def initialize responder
@@ -433,6 +433,12 @@ module Angelo
 
       def message data
         @socket.write Base.sse_message(data)
+      end
+
+      def close
+        return if @socket.closed?
+        @socket.close
+        @responder.on_close
       end
 
       def on_close &block

@@ -32,14 +32,16 @@ module Angelo
   ETAG_HEADER_KEY = 'ETag'
   IF_NONE_MATCH_HEADER_KEY = 'If-None-Match'
   LOCATION_HEADER_KEY = 'Location'
-  SSE_HEADER = { CONTENT_TYPE_HEADER_KEY => 'text/event-stream' }
 
   HTML_TYPE = 'text/html'
+  EVENT_STREAM_TYPE = 'text/event-stream'
   JSON_TYPE = 'application/json'
   FORM_TYPE = 'application/x-www-form-urlencoded'
   FILE_TYPE = 'application/octet-stream'
   JS_TYPE =   'application/javascript'
   XML_TYPE =  'application/xml'
+
+  SSE_HEADER = { CONTENT_TYPE_HEADER_KEY => EVENT_STREAM_TYPE }
 
   DEFAULT_ADDR = '127.0.0.1'
   DEFAULT_PORT = 4567
