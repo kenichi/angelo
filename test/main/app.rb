@@ -38,3 +38,7 @@ end
 get "/help" do
   help_me
 end
+
+post '/echo' do
+  params['content']
+end

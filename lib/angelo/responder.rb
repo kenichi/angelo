@@ -43,6 +43,10 @@ module Angelo
 
     def handle_request
       if @response_handler
+        until @request.finished_reading?
+          @request.instance_variable_get(:@connection).readpartial
+        end
+
         @base.filter :before
         @body = catch(:halt) { @base.instance_exec(&@response_handler) || EMPTY_STRING }
 

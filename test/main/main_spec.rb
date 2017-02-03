@@ -45,10 +45,17 @@ class MainSpec < Minitest::Spec
     define_method :client_get do |url|
       client.get("http://#{address}:#{port}#{url}").body
     end
+    define_method :client_post do |url, body|
+      client.post("http://#{address}:#{port}#{url}", body).body
+    end
   end
 
   def client_get(url)
     self.class.client_get(url)
+  end
+
+  def client_post(url, body)
+    self.class.client_post(url, body)
   end
 
   # Wait for the server to start up.  If it doesn't start, the
@@ -95,6 +102,12 @@ class MainSpec < Minitest::Spec
 
     it "makes helpers accessible" do
       client_get("/help").must_equal "help me!"
+    end
+
+    it 'can handle post requests' do
+      100.times do # see https://github.com/kenichi/angelo/issues/70 to learn why we post 100 times here
+        client_post('/echo', { 'content' => 'angelo' }).must_equal 'angelo'
+      end
     end
   end
 
