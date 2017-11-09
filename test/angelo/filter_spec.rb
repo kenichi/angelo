@@ -12,7 +12,7 @@ describe Angelo::Base do
           @set_by_before = params
         end
 
-        [:get, :post, :put].each do |m|
+        [:get, :patch, :post, :put].each do |m|
           __send__ m, '/before' do
             content_type :json
             @set_by_before
@@ -26,7 +26,7 @@ describe Angelo::Base do
         get '/before', obj
         last_response_must_be_json obj_s
 
-        [:post, :put].each do |m|
+        [:patch, :post, :put].each do |m|
           __send__ m, '/before', obj.to_json, {Angelo::CONTENT_TYPE_HEADER_KEY => Angelo::JSON_TYPE}
           last_response_must_be_json obj
         end
@@ -51,7 +51,7 @@ describe Angelo::Base do
           @bat = params[:bat] if @bar
         end
 
-        [:get, :post, :put].each do |m|
+        [:get, :patch, :post, :put].each do |m|
           __send__ m, '/before' do
             content_type :json
             { foo: @foo, bar: @bar, bat: @bat }
@@ -65,7 +65,7 @@ describe Angelo::Base do
         get '/before', obj
         last_response_must_be_json obj_s
 
-        [:post, :put].each do |m|
+        [:patch, :post, :put].each do |m|
           __send__ m, '/before', obj.to_json, {Angelo::CONTENT_TYPE_HEADER_KEY => Angelo::JSON_TYPE}
           last_response_must_be_json obj
         end
@@ -94,7 +94,7 @@ describe Angelo::Base do
           @id = params[:id].to_i
         end
 
-        [:get, :post, :put].each do |m|
+        [:get, :patch, :post, :put].each do |m|
 
           __send__ m, '/before' do
             content_type :json
@@ -124,7 +124,7 @@ describe Angelo::Base do
         get '/before', obj
         last_response_must_be_json obj_s.select {|k,v| k == 'foo'}
 
-        [:post, :put].each do |m|
+        [:patch, :post, :put].each do |m|
           __send__ m, '/before', obj.to_json, {Angelo::CONTENT_TYPE_HEADER_KEY => Angelo::JSON_TYPE}
           last_response_must_be_json obj.select {|k,v| k == 'foo'}
         end
@@ -136,7 +136,7 @@ describe Angelo::Base do
         get '/before_bar', obj
         last_response_must_be_json obj_s.select {|k,v| ['foo','bar'].include? k}
 
-        [:post, :put].each do |m|
+        [:patch, :post, :put].each do |m|
           __send__ m, '/before_bar', obj.to_json, {Angelo::CONTENT_TYPE_HEADER_KEY => Angelo::JSON_TYPE}
           last_response_must_be_json obj.select {|k,v| ['foo','bar'].include? k}
         end
@@ -144,7 +144,7 @@ describe Angelo::Base do
         get '/before_bat', obj
         last_response_must_be_json obj_s.select {|k,v| ['foo','bat'].include? k}
 
-        [:post, :put].each do |m|
+        [:patch, :post, :put].each do |m|
           __send__ m, '/before_bat', obj.to_json, {Angelo::CONTENT_TYPE_HEADER_KEY => Angelo::JSON_TYPE}
           last_response_must_be_json obj.select {|k,v| ['foo','bat'].include? k}
         end
@@ -152,7 +152,7 @@ describe Angelo::Base do
       end
 
       it 'matches regexes' do
-        [:get, :post, :put].each do |m|
+        [:get, :patch, :post, :put].each do |m|
           id = rand 1000
           __send__ m, "/before/#{id}"
           last_response_must_be_json({'id' => id})
@@ -188,8 +188,8 @@ describe Angelo::Base do
       end
 
       it 'runs after filters after routes' do
-        a = %w[2 6 14 30 62]
-        b = [4, 12, 28, 60, 124]
+        a = %w[2 6 14 30 62 126]
+        b = [4, 12, 28, 60, 124, 252]
 
         Angelo::HTTPABLE.each_with_index do |m,i|
           __send__ m, '/after', obj
@@ -227,8 +227,8 @@ describe Angelo::Base do
       end
 
       it 'runs after filters in order' do
-        a = %w[0 2 6 14 30]
-        b = [2, 6, 14, 30, 62]
+        a = %w[0 2 6 14 30 62]
+        b = [2, 6, 14, 30, 62, 126]
 
         Angelo::HTTPABLE.each_with_index do |m,i|
           __send__ m, '/after', obj
@@ -275,8 +275,8 @@ describe Angelo::Base do
 
       it 'runs default and specific after filters' do
 
-        a = %w[0 2 4 6 8]
-        b = [2, 4, 6, 8, 10]
+        a = %w[0 2 4 6 8 10]
+        b = [2, 4, 6, 8, 10, 12]
 
         Angelo::HTTPABLE.each_with_index do |m,i|
           __send__ m, '/after', obj
@@ -284,8 +284,9 @@ describe Angelo::Base do
           invoked.must_equal b[i]
         end
 
-        c = %w[10 24 52 108 220]
-        d = [24, 52, 108, 220, 444]
+        c = %w[12 28 60 124 252 508]
+        d = [28, 60, 124, 252, 508, 1020]
+
 
         Angelo::HTTPABLE.each_with_index do |m,i|
           __send__ m, '/after_bar', obj
@@ -293,8 +294,8 @@ describe Angelo::Base do
           invoked.must_equal d[i]
         end
 
-        e = %w[444 442 440 438 436]
-        f = [442, 440, 438, 436, 434]
+        e = %w[1020 1018 1016 1014 1012 1010]
+        f = [1018, 1016, 1014, 1012, 1010, 1008]
 
         Angelo::HTTPABLE.each_with_index do |m,i|
           __send__ m, '/after_bat', obj

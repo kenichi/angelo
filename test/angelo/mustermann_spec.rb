@@ -16,7 +16,7 @@ if RUBY_VERSION =~ /^2\.(\d)/ and $1.to_i > 0 and RUBY_PLATFORM != 'java'
           params
         end
 
-        [:post, :put].each do |m|
+        [:patch, :post, :put].each do |m|
           __send__ m, pattern do
             params
           end
@@ -39,7 +39,7 @@ if RUBY_VERSION =~ /^2\.(\d)/ and $1.to_i > 0 and RUBY_PLATFORM != 'java'
       it 'overrides post body params' do
         path = '/some/things/are_good'
         headers = {Angelo::CONTENT_TYPE_HEADER_KEY => Angelo::JSON_TYPE}
-        [:post, :put].each do |m|
+        [:patch, :post, :put].each do |m|
           __send__ m, path, {foo: 'other', bar: 'are_bad'}.to_json, headers
           last_response_must_be_json mm_pattern.params(path)
         end
@@ -101,7 +101,7 @@ HTML
 
         content_type :json
 
-        [:get, :post, :put].each do |m|
+        [:get, :patch, :post, :put].each do |m|
           __send__ m, '/before/:bar' do
             { bar: params[:bar], foo: params[:foo], foo_from_before: @foo }
           end
@@ -110,7 +110,7 @@ HTML
       end
 
       it 'does not infect route block params with filter pattern params' do
-        [:get, :post, :put].each do |m|
+        [:get, :patch, :post, :put].each do |m|
           __send__ m, '/before/hi'
           last_response_must_be_json 'bar' => 'hi', 'foo' => nil, 'foo_from_before' => 'hi'
         end
@@ -131,7 +131,7 @@ HTML
           @bat = params[:bat] if @foo
         end
 
-        [:get, :post, :put].each do |m|
+        [:get, :patch, :post, :put].each do |m|
 
           __send__ m, '/before' do
             content_type :json
@@ -156,7 +156,7 @@ HTML
         get '/before_bar', obj
         last_response_must_be_json obj_s
 
-        [:post, :put].each do |m|
+        [:patch, :post, :put].each do |m|
           __send__ m, '/before_bar', obj.to_json, {Angelo::CONTENT_TYPE_HEADER_KEY => Angelo::JSON_TYPE}
           last_response_must_be_json obj
         end
@@ -164,7 +164,7 @@ HTML
         get '/before_bat', obj
         last_response_must_be_json obj_s
 
-        [:post, :put].each do |m|
+        [:patch, :post, :put].each do |m|
           __send__ m, '/before_bat', obj.to_json, {Angelo::CONTENT_TYPE_HEADER_KEY => Angelo::JSON_TYPE}
           last_response_must_be_json obj
         end

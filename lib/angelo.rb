@@ -11,14 +11,15 @@ require 'mustermann'
 module Angelo
 
   GET =     'GET'
+  PATCH =   'PATCH'
   POST =    'POST'
   PUT =     'PUT'
   DELETE =  'DELETE'
   OPTIONS = 'OPTIONS'
 
-  HTTPABLE = [:get, :post, :put, :delete, :options]
+  HTTPABLE = [:get, :patch, :post, :put, :delete, :options]
   STATICABLE = [:get, :head]
-  POST_OVERRIDABLE = [:put, :delete]
+  POST_OVERRIDABLE = [:patch, :put, :delete]
 
   ACCEPT_REQUEST_HEADER_KEY = 'Accept'
 
