@@ -94,7 +94,7 @@ describe Angelo::Base do
     end
 
     it 'does not crash when receiving unknown http request type' do
-      r = HTTP.patch(url('/'))
+      r = HTTP.trace(url('/'))
       assert @server.alive?
       r.status.must_equal 404
     end
@@ -350,7 +350,7 @@ describe Angelo::Base do
       last_response_must_be_json({})
     end
 
-    (Angelo::HTTPABLE - [:post, :put]).each do |m|
+    (Angelo::HTTPABLE - [:patch, :post, :put]).each do |m|
       it "returns a populated hash for #{m.to_s.upcase} requests" do
         send m, '/json?foo=bar'
         last_response_must_be_json('foo' => 'bar')

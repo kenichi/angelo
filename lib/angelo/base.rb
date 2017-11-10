@@ -242,7 +242,7 @@ module Angelo
       @params ||= case request.method
                   when GET, DELETE, OPTIONS
                     parse_query_string
-                  when POST, PUT
+                  when PATCH, POST, PUT
                     parse_query_string_and_post_body
                   end.merge mustermann.params(request.path)
     end

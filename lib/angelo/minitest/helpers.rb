@@ -65,7 +65,7 @@ module Angelo
       end
       private :http_req
 
-      [:get, :post, :put, :delete, :options, :head].each do |m|
+      [:get, :patch, :post, :put, :delete, :options, :head].each do |m|
         define_method m do |path, params = {}, headers = {}, &block|
           hc_req m, path, params, headers, &block
         end
