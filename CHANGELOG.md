@@ -1,12 +1,13 @@
 changelog
 =========
 
-### 0.5.1
+### 0.5.1 nov 2017
 
-thanks: @Mask
+thanks: @Mask, @tommay, @tenyo
 
 * dumps backtraces to configured logger (#66)
-* remove Forwardable/def_delegators from main.rb, replace with define_singleton_method (#67)
+* use Forwardable/def_delegators on main's eigenclass instead of instance (#67, #68)
+* add support for PATCH routes (#79)
 
 ### 0.5.0 mar 2016
 
@@ -35,7 +36,7 @@ thanks: @tommay, @kyledrake, @katjaeinsfeld
 * refactor UnboundMethod -> instance_exec (#38)
 * add angelo/main for sinatra-like top-level DSL (#37)
 * make SymHash.new recurse array values
-* remove 'layouts_' from view_dir/layouts/*
+* remove 'layouts\_' from view_dir/layouts/\*
 * return anything that respond_to? :to_json when content_type :json
 * remove event restriction to SSE stash contexts
 * add reload_templates! DSL method
