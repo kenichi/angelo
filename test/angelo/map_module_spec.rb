@@ -44,28 +44,6 @@ class RecurMod < Angelo::Base
   map '/very', self
 end
 
-class MainMod < Angelo::Base
- get '/route1' do
-   simple_page('route1')
- end
- get '/route2/' do
-   simple_page('route2')
- end
-
- map '/sub1', SubMod1
- map '/sub2', SubMod2
- map '/sub4', SubMod4
- map '/sub1extra', SubMod1
- map '/recur', RecurMod
-
- get '/sub1/ungettable' do
-   simple_page("Can't get this")
- end
- get '/sub1route3' do
-   simple_page('sub1route3')
- end
-end
-
 
 def last_response_must_fail_with code
   last_response.status.must_equal code
@@ -75,7 +53,27 @@ end
 describe Angelo::Base do
   describe '#map' do
 
-    define_app MainMod
+    define_app do
+      get '/route1' do
+        simple_page('route1')
+      end
+      get '/route2/' do
+        simple_page('route2')
+      end
+
+      map '/sub1', SubMod1
+      map '/sub2', SubMod2
+      map '/sub4', SubMod4
+      map '/sub1extra', SubMod1
+      map '/recur', RecurMod
+
+      get '/sub1/ungettable' do
+        simple_page("Can't get this")
+      end
+      get '/sub1route3' do
+        simple_page('sub1route3')
+      end
+    end
 
     it 'still supports normal routes' do
       get '/route1'
@@ -105,7 +103,7 @@ describe Angelo::Base do
       # as they will be routed to the sub module, not handled by this module
       get '/sub1/ungettable' # this is overshadowed by map '/sub1'
       last_response_must_fail_with 404
-      # the 404 response will be by SubMod1, not by MainMod
+      # the 404 response will be by SubMod1, not by @server.base
     end
 
     it 'does route for paths which don\'t match the subroute, but match it in part' do
@@ -129,7 +127,7 @@ describe Angelo::Base do
 
     it 'supports mapping modules in folder style, forcing URL to end with slash' do
       # SubMod1 is mapped as /folder1/, which causes get /folder1 to cause 404, while get /folder1/ works
-      MainMod.map '/folder1/', SubMod1
+      @server.base.map '/folder1/', SubMod1
       get '/folder1' # this URL is not available, because the map started with a slash
       last_response_must_fail_with 404
 
@@ -139,7 +137,7 @@ describe Angelo::Base do
 
     it 'maps for String or Mustermann' do
       mm = Mustermann.new('/testing/*')
-      MainMod.map mm, SubMod1
+      @server.base.map mm, SubMod1
       get '/testing/route1'
       last_response_must_be_html simple_page('SubMod1 route1')
     end
@@ -158,22 +156,22 @@ describe Angelo::Base do
 
     it 'does not allow maps for nil' do
       assert_raises(ArgumentError) do
-        MainMod.map nil, SubMod1
+        @server.base.map nil, SubMod1
       end
     end
     it 'does not allow maps for empty string' do
       assert_raises(ArgumentError) do
-        MainMod.map '', SubMod1
+        @server.base.map '', SubMod1
       end
     end
     it 'does not allow maps for "/"' do
       assert_raises(ArgumentError) do
-        MainMod.map '/', SubMod1
+        @server.base.map '/', SubMod1
       end
     end
     it 'expects an Angelo::Base class (or subclass thereof) as second parameter' do
       assert_raises(ArgumentError) do
-        MainMod.map '/test', Object
+        @server.base.map '/test', Object
       end
     end
   end
