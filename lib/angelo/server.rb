@@ -67,10 +67,20 @@ module Angelo
 
     def route! meth, connection, request
       meth = post_override! meth, request
-      if rs = @base.routes[meth][request.path]
+      base = @base
+      relativePath = request.path
+
+      # looks for mount points which match the path
+      while base.mapped_modules && ( _, mod = base.mapped_modules.find {|mm,_| mm === relativePath} )
+        base = mod
+        relativePath = relativePath.sub(%r{^/[^/]+}, '')
+        relativePath = "/" if relativePath.empty?
+      end
+
+      if rs = base.routes[meth][relativePath]
         responder = rs.dup
         responder.reset!
-        responder.base = @base.new responder
+        responder.base = base.new responder
         responder.connection = connection
         responder.request = request
         responder.handle_request
@@ -79,6 +89,7 @@ module Angelo
         Angelo.log meth, connection, request, nil, :not_found
         connection.respond :not_found, DEFAULT_RESPONSE_HEADERS, NOT_FOUND
       end
+      result = base.routes[meth][relativePath]
     end
 
     def staticable? meth
