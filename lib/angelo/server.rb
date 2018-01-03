@@ -89,7 +89,6 @@ module Angelo
         Angelo.log meth, connection, request, nil, :not_found
         connection.respond :not_found, DEFAULT_RESPONSE_HEADERS, NOT_FOUND
       end
-      result = base.routes[meth][relativePath]
     end
 
     def staticable? meth
