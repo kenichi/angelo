@@ -75,6 +75,19 @@ module Angelo
         routes[:get][path] = Responder::Eventsource.new headers, &block
       end
 
+      # mount another Angelo::Base module on mount point
+      def map path, klass
+        raise ArgumentError, "Path must be an instance of String or Mustermann, instead [#{path.class}]#{path.inspect} was passed" unless String === path || path.class.ancestors.include?(Mustermann::Pattern)
+        raise ArgumentError, "Unacceptable path '#{path}' for #{self.name}. Path cannot be zero length or '/'" if path.nil? || (String === path && path.empty?) || path == "/"
+        raise ArgumentError, "Mapped classes must be of type Angelo::Base, instead #{klass.inspect} was passed" unless Class === klass && klass <= Angelo::Base
+        # path should always start with a slash. Prepending slash as a courtesy if it isn't there.
+        unless Mustermann === path
+          path = "/" + path unless path[0] == "/"
+          path = ::Mustermann.new( path + ( path[-1] == "/" ? "*" : "(/*)?" ) )
+        end
+        (@mapped_modules ||= {})[path] = klass
+      end
+
       def task name, &block
         Angelo::Server.define_task name, &block
       end
@@ -104,7 +117,7 @@ module Angelo
     class << self
       include DSL
 
-      attr_accessor :app_file, :server
+      attr_accessor :app_file, :server, :mapped_modules
 
       def inherited subclass
 

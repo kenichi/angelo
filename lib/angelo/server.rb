@@ -67,10 +67,20 @@ module Angelo
 
     def route! meth, connection, request
       meth = post_override! meth, request
-      if rs = @base.routes[meth][request.path]
+      base = @base
+      relativePath = request.path
+
+      # looks for mount points which match the path
+      while base.mapped_modules && mod = base.mapped_modules.find {|mm,_| mm === relativePath}
+        base = mod[1]
+        relativePath = relativePath.sub(%r{^/[^/]+}, '')
+        relativePath = "/" if relativePath.empty?
+      end
+
+      if rs = base.routes[meth][relativePath]
         responder = rs.dup
         responder.reset!
-        responder.base = @base.new responder
+        responder.base = base.new responder
         responder.connection = connection
         responder.request = request
         responder.handle_request
