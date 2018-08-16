@@ -114,7 +114,7 @@ module Angelo
 
     def etag_for local_path
       fs = File::Stat.new local_path
-      OpenSSL::Digest::SHA.hexdigest fs.ino.to_s + fs.size.to_s + fs.mtime.to_s
+      OpenSSL::Digest::SHA1.hexdigest fs.ino.to_s + fs.size.to_s + fs.mtime.to_s
     end
 
     def sse_event *a; Base.sse_event *a; end
