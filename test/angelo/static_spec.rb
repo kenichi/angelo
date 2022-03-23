@@ -7,7 +7,7 @@ describe Angelo::Server do
 
     def css_etag
       fs = File::Stat.new File.join(TEST_APP_ROOT, 'public', 'test.css')
-      OpenSSL::Digest::SHA.hexdigest fs.ino.to_s + fs.size.to_s + fs.mtime.to_s
+      OpenSSL::Digest::SHA1.hexdigest fs.ino.to_s + fs.size.to_s + fs.mtime.to_s
     end
 
     define_app do
